@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGO_URI)
 // ==========================================
 
 // 1. USER SIGNUP
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, orgName, role } = req.body;
 
