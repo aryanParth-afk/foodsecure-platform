@@ -6,10 +6,13 @@ const MyClaims = () => {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Using the environment variable for production URL, falling back to localhost for local testing
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
   useEffect(() => {
     const fetchClaims = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/listings/claimed');
+        const response = await axios.get(`${apiUrl}/api/listings/claimed`);
         setClaims(response.data);
         setLoading(false);
       } catch (error) {
@@ -18,13 +21,13 @@ const MyClaims = () => {
       }
     };
     fetchClaims();
-  }, []);
+  }, [apiUrl]);
 
   // Function to handle canceling a claim
   const handleCancelClaim = async (id) => {
     try {
       // 1. Tell backend to change status back to 'Active'
-      await axios.patch(`http://localhost:5001/api/listings/${id}/cancel`);
+      await axios.patch(`${apiUrl}/api/listings/${id}/cancel`);
       
       // 2. Instantly remove it from the My Claims screen
       setClaims(claims.filter(item => item._id !== id));
@@ -58,10 +61,10 @@ const MyClaims = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {claims.map((item) => (
           <div key={item._id} className="bg-green-50 rounded-2xl shadow-sm border border-green-200 overflow-hidden flex flex-col">
-            <div className="p-6 flex-grow">
+            <div className="p-6 grow">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-bold text-gray-900 leading-tight">{item.foodName}</h3>
-                <CheckCircle className="text-green-600 w-6 h-6 flex-shrink-0 ml-2" />
+                <CheckCircle className="text-green-600 w-6 h-6 shrink-0 ml-2" />
               </div>
               
               <div className="bg-white rounded-lg p-3 mb-4 border border-green-100 shadow-sm">
@@ -69,7 +72,7 @@ const MyClaims = () => {
               </div>
               
               <div className="flex items-center text-gray-600 text-sm mb-4">
-                <MapPin className="w-4 h-4 mr-2 text-green-600 flex-shrink-0" />
+                <MapPin className="w-4 h-4 mr-2 text-green-600 shrink-0" />
                 <span className="font-medium">Pickup at: {item.pickupLocation}</span>
               </div>
             </div>

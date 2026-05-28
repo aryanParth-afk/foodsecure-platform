@@ -173,13 +173,13 @@ app.get('/api/listings/available', async (req, res) => {
 });
 
 // 2. Get listings CLAIMED by the logged-in NGO
-app.get('/api/my-claims', async (req, res) => {
+app.get('/api/my-claims/:userId', async (req, res) => {
   try {
-    const defaultUser = await User.findOne(); 
-
-    const myClaims = await FoodListing.find({ claimedBy: defaultUser._id })
+    // Find claims where the 'claimedBy' matches the ID sent from the frontend
+    const myClaims = await FoodListing.find({ claimedBy: req.params.userId })
       .populate('donorId', 'orgName location')
       .sort({ updatedAt: -1 });
+      
     res.json(myClaims);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
