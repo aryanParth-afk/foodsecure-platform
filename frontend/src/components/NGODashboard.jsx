@@ -3,34 +3,44 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Building2, MapPin, Clock, CheckCircle, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
-import MyClaims from './MyClaims'; // Make sure this import is here!
+import MyClaims from './MyClaims';
 
 const NGODashboard = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('feed'); // State for switching tabs
+  const [activeTab, setActiveTab] = useState('feed'); 
   
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
   useEffect(() => {
     const fetchDonations = async () => {
-      // Simulating an API call for the frontend UI upgrade
-      // Replace this with your actual backend endpoint later: axios.get(`${import.meta.env.VITE_API_URL}/api/listings/available`)
-      setTimeout(() => {
-        setDonations([
-          { _id: '1', foodType: 'Fresh Bread & Pastries', quantity: '20 lbs', location: 'Downtown Bakery', time: '2 hours ago', status: 'Available' },
-          { _id: '2', foodType: 'Assorted Vegetables', quantity: '50 lbs', location: 'Green Valley Grocery', time: '4 hours ago', status: 'Available' },
-          { _id: '3', foodType: 'Catered Hot Meals', quantity: '30 servings', location: 'Corporate Events Co.', time: '1 hour ago', status: 'Available' },
-        ]);
+      try {
+        // NO MORE FAKE DATA: Fetching real available food from MongoDB
+        const response = await axios.get(`${apiUrl}/api/listings/available`);
+        setDonations(response.data);
         setLoading(false);
-      }, 800);
+      } catch (error) {
+        console.error("Error fetching live feed:", error);
+        toast.error("Could not connect to live feed.");
+        setLoading(false);
+      }
     };
     fetchDonations();
-  }, []);
+  }, [apiUrl]);
 
-  const handleClaim = (id) => {
-    toast.success("Donation successfully claimed!");
-    setDonations(donations.filter(d => d._id !== id));
+  const handleClaim = async (id) => {
+    try {
+      // Send a real request to your Render backend to claim the item
+      await axios.patch(`${apiUrl}/api/listings/${id}/claim`);
+      
+      toast.success("Donation successfully claimed!");
+      // Instantly remove it from the Live Feed UI
+      setDonations(donations.filter(d => d._id !== id));
+    } catch (error) {
+      console.error("Error claiming donation:", error);
+      toast.error("Failed to claim donation.");
+    }
   };
 
   // Animation variants
@@ -92,15 +102,16 @@ const NGODashboard = () => {
                       {donation.quantity}
                     </span>
                     <span className="text-xs font-bold text-gray-400 flex items-center">
-                      <Clock className="w-3 h-3 mr-1" /> {donation.time}
+                      <Clock className="w-3 h-3 mr-1" /> Just now
                     </span>
                   </div>
                   
-                  <h3 className="text-xl font-black text-gray-900 mb-2">{donation.foodType}</h3>
+                  {/* Using MongoDB Schema variable names (foodName and pickupLocation) */}
+                  <h3 className="text-xl font-black text-gray-900 mb-2">{donation.foodName}</h3>
                   
                   <div className="flex items-center text-gray-500 text-sm font-medium mb-6">
                     <MapPin className="w-4 h-4 mr-1.5 text-orange-400" />
-                    {donation.location}
+                    {donation.pickupLocation}
                   </div>
 
                   <button onClick={() => handleClaim(donation._id)} className="w-full bg-orange-50 hover:bg-orange-600 text-orange-600 hover:text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center space-x-2">
@@ -113,7 +124,6 @@ const NGODashboard = () => {
           </motion.div>
         )
       ) : (
-        /* Render the MyClaims component if the tab is switched */
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <MyClaims />
         </motion.div>
