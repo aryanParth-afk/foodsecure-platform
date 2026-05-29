@@ -7,19 +7,26 @@ const foodListingSchema = new mongoose.Schema({
   // What is it?
   foodName: { type: String, required: true },
   quantity: { type: String, required: true },
-  category: { type: String, enum: ['Veg', 'Non-Veg'], required: true },
-  imageUrl: { type: String }, // NEW: Ready for image uploads!
+  
+  // FIX 1: Removed the strict 'enum' VIP list so it accepts the fallback from server.js
+  category: { type: String, default: 'General Food' },
+  imageUrl: { type: String, default: '' }, 
   
   // Logistics
   pickupLocation: { type: String, required: true },
-  availableSlots: [{ type: String }], // NEW: Array of time slots e.g., ["08:00 - 09:00", "09:00 - 10:00"]
+  availableSlots: [{ type: String }], 
   
   // Lifecycle Management
-  status: { type: String, enum: ['Available', 'Reserved', 'Completed', 'Expired'], default: 'Available' },
+  // FIX 2: Added 'Claimed' to this list so your NGO Claim button actually works!
+  status: { 
+    type: String, 
+    enum: ['Available', 'Claimed', 'Reserved', 'Completed', 'Expired'], 
+    default: 'Available' 
+  },
   
-  // Claiming Details (These stay empty until an NGO clicks "Reserve" and "Lock Food")
+  // Claiming Details
   claimedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  selectedPickupSlot: { type: String, default: null } // The specific slot the NGO chose
+  selectedPickupSlot: { type: String, default: null } 
   
 }, { timestamps: true });
 
