@@ -108,23 +108,24 @@ app.patch('/api/listings/:id/claim', async (req, res) => {
 // Route to CREATE a new food listing
 app.post('/api/listings', async (req, res) => {
   try {
-    // Now uses the real logged-in donor ID sent from the frontend!
     const newListing = new FoodListing({
       donorId: req.body.donorId,
       foodName: req.body.foodName,
       quantity: req.body.quantity,
-      category: req.body.category,
       pickupLocation: req.body.pickupLocation,
-      availableSlots: req.body.availableSlots, 
-      imageUrl: req.body.imageUrl, 
+      // Adding safe default fallbacks so MongoDB doesn't crash if these are missing!
+      category: req.body.category || 'General Food', 
+      availableSlots: req.body.availableSlots || 'Contact for pickup time', 
+      imageUrl: req.body.imageUrl || '', 
       status: 'Available'
     });
 
     const savedListing = await newListing.save();
     res.status(201).json(savedListing);
   } catch (error) {
-    console.error("Error creating listing:", error);
-    res.status(500).json({ message: "Server error while creating listing" });
+    // Sending the actual error message to the console so we can see EXACTLY what went wrong
+    console.error("Database Save Error:", error.message);
+    res.status(500).json({ message: "Server error while creating listing", error: error.message });
   }
 });
 
