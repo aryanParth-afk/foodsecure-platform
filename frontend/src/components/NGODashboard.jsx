@@ -13,10 +13,10 @@ const NGODashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchDonations = async () => {
       try {
-        // NO MORE FAKE DATA: Fetching real available food from MongoDB
+        setLoading(true); // Show the spinner while fetching fresh data
         const response = await axios.get(`${apiUrl}/api/listings/available`);
         setDonations(response.data);
         setLoading(false);
@@ -26,8 +26,14 @@ const NGODashboard = () => {
         setLoading(false);
       }
     };
-    fetchDonations();
-  }, [apiUrl]);
+
+    // The Magic Fix: Only fetch if we are looking at the feed tab
+    if (activeTab === 'feed') {
+      fetchDonations();
+    }
+    
+  // By adding 'activeTab' here, React knows to re-run this fetch EVERY time you click the Live Feed button!
+  }, [apiUrl, activeTab]);
 
   const handleClaim = async (id) => {
     try {
