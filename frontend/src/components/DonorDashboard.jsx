@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios'; // ADDED: To talk to the backend
 import toast from 'react-hot-toast';
 import { HeartHandshake, PackageOpen, MapPin, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -6,12 +7,33 @@ import { motion } from 'framer-motion';
 const DonorDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const [formData, setFormData] = useState({ foodType: '', quantity: '', address: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false); // ADDED: To show loading state
 
-  const handleSubmit = (e) => {
+  // ADDED: Your live backend URL
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Replace with your actual backend posting logic
-    toast.success("Donation successfully posted to the network!");
-    setFormData({ foodType: '', quantity: '', address: '' }); // Clear form
+    setIsSubmitting(true);
+
+    try {
+      // 1. Send the real data to your Render backend and MongoDB
+      await axios.post(`${apiUrl}/api/listings`, {
+        donorId: currentUser.id,           // Pulls the logged-in user's ID
+        foodName: formData.foodType,       // Matches your backend schema
+        quantity: formData.quantity,       // Matches your backend schema
+        pickupLocation: formData.address   // Matches your backend schema
+      });
+
+      // 2. Show success and clear the form
+      toast.success("Donation successfully posted to the network!");
+      setFormData({ foodType: '', quantity: '', address: '' });
+    } catch (error) {
+      console.error("Error posting donation:", error);
+      toast.error("Failed to post donation. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -24,7 +46,7 @@ const DonorDashboard = () => {
         </div>
         <div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Donor Portal</h1>
-          <p className="text-gray-500 font-medium mt-1">Thank you, {currentUser.orgName}. Post surplus food to the network.</p>
+          <p className="text-gray-500 font-medium mt-1">Thank you, {currentUser.orgName || 'Partner'}. Post surplus food to the network.</p>
         </div>
       </motion.div>
 
@@ -75,11 +97,11 @@ const DonorDashboard = () => {
           </div>
 
           <motion.button 
-            whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" 
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-lg py-4 rounded-xl transition-all shadow-md shadow-emerald-200 flex items-center justify-center space-x-2 mt-4"
+            whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" disabled={isSubmitting}
+            className={`w-full text-white font-black text-lg py-4 rounded-xl transition-all shadow-md flex items-center justify-center space-x-2 mt-4 ${isSubmitting ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'}`}
           >
-            <span>Post Donation to Network</span>
-            <Send className="w-5 h-5" />
+            <span>{isSubmitting ? 'Posting...' : 'Post Donation to Network'}</span>
+            {!isSubmitting && <Send className="w-5 h-5" />}
           </motion.button>
         </form>
       </motion.div>

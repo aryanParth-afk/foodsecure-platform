@@ -83,7 +83,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.get('/api/listings', async (req, res) => {
   try {
-    const listings = await FoodListing.find({ status: 'Active' });
+    const listings = await FoodListing.find({ status: 'Available' });
     res.json(listings);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -108,11 +108,9 @@ app.patch('/api/listings/:id/claim', async (req, res) => {
 // Route to CREATE a new food listing
 app.post('/api/listings', async (req, res) => {
   try {
-    // For now, we still use the default user so the frontend doesn't break until we wire it up
-    const defaultUser = await User.findOne(); 
-
+    // Now uses the real logged-in donor ID sent from the frontend!
     const newListing = new FoodListing({
-      donorId: defaultUser._id,
+      donorId: req.body.donorId,
       foodName: req.body.foodName,
       quantity: req.body.quantity,
       category: req.body.category,
@@ -131,13 +129,10 @@ app.post('/api/listings', async (req, res) => {
 });
 
 // Route to GET all listings specifically for the logged-in Donor
-app.get('/api/my-donations', async (req, res) => {
+app.get('/api/my-donations/:userId', async (req, res) => {
   try {
-    const defaultUser = await User.findOne(); 
-
-    if (!defaultUser) return res.json([]);
-
-    const myDonations = await FoodListing.find({ donorId: defaultUser._id }).sort({ createdAt: -1 });
+    // Finds only the donations matching this specific user
+    const myDonations = await FoodListing.find({ donorId: req.params.userId }).sort({ createdAt: -1 });
     res.json(myDonations);
   } catch (error) {
     console.error("Error fetching donor history:", error);
@@ -285,7 +280,7 @@ app.patch('/api/listings/:id/cancel', async (req, res) => {
   try {
     const canceledListing = await FoodListing.findByIdAndUpdate(
       req.params.id,
-      { status: 'Active' },
+      { status: 'Available' }, // Fixed bug: Used to be 'Active', now matches 'Available'
       { new: true }
     );
     res.json(canceledListing);
@@ -299,7 +294,7 @@ app.patch('/api/listings/:id/cancel', async (req, res) => {
 // --- STATS ROUTE ---
 // ==========================================
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001; // Made port dynamic for Render!
 
 app.get('/api/stats', async (req, res) => {
   try {
