@@ -35,13 +35,14 @@ const NGODashboard = () => {
   // By adding 'activeTab' here, React knows to re-run this fetch EVERY time you click the Live Feed button!
   }, [apiUrl, activeTab]);
 
-  const handleClaim = async (id) => {
+ const handleClaim = async (id) => {
     try {
-      // Send a real request to your Render backend to claim the item
-      await axios.patch(`${apiUrl}/api/listings/${id}/claim`);
+      // NEW: We are now sending the logged-in NGO's ID in the request body!
+      await axios.patch(`${apiUrl}/api/listings/${id}/claim`, {
+        ngoId: currentUser.id 
+      });
       
       toast.success("Donation successfully claimed!");
-      // Instantly remove it from the Live Feed UI
       setDonations(donations.filter(d => d._id !== id));
     } catch (error) {
       console.error("Error claiming donation:", error);

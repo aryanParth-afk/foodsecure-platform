@@ -95,7 +95,10 @@ app.patch('/api/listings/:id/claim', async (req, res) => {
   try {
     const updatedListing = await FoodListing.findByIdAndUpdate(
       req.params.id,
-      { status: 'Claimed' },
+      { 
+        status: 'Claimed',
+        claimedBy: req.body.ngoId // NEW: Tell the database WHO claimed it!
+      },
       { new: true }
     );
     res.json(updatedListing);
