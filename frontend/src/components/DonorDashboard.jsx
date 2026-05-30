@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { HeartHandshake, PackageOpen, MapPin, Send, Camera, X } from 'lucide-react';
-import { motion } from 'framer-motion';
-// NEW: Import our shiny new Map Component!
+import { HeartHandshake, PackageOpen, MapPin, Send, Camera, X, Map } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import LocationPicker from './LocationPicker'; 
 
 const DonorDashboard = () => {
@@ -12,38 +11,38 @@ const DonorDashboard = () => {
   
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false); 
+  
+  // NEW: State to control the map popup window
+  const [isMapOpen, setIsMapOpen] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
-  // --- CLOUDINARY UPLOAD FUNCTION ---
   const uploadToCloudinary = async (file) => {
     const data = new FormData();
     data.append("file", file);
     data.append("upload_preset", "foodrescue_preset"); 
     const cloudName = "dkzec2m8s"; 
-
     try {
       const res = await axios.post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, data);
       return res.data.secure_url; 
     } catch (error) {
-      console.error("Cloudinary upload error:", error);
       throw new Error("Failed to upload image");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.address) {
+      return toast.error("Please provide a pickup location!");
+    }
     setIsSubmitting(true);
-
     try {
       let imageUrl = '';
-      
       if (imageFile) {
         toast.loading("Uploading image...", { id: "uploadToast" });
         imageUrl = await uploadToCloudinary(imageFile);
         toast.dismiss("uploadToast");
       }
-
       await axios.post(`${apiUrl}/api/listings`, {
         donorId: currentUser.id,           
         foodName: formData.foodType,       
@@ -51,12 +50,10 @@ const DonorDashboard = () => {
         pickupLocation: formData.address,
         imageUrl: imageUrl 
       });
-
       toast.success("Donation successfully posted to the network!");
       setFormData({ foodType: '', quantity: '', address: '' });
-      setImageFile(null); // Clears the image preview after success!
+      setImageFile(null); 
     } catch (error) {
-      console.error("Error posting donation:", error);
       toast.error("Failed to post donation. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -64,8 +61,30 @@ const DonorDashboard = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* Header */}
+    <div className="max-w-4xl mx-auto px-4 py-8 relative">
+      
+      {/* THE MAP MODAL (Hidden until they click the button) */}
+      <AnimatePresence>
+        {isMapOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-lg"
+            >
+              <LocationPicker 
+                onCancel={() => setIsMapOpen(false)}
+                onConfirm={(selectedAddress) => {
+                  setFormData({...formData, address: selectedAddress});
+                  setIsMapOpen(false); // Auto-close when confirmed!
+                }}
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center space-x-4 mb-10">
         <div className="bg-emerald-100 p-3 rounded-2xl shadow-sm">
           <HeartHandshake className="w-8 h-8 text-emerald-600" />
@@ -76,10 +95,8 @@ const DonorDashboard = () => {
         </div>
       </motion.div>
 
-      {/* Animated Form Container */}
       <motion.div 
-        initial={{ opacity: 0, y: 40, scale: 0.95 }} 
-        animate={{ opacity: 1, y: 0, scale: 1 }} 
+        initial={{ opacity: 0, y: 40, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} 
         transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
         className="bg-white border-2 border-gray-100 rounded-4xl p-8 sm:p-10 shadow-2xl shadow-emerald-900/5 relative overflow-hidden"
       >
@@ -93,83 +110,68 @@ const DonorDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1.5">What are you donating?</label>
-              <input 
-                type="text" required value={formData.foodType} onChange={(e) => setFormData({...formData, foodType: e.target.value})}
-                className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 focus:ring-0 outline-none transition-all font-medium" 
-                placeholder="e.g. 5 Trays of Sandwiches"
-              />
+              <input type="text" required value={formData.foodType} onChange={(e) => setFormData({...formData, foodType: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium" placeholder="e.g. 5 Trays of Sandwiches" />
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1.5">Estimated Quantity/Weight</label>
-              <input 
-                type="text" required value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 focus:ring-0 outline-none transition-all font-medium" 
-                placeholder="e.g. 20 lbs or 50 servings"
-              />
+              <input type="text" required value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium" placeholder="e.g. 20 lbs or 50 servings" />
             </div>
           </div>
 
-          {/* UPGRADED LOCATION FIELD WITH MAP */}
+          {/* UPGRADED LOCATION SELECTION UI */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1.5">Precise Pickup Location</label>
+            <label className="block text-sm font-bold text-gray-700 mb-1.5">Pickup Location</label>
             
-            {/* 1. The Interactive Map Component */}
-            <LocationPicker 
-              onLocationSelect={(selectedAddress) => setFormData({...formData, address: selectedAddress})} 
-            />
-            
-            {/* 2. The Text Input (Now acts as a display or manual override) */}
-            <div className="relative group mt-3">
-              <MapPin className="w-5 h-5 text-gray-400 absolute left-3.5 top-3.5 group-focus-within:text-emerald-500 transition-colors" />
-              <input 
-                type="text" 
-                required 
-                value={formData.address} 
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
-                className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 pl-11 pr-4 focus:bg-white focus:border-emerald-500 focus:ring-0 outline-none transition-all font-medium text-sm" 
-                placeholder="Tap the map above to auto-fill or type manually..."
-              />
-            </div>
+            {!formData.address ? (
+              // Show the "Choose from Map" button if no address is selected yet
+              <button 
+                type="button" 
+                onClick={() => setIsMapOpen(true)}
+                className="w-full flex items-center justify-center space-x-2 bg-blue-50 text-blue-600 border-2 border-dashed border-blue-200 hover:bg-blue-100 hover:border-blue-300 py-4 rounded-xl font-bold transition-all"
+              >
+                <Map className="w-5 h-5" />
+                <span>Choose pickup point from Map</span>
+              </button>
+            ) : (
+              // Show the selected address card with Re-select and Remove buttons
+              <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-start justify-between">
+                <div className="flex items-start space-x-3 pr-4">
+                  <div className="mt-0.5"><MapPin className="w-5 h-5 text-emerald-600" /></div>
+                  <div>
+                    <p className="text-xs font-black text-emerald-600 uppercase tracking-wider mb-1">Confirmed Location</p>
+                    <p className="text-sm font-bold text-gray-800 line-clamp-2">{formData.address}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col space-y-2 shrink-0">
+                  <button type="button" onClick={() => setIsMapOpen(true)} className="text-xs font-bold text-blue-600 hover:text-blue-700 bg-white px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm transition-colors">
+                    Re-select
+                  </button>
+                  <button type="button" onClick={() => setFormData({...formData, address: ''})} className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-white px-3 py-1.5 rounded-lg border border-rose-100 shadow-sm transition-colors">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* UPGRADED IMAGE UPLOAD FIELD */}
+          {/* IMAGE UPLOAD FIELD */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1.5">Photo of Food (Optional)</label>
-            
             {!imageFile ? (
               <label className="flex items-center justify-center bg-gray-50 text-gray-600 px-4 py-8 rounded-xl border-2 border-dashed border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 cursor-pointer transition-all font-bold text-sm w-full">
-                <Camera className="w-6 h-6 mr-3" />
-                Click to browse and upload a photo
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={(e) => setImageFile(e.target.files[0])} 
-                  className="hidden" 
-                />
+                <Camera className="w-6 h-6 mr-3" /> Click to browse and upload a photo
+                <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} className="hidden" />
               </label>
             ) : (
               <div className="flex items-center p-3 bg-gray-50 border border-gray-200 rounded-xl">
                 <div className="h-16 w-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
-                  <img 
-                    src={URL.createObjectURL(imageFile)} 
-                    alt="Preview" 
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-full w-full object-cover" />
                 </div>
-                
                 <div className="ml-4 flex-1 overflow-hidden">
                   <p className="text-sm font-bold text-gray-800 truncate">{imageFile.name}</p>
                   <p className="text-xs text-gray-500 mt-0.5">Ready to upload</p>
                 </div>
-                
-                <button 
-                  type="button" 
-                  onClick={() => setImageFile(null)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-2 flex items-center justify-center shrink-0"
-                  title="Remove photo"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <button type="button" onClick={() => setImageFile(null)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-2 shrink-0"><X className="w-5 h-5" /></button>
               </div>
             )}
           </div>
