@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Mail, Lock, Shield, Building2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ orgName: '', email: '', password: '', role: 'NGO' });
+  
+  // NEW: Added adminSecretCode to the starting form data
+  const [formData, setFormData] = useState({ 
+    orgName: '', 
+    email: '', 
+    password: '', 
+    role: 'NGO',
+    adminSecretCode: '' 
+  });
+  
   const [authError, setAuthError] = useState(false);
   const navigate = useNavigate();
 
@@ -15,7 +24,6 @@ const Auth = () => {
     e.preventDefault();
     setAuthError(false);
 
-    // NEW: Using the dynamic environment variable instead of localhost
     const url = isLogin 
       ? `${import.meta.env.VITE_API_URL}/api/auth/login` 
       : `${import.meta.env.VITE_API_URL}/api/auth/register`;
@@ -34,6 +42,7 @@ const Auth = () => {
 
     } catch (error) {
       setAuthError(true);
+      // This will now catch and display our custom "Invalid Super Admin Code" error from the backend!
       toast.error(error.response?.data?.message || "Invalid credentials.");
     }
   };
@@ -47,6 +56,8 @@ const Auth = () => {
   const inputBaseClass = "w-full pl-11 pr-4 py-3.5 rounded-xl border-2 outline-none transition-all font-medium ";
   const defaultInputClass = inputBaseClass + "bg-slate-50 border-slate-100 text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
   const errorInputClass = inputBaseClass + "bg-rose-50 border-rose-300 text-rose-900 focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/20";
+  // NEW: Special styling just for the admin secret code box
+  const adminInputClass = inputBaseClass + "bg-red-50 border-red-200 text-red-900 placeholder:text-red-300 focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/10";
 
   // Framer Motion Variants for staggered animations
   const containerVariants = {
@@ -111,7 +122,6 @@ const Auth = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Framer Motion AnimatePresence handles the smooth height adjustments */}
           <AnimatePresence mode="popLayout">
             <motion.div 
               key={isLogin ? 'login' : 'register'}
@@ -122,7 +132,6 @@ const Auth = () => {
               className="space-y-5"
             >
               
-              {/* Extra fields only show on Register */}
               {!isLogin && (
                 <motion.div variants={itemVariants} className="space-y-5">
                   <div>
@@ -135,11 +144,44 @@ const Auth = () => {
 
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-2">Account Type</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button type="button" onClick={() => setFormData({...formData, role: 'NGO'})} className={`py-3 rounded-xl font-bold border-2 transition-all ${formData.role === 'NGO' ? 'bg-orange-50 border-orange-500 text-orange-700 shadow-sm shadow-orange-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>NGO Portal</button>
-                      <button type="button" onClick={() => setFormData({...formData, role: 'Donor'})} className={`py-3 rounded-xl font-bold border-2 transition-all ${formData.role === 'Donor' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm shadow-emerald-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Donor Portal</button>
+                    {/* CHANGED to grid-cols-3 to fit the new Admin button! */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <button type="button" onClick={() => setFormData({...formData, role: 'NGO'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'NGO' ? 'bg-orange-50 border-orange-500 text-orange-700 shadow-sm shadow-orange-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>NGO</button>
+                      <button type="button" onClick={() => setFormData({...formData, role: 'Donor'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Donor' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm shadow-emerald-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Donor</button>
+                      <button type="button" onClick={() => setFormData({...formData, role: 'Admin'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Admin' ? 'bg-red-50 border-red-500 text-red-700 shadow-sm shadow-red-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Admin</button>
                     </div>
                   </div>
+                  
+                  {/* NEW: Secret Admin Code Box that ONLY shows up if they select Admin */}
+                  <AnimatePresence>
+                    {formData.role === 'Admin' && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pt-2">
+                          <label className="text-xs font-black text-red-600 mb-1.5 uppercase tracking-wide flex items-center">
+                            <KeyRound className="w-3 h-3 mr-1" />
+                            Authorized Code Required
+                          </label>
+                          <div className="relative group">
+                            <Lock className="w-5 h-5 text-red-400 absolute left-3.5 top-3.5" />
+                            <input 
+                              type="password" 
+                              name="adminSecretCode" 
+                              required 
+                              value={formData.adminSecretCode} 
+                              onChange={handleChange} 
+                              className={adminInputClass} 
+                              placeholder="Enter Master Passcode" 
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
 
