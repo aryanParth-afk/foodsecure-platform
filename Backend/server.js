@@ -226,8 +226,12 @@ app.patch('/api/admin/users/:id/promote', async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // FIX: Save their current role into the memory bank BEFORE upgrading them!
-    user.originalRole = user.role; 
+    // FIX: Only save to the memory bank if they are an NGO or Donor!
+    // This prevents legacy "Revoked" users from crashing the database.
+    if (user.role === 'NGO' || user.role === 'Donor') {
+      user.originalRole = user.role; 
+    }
+    
     user.role = 'Admin';
     await user.save();
 
@@ -244,9 +248,10 @@ app.patch('/api/admin/users/:id/demote', async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // FIX: Restore them to their original role. 
-    // (If they registered directly as an Admin and don't have an original role, lock them out)
-    user.role = user.originalRole || 'Revoked';
+    // Restore them to their original role. 
+    // FIX: If they are a legacy user without a memory bank, default them to 'Donor' 
+    // so they aren't permanently locked out if you demote them again.
+    user.role = user.originalRole || 'Donor';
     await user.save();
 
     res.json(user);
