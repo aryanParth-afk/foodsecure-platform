@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Shield, CheckCircle, XCircle, UserPlus, UserMinus, Building2, HeartHandshake, ShieldAlert, Crown, Search } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, UserPlus, UserMinus, Building2, HeartHandshake, ShieldAlert, Crown, Search, Ban } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
@@ -15,7 +15,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // NEW: Dynamic environment variable
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`);
         setUsers(response.data);
         setLoading(false);
@@ -29,7 +28,6 @@ const AdminDashboard = () => {
 
   const handleToggleVerify = async (userId) => { 
     try {
-      // NEW: Dynamic environment variable
       const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/verify`);
       toast.success(response.data.isVerified ? "Trust badge granted!" : "Trust badge revoked.");
       setUsers(users.map(u => u._id === userId ? { ...u, isVerified: response.data.isVerified } : u));
@@ -40,7 +38,6 @@ const AdminDashboard = () => {
     if (!isSuperAdmin) return; 
     if (!window.confirm(`Promote "${orgName}" to an Admin?`)) return;
     try {
-      // NEW: Dynamic environment variable
       await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/promote`);
       toast.success(`${orgName} is now an Admin!`);
       setUsers(users.map(u => u._id === userId ? { ...u, role: 'Admin' } : u));
@@ -53,10 +50,10 @@ const AdminDashboard = () => {
     if (!isSuperAdmin) return; 
     if (!window.confirm(`Revoke Admin rights from "${orgName}"?`)) return;
     try {
-      // NEW: Dynamic environment variable
       await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/demote`);
       toast.success(`${orgName} has been demoted.`);
-      setUsers(users.map(u => u._id === userId ? { ...u, role: 'Donor' } : u));
+      // FIX: Tell React UI to instantly change the badge to 'Revoked' instead of 'Donor'
+      setUsers(users.map(u => u._id === userId ? { ...u, role: 'Revoked' } : u));
     } catch (error) {
       toast.error("Failed to revoke admin rights.");
     }
@@ -114,23 +111,24 @@ const AdminDashboard = () => {
             </thead>
             <tbody className="divide-y divide-gray-50 text-gray-700 font-medium">
               {filteredUsers.map((user) => (
-                <motion.tr variants={rowVariants} key={user._id} className={`group transition-all duration-300 hover:shadow-md relative ${user.role === 'SuperAdmin' ? 'bg-amber-50/20' : user.role === 'Admin' ? 'bg-blue-50/20' : 'hover:bg-white'}`}>
+                <motion.tr variants={rowVariants} key={user._id} className={`group transition-all duration-300 hover:shadow-md relative ${user.role === 'SuperAdmin' ? 'bg-amber-50/20' : user.role === 'Admin' ? 'bg-blue-50/20' : user.role === 'Revoked' ? 'bg-rose-50/10 opacity-75' : 'hover:bg-white'}`}>
                   
                   <td className="absolute left-0 top-0 h-full w-1 bg-linear-to-b from-orange-400 to-orange-600 scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></td>
 
                   <td className="py-6 px-6 flex items-center space-x-4">
-                    <div className={`p-2.5 rounded-xl ${user.role === 'SuperAdmin' ? 'bg-amber-100' : user.role === 'Admin' ? 'bg-blue-100' : user.role === 'Donor' ? 'bg-emerald-100' : 'bg-orange-100'}`}>
-                      {user.role === 'SuperAdmin' ? <Crown className="w-5 h-5 text-amber-600" /> : user.role === 'Admin' ? <ShieldAlert className="w-5 h-5 text-blue-600" /> : user.role === 'Donor' ? <HeartHandshake className="w-5 h-5 text-emerald-600" /> : <Building2 className="w-5 h-5 text-orange-600" />}
+                    <div className={`p-2.5 rounded-xl ${user.role === 'SuperAdmin' ? 'bg-amber-100' : user.role === 'Admin' ? 'bg-blue-100' : user.role === 'Donor' ? 'bg-emerald-100' : user.role === 'Revoked' ? 'bg-rose-100' : 'bg-orange-100'}`}>
+                      {/* ADDED: special icon for Revoked users */}
+                      {user.role === 'SuperAdmin' ? <Crown className="w-5 h-5 text-amber-600" /> : user.role === 'Admin' ? <ShieldAlert className="w-5 h-5 text-blue-600" /> : user.role === 'Donor' ? <HeartHandshake className="w-5 h-5 text-emerald-600" /> : user.role === 'Revoked' ? <Ban className="w-5 h-5 text-rose-600" /> : <Building2 className="w-5 h-5 text-orange-600" />}
                     </div>
                     <div>
-                      <span className="font-bold text-gray-900 text-lg block">{user.orgName || 'Unnamed Entity'}</span>
+                      <span className={`font-bold text-lg block ${user.role === 'Revoked' ? 'text-gray-500 line-through decoration-rose-300' : 'text-gray-900'}`}>{user.orgName || 'Unnamed Entity'}</span>
                       <span className="text-sm text-gray-400 font-medium block mt-0.5">{user.email}</span>
                     </div>
                   </td>
 
                   <td className="py-6 px-6">
                     <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${
-                      user.role === 'SuperAdmin' ? 'bg-amber-100 text-amber-700' : user.role === 'Admin' ? 'bg-blue-100 text-blue-700' : user.role === 'Donor' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700'
+                      user.role === 'SuperAdmin' ? 'bg-amber-100 text-amber-700' : user.role === 'Admin' ? 'bg-blue-100 text-blue-700' : user.role === 'Donor' ? 'bg-emerald-50 text-emerald-700' : user.role === 'Revoked' ? 'bg-rose-100 text-rose-700' : 'bg-orange-50 text-orange-700'
                     }`}>
                       {user.role}
                     </span>
@@ -139,6 +137,8 @@ const AdminDashboard = () => {
                   <td className="py-6 px-6">
                     {user.role === 'SuperAdmin' || user.role === 'Admin' ? (
                        <span className="text-slate-500 font-bold text-sm">System Override</span>
+                    ) : user.role === 'Revoked' ? (
+                       <span className="text-rose-500 font-bold text-sm flex items-center"><Ban className="w-4 h-4 mr-1.5"/> Locked Out</span>
                     ) : user.isVerified ? (
                       <span className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-xl text-sm font-bold shadow-sm border border-blue-100">
                         <CheckCircle className="w-4 h-4 mr-1.5" /> Verified
@@ -165,13 +165,16 @@ const AdminDashboard = () => {
                       )
                     ) : (
                       <div className="flex items-center justify-center space-x-3">
-                        <button onClick={() => handleToggleVerify(user._id)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm ${user.isVerified ? 'bg-white border-2 border-gray-100 hover:border-rose-200 text-rose-600 hover:bg-rose-50' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 shadow-lg hover:-translate-y-0.5'}`}>
-                          {user.isVerified ? 'Revoke Badge' : 'Grant Badge'}
-                        </button>
+                        {/* Only show verify button if not revoked */}
+                        {user.role !== 'Revoked' && (
+                          <button onClick={() => handleToggleVerify(user._id)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm ${user.isVerified ? 'bg-white border-2 border-gray-100 hover:border-rose-200 text-rose-600 hover:bg-rose-50' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 shadow-lg hover:-translate-y-0.5'}`}>
+                            {user.isVerified ? 'Revoke Badge' : 'Grant Badge'}
+                          </button>
+                        )}
                         
                         {isSuperAdmin && (
                           <button onClick={() => handlePromoteAdmin(user._id, user.orgName)} className="px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-900 hover:bg-slate-800 text-white flex items-center space-x-1.5 transition-all shadow-sm hover:-translate-y-0.5">
-                            <UserPlus className="w-4 h-4" /><span>Make Admin</span>
+                            <UserPlus className="w-4 h-4" /><span>{user.role === 'Revoked' ? 'Restore Admin' : 'Make Admin'}</span>
                           </button>
                         )}
                       </div>
