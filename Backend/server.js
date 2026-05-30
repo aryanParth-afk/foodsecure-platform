@@ -220,35 +220,41 @@ app.patch('/api/admin/users/:id/verify', async (req, res) => {
   }
 });
 
+// 3. Promote a user to Admin role
 app.patch('/api/admin/users/:id/promote', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    // FIX: Save their current role into the memory bank BEFORE upgrading them!
+    user.originalRole = user.role; 
     user.role = 'Admin';
     await user.save();
+
     res.json(user);
   } catch (error) {
-    console.error("Error promoting user to admin:", error);
+    console.error("Error promoting user:", error);
     res.status(500).json({ message: "Server error during promotion" });
   }
 });
 
+// 4. Demote an Admin back to their original form
 app.patch('/api/admin/users/:id/demote', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // FIX: Change their role to Revoked so they lose all dashboard access
-    user.role = 'Revoked';
+    // FIX: Restore them to their original role. 
+    // (If they registered directly as an Admin and don't have an original role, lock them out)
+    user.role = user.originalRole || 'Revoked';
     await user.save();
+
     res.json(user);
   } catch (error) {
     console.error("Error demoting admin:", error);
     res.status(500).json({ message: "Server error during demotion" });
   }
 });
-
 app.get('/api/stats', async (req, res) => {
   try {
     const donorCount = await User.countDocuments({ role: 'Donor' });

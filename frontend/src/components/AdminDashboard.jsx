@@ -46,14 +46,17 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDemoteAdmin = async (userId, orgName) => {
+const handleDemoteAdmin = async (userId, orgName) => {
     if (!isSuperAdmin) return; 
     if (!window.confirm(`Revoke Admin rights from "${orgName}"?`)) return;
     try {
-      await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/demote`);
-      toast.success(`${orgName} has been demoted.`);
-      // FIX: Tell React UI to instantly change the badge to 'Revoked' instead of 'Donor'
-      setUsers(users.map(u => u._id === userId ? { ...u, role: 'Revoked' } : u));
+      // We capture the response from the backend now
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/demote`);
+      
+      toast.success(`${orgName} rights adjusted.`);
+      
+      // FIX: Instead of hardcoding 'Revoked', we use the exact role the backend just gave us!
+      setUsers(users.map(u => u._id === userId ? { ...u, role: response.data.role } : u));
     } catch (error) {
       toast.error("Failed to revoke admin rights.");
     }

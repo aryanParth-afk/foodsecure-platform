@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema({
   enum: ['NGO', 'Donor', 'Admin', 'SuperAdmin', 'Revoked'], 
   required: true
 },
+// NEW: Memory bank to remember what they were before promotion!
+  originalRole: {
+    type: String,
+    enum: ['NGO', 'Donor']
+  },
   
   location: { type: String },
   
