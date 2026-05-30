@@ -70,6 +70,11 @@ app.post('/api/auth/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid credentials.' });
 
+    // 🚨 NEW CHECK: Block revoked admins from logging in!
+    if (user.role === 'Revoked') {
+      return res.status(403).json({ message: 'Your account access has been revoked by a Super Admin.' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials.' });
 
@@ -234,7 +239,8 @@ app.patch('/api/admin/users/:id/demote', async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    user.role = 'Donor';
+    // FIX: Change their role to Revoked so they lose all dashboard access
+    user.role = 'Revoked';
     await user.save();
     res.json(user);
   } catch (error) {
