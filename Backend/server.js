@@ -22,17 +22,37 @@ mongoose.connect(process.env.MONGO_URI)
 // 1. USER SIGNUP
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, orgName, role } = req.body;
+    // We added 'adminSecretCode' to the incoming data request
+    const { email, password, orgName, role, adminSecretCode } = req.body;
 
+    // 🚨 THE BOUNCER: If they want to be an Admin, check their VIP pass!
+    if (role === 'Admin') {
+      // It will look for the code in your Render settings, or fall back to 'FoodRescueAdmin2026'
+      const masterSecret = process.env.ADMIN_SECRET_CODE || 'FoodRescueAdmin2026';
+      
+      if (adminSecretCode !== masterSecret) {
+        return res.status(403).json({ message: 'Invalid Super Admin Code. Access denied.' });
+      }
+    }
+
+    // Check if user already exists
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'A user with this email already exists.' });
 
+    // Create new instance
     user = new User({ email, password, orgName, role });
+
+    // Hash the password using bcrypt salt
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
+
+    // Save to MongoDB Atlas
     await user.save();
 
+    // Create JWT Payload
     const payload = { id: user._id, role: user.role, orgName: user.orgName };
+
+    // Sign Token
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.status(201).json({ token, user: payload });
