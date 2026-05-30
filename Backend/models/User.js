@@ -6,7 +6,12 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true }, // For when you add real login later
   
   // THE MOST IMPORTANT FIELD: This dictates which dashboard they see
-  role: { type: String, enum: ['Donor', 'NGO', 'Admin'], required: true },
+  role: {
+  type: String,
+  // ADD 'Revoked' TO THE LIST!
+  enum: ['NGO', 'Donor', 'Admin', 'SuperAdmin', 'Revoked'], 
+  required: true
+},
   
   location: { type: String },
   
