@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { HeartHandshake, PackageOpen, MapPin, Send, Camera } from 'lucide-react';
+// ADDED the 'X' icon for the remove button
+import { HeartHandshake, PackageOpen, MapPin, Send, Camera, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const DonorDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const [formData, setFormData] = useState({ foodType: '', quantity: '', address: '' });
   
-  // State to hold the image file before uploading
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false); 
 
@@ -18,14 +18,12 @@ const DonorDashboard = () => {
   const uploadToCloudinary = async (file) => {
     const data = new FormData();
     data.append("file", file);
-    
-    // YOUR LIVE CLOUDINARY KEYS!
     data.append("upload_preset", "foodrescue_preset"); 
     const cloudName = "dkzec2m8s"; 
 
     try {
       const res = await axios.post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, data);
-      return res.data.secure_url; // This returns the beautiful URL!
+      return res.data.secure_url; 
     } catch (error) {
       console.error("Cloudinary upload error:", error);
       throw new Error("Failed to upload image");
@@ -39,14 +37,12 @@ const DonorDashboard = () => {
     try {
       let imageUrl = '';
       
-      // 1. If they attached a file, upload it to Cloudinary first
       if (imageFile) {
         toast.loading("Uploading image...", { id: "uploadToast" });
         imageUrl = await uploadToCloudinary(imageFile);
         toast.dismiss("uploadToast");
       }
 
-      // 2. Send all the data (including the new image URL) to your backend
       await axios.post(`${apiUrl}/api/listings`, {
         donorId: currentUser.id,           
         foodName: formData.foodType,       
@@ -57,7 +53,7 @@ const DonorDashboard = () => {
 
       toast.success("Donation successfully posted to the network!");
       setFormData({ foodType: '', quantity: '', address: '' });
-      setImageFile(null); // Clear the image
+      setImageFile(null); // Clears the image preview after success!
     } catch (error) {
       console.error("Error posting donation:", error);
       toast.error("Failed to post donation. Please try again.");
@@ -124,13 +120,15 @@ const DonorDashboard = () => {
             </div>
           </div>
 
-          {/* IMAGE UPLOAD FIELD */}
+          {/* UPGRADED IMAGE UPLOAD FIELD */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1.5">Photo of Food (Optional)</label>
-            <div className="flex items-center space-x-4">
-              <label className="flex items-center justify-center bg-emerald-50 text-emerald-600 px-4 py-3 rounded-xl border-2 border-emerald-100 hover:bg-emerald-100 cursor-pointer transition-colors font-bold text-sm w-full sm:w-auto">
-                <Camera className="w-5 h-5 mr-2" />
-                {imageFile ? "Change Photo" : "Upload Photo"}
+            
+            {/* Show standard upload button if NO image is selected */}
+            {!imageFile ? (
+              <label className="flex items-center justify-center bg-gray-50 text-gray-600 px-4 py-8 rounded-xl border-2 border-dashed border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 cursor-pointer transition-all font-bold text-sm w-full">
+                <Camera className="w-6 h-6 mr-3" />
+                Click to browse and upload a photo
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -138,8 +136,35 @@ const DonorDashboard = () => {
                   className="hidden" 
                 />
               </label>
-              {imageFile && <span className="text-sm font-medium text-gray-500 truncate">{imageFile.name}</span>}
-            </div>
+            ) : (
+              /* Show preview card if image IS selected */
+              <div className="flex items-center p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                {/* 1. The Image Preview Thumbnail */}
+                <div className="h-16 w-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
+                  <img 
+                    src={URL.createObjectURL(imageFile)} 
+                    alt="Preview" 
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                
+                {/* 2. File info and Remove Button */}
+                <div className="ml-4 flex-1 overflow-hidden">
+                  <p className="text-sm font-bold text-gray-800 truncate">{imageFile.name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Ready to upload</p>
+                </div>
+                
+                {/* 3. The Remove Button */}
+                <button 
+                  type="button" 
+                  onClick={() => setImageFile(null)}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-2 flex items-center justify-center shrink-0"
+                  title="Remove photo"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
 
           <motion.button 
