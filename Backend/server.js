@@ -242,16 +242,20 @@ app.patch('/api/admin/users/:id/promote', async (req, res) => {
   }
 });
 
-// 4. Demote an Admin back to their original form
+// 4. Demote an Admin back to their original form (or lock them out)
 app.patch('/api/admin/users/:id/demote', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Restore them to their original role. 
-    // FIX: If they are a legacy user without a memory bank, default them to 'Donor' 
-    // so they aren't permanently locked out if you demote them again.
-    user.role = user.originalRole || 'Donor';
+    // FIX: If they have a past life in the memory bank (NGO/Donor), restore it.
+    // If they were created directly as an Admin (no memory bank), lock them out entirely!
+    if (user.originalRole) {
+      user.role = user.originalRole;
+    } else {
+      user.role = 'Revoked';
+    }
+    
     await user.save();
 
     res.json(user);
@@ -260,7 +264,6 @@ app.patch('/api/admin/users/:id/demote', async (req, res) => {
     res.status(500).json({ message: "Server error during demotion" });
   }
 });
-
 // 5. Delete a user completely (SuperAdmin Power)
 app.delete('/api/admin/users/:id', async (req, res) => {
   try {
