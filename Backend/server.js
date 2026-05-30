@@ -260,6 +260,19 @@ app.patch('/api/admin/users/:id/demote', async (req, res) => {
     res.status(500).json({ message: "Server error during demotion" });
   }
 });
+
+// 5. Delete a user completely (SuperAdmin Power)
+app.delete('/api/admin/users/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    
+    res.json({ message: "User permanently deleted." });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Server error during deletion" });
+  }
+});
 app.get('/api/stats', async (req, res) => {
   try {
     const donorCount = await User.countDocuments({ role: 'Donor' });
