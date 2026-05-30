@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HandHeart } from 'lucide-react'; 
 
 import Navbar from './components/Navbar';
+import BackButton from './components/BackButton';
 import LandingPage from './components/LandingPage';
 import Auth from './components/Auth';
 import NGODashboard from './components/NGODashboard';
@@ -29,7 +30,6 @@ const App = () => {
             key="splash"
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            // Clean, soft white splash screen
             className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-slate-50"
           >
             <div className="flex flex-col items-center text-center">
@@ -56,13 +56,11 @@ const App = () => {
       </AnimatePresence>
 
       <Router>
-        {/* Soft, premium light background with a very subtle radial gradient */}
         <div className="min-h-screen bg-slate-50 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-orange-50/50 via-slate-50 to-emerald-50/30 font-sans text-slate-900 selection:bg-orange-500 selection:text-white">
           <Toaster 
             position="top-center"
             reverseOrder={false}
             toastOptions={{
-              // Global default styles
               duration: 4000,
               style: {
                 padding: '16px 24px',
@@ -73,24 +71,22 @@ const App = () => {
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 maxWidth: '500px',
               },
-              // Premium Error Alert (Wrong Credentials)
               error: {
                 style: {
-                  background: '#fff1f2', // Soft glowing red/rose background
+                  background: '#fff1f2', 
                   border: '2px solid #ffe4e6',
-                  color: '#e11d48', // Deep red text
+                  color: '#e11d48', 
                 },
                 iconTheme: {
                   primary: '#e11d48',
                   secondary: '#ffffff',
                 },
               },
-              // Premium Success Alert
               success: {
                 style: {
-                  background: '#ecfdf5', // Soft glowing emerald background
+                  background: '#ecfdf5', 
                   border: '2px solid #d1fae5',
-                  color: '#059669', // Deep emerald text
+                  color: '#059669', 
                 },
                 iconTheme: {
                   primary: '#059669',
@@ -99,6 +95,10 @@ const App = () => {
               },
             }} 
           />
+          
+          {/* THE NEW SMART BACK BUTTON */}
+          <BackButton />
+          
           <Navbar />
           <div className="pt-8 pb-12">
             <Routes>
