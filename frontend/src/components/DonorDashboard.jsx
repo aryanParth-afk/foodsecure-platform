@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-// ADDED the 'X' icon for the remove button
 import { HeartHandshake, PackageOpen, MapPin, Send, Camera, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+// NEW: Import our shiny new Map Component!
+import LocationPicker from './LocationPicker'; 
 
 const DonorDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -108,14 +109,25 @@ const DonorDashboard = () => {
             </div>
           </div>
 
+          {/* UPGRADED LOCATION FIELD WITH MAP */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1.5">Pickup Location / Address</label>
-            <div className="relative group">
+            <label className="block text-sm font-bold text-gray-700 mb-1.5">Precise Pickup Location</label>
+            
+            {/* 1. The Interactive Map Component */}
+            <LocationPicker 
+              onLocationSelect={(selectedAddress) => setFormData({...formData, address: selectedAddress})} 
+            />
+            
+            {/* 2. The Text Input (Now acts as a display or manual override) */}
+            <div className="relative group mt-3">
               <MapPin className="w-5 h-5 text-gray-400 absolute left-3.5 top-3.5 group-focus-within:text-emerald-500 transition-colors" />
               <input 
-                type="text" required value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})}
-                className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 pl-11 pr-4 focus:bg-white focus:border-emerald-500 focus:ring-0 outline-none transition-all font-medium" 
-                placeholder="Where should the NGO pick this up?"
+                type="text" 
+                required 
+                value={formData.address} 
+                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 pl-11 pr-4 focus:bg-white focus:border-emerald-500 focus:ring-0 outline-none transition-all font-medium text-sm" 
+                placeholder="Tap the map above to auto-fill or type manually..."
               />
             </div>
           </div>
@@ -124,7 +136,6 @@ const DonorDashboard = () => {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1.5">Photo of Food (Optional)</label>
             
-            {/* Show standard upload button if NO image is selected */}
             {!imageFile ? (
               <label className="flex items-center justify-center bg-gray-50 text-gray-600 px-4 py-8 rounded-xl border-2 border-dashed border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 cursor-pointer transition-all font-bold text-sm w-full">
                 <Camera className="w-6 h-6 mr-3" />
@@ -137,9 +148,7 @@ const DonorDashboard = () => {
                 />
               </label>
             ) : (
-              /* Show preview card if image IS selected */
               <div className="flex items-center p-3 bg-gray-50 border border-gray-200 rounded-xl">
-                {/* 1. The Image Preview Thumbnail */}
                 <div className="h-16 w-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
                   <img 
                     src={URL.createObjectURL(imageFile)} 
@@ -148,13 +157,11 @@ const DonorDashboard = () => {
                   />
                 </div>
                 
-                {/* 2. File info and Remove Button */}
                 <div className="ml-4 flex-1 overflow-hidden">
                   <p className="text-sm font-bold text-gray-800 truncate">{imageFile.name}</p>
                   <p className="text-xs text-gray-500 mt-0.5">Ready to upload</p>
                 </div>
                 
-                {/* 3. The Remove Button */}
                 <button 
                   type="button" 
                   onClick={() => setImageFile(null)}
