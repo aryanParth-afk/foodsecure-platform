@@ -13,7 +13,7 @@ const NGODashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
- useEffect(() => {
+  useEffect(() => {
     const fetchDonations = async () => {
       try {
         setLoading(true); // Show the spinner while fetching fresh data
@@ -35,7 +35,7 @@ const NGODashboard = () => {
   // By adding 'activeTab' here, React knows to re-run this fetch EVERY time you click the Live Feed button!
   }, [apiUrl, activeTab]);
 
- const handleClaim = async (id) => {
+  const handleClaim = async (id) => {
     try {
       // NEW: We are now sending the logged-in NGO's ID in the request body!
       await axios.patch(`${apiUrl}/api/listings/${id}/claim`, {
@@ -112,6 +112,17 @@ const NGODashboard = () => {
                       <Clock className="w-3 h-3 mr-1" /> Just now
                     </span>
                   </div>
+                  
+                  {/* NEW: Beautiful Image Display Wrapper */}
+                  {donation.imageUrl && (
+                    <div className="mb-4 rounded-2xl overflow-hidden h-48 border border-gray-100 shadow-inner relative">
+                      <img 
+                        src={donation.imageUrl} 
+                        alt={donation.foodName} 
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" 
+                      />
+                    </div>
+                  )}
                   
                   {/* Using MongoDB Schema variable names (foodName and pickupLocation) */}
                   <h3 className="text-xl font-black text-gray-900 mb-2">{donation.foodName}</h3>
