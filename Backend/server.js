@@ -233,6 +233,21 @@ app.get('/api/admin/users', async (req, res) => {
   }
 });
 
+// NEW ROUTE: Master Audit Log for Admins (Fetches EVERYTHING)
+app.get('/api/admin/listings', async (req, res) => {
+  try {
+    const allListings = await FoodListing.find()
+      .populate('donorId', 'orgName email role')
+      .populate('claimedBy', 'orgName email role')
+      .sort({ createdAt: -1 }); // Newest first
+      
+    res.json(allListings);
+  } catch (error) {
+    console.error("Error fetching admin audit log:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 app.patch('/api/admin/users/:id/verify', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
