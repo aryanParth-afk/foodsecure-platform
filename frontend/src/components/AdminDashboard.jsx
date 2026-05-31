@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-// UPGRADED: Added the Users icon to the import list
 import { Shield, CheckCircle, XCircle, UserPlus, UserMinus, Building2, HeartHandshake, ShieldAlert, Crown, Search, Ban, Trash2, Filter, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -70,7 +69,13 @@ const AdminDashboard = () => {
   };
 
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-  const rowVariants = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } };
+  
+  // UPGRADED: Physics-based spring animations for individual rows
+  const rowVariants = { 
+    hidden: { opacity: 0, y: 15, scale: 0.98 }, 
+    show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 400, damping: 25 } },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } }
+  };
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.orgName?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -112,7 +117,7 @@ const AdminDashboard = () => {
         </div>
       </motion.div>
 
-      {/* UPGRADED: Professional Segmented Control Tabs */}
+      {/* Segmented Control Tabs */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }} 
         animate={{ opacity: 1, y: 0 }} 
@@ -172,14 +177,30 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 text-gray-700 font-medium">
-              <AnimatePresence>
+              <AnimatePresence mode="popLayout">
                 {filteredUsers.length === 0 ? (
-                  <tr>
+                  // UPGRADED: Animated Empty State
+                  <motion.tr 
+                    key="empty-state"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <td colSpan="4" className="py-12 text-center text-gray-400 font-bold">No users found in this category.</td>
-                  </tr>
+                  </motion.tr>
                 ) : (
                   filteredUsers.map((user) => (
-                    <motion.tr layout variants={rowVariants} exit={{ opacity: 0, scale: 0.95 }} key={user._id} className={`group transition-all duration-300 hover:shadow-md relative ${user.role === 'SuperAdmin' ? 'bg-amber-50/20' : user.role === 'Admin' ? 'bg-blue-50/20' : user.role === 'Revoked' ? 'bg-rose-50/10 opacity-75' : 'hover:bg-white'}`}>
+                    // UPGRADED: Explicit initial, animate, and exit commands added to the row
+                    <motion.tr 
+                      layout 
+                      variants={rowVariants} 
+                      initial="hidden"
+                      animate="show"
+                      exit="exit"
+                      key={user._id} 
+                      className={`group transition-all duration-300 hover:shadow-md relative ${user.role === 'SuperAdmin' ? 'bg-amber-50/20' : user.role === 'Admin' ? 'bg-blue-50/20' : user.role === 'Revoked' ? 'bg-rose-50/10 opacity-75' : 'hover:bg-white'}`}
+                    >
                       
                       <td className="absolute left-0 top-0 h-full w-1 bg-linear-to-b from-orange-400 to-orange-600 scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></td>
 
