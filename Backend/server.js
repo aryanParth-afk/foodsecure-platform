@@ -170,13 +170,13 @@ app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
 
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     
-    // Check if the OTP matches
-    if (listing.pickupOtp !== otp) {
+    // Convert both to strings just to be 100% safe on the comparison
+    if (String(listing.pickupOtp) !== String(otp)) {
       return res.status(400).json({ message: "Invalid OTP code. Please try again." });
     }
 
-    // If it matches, complete the order!
-    listing.status = 'completed';
+    // THE FIX: Must be 'Completed' with a capital C to match your Mongoose Schema!
+    listing.status = 'Completed';
     await listing.save();
 
     res.json(listing);
