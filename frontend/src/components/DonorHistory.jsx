@@ -11,11 +11,18 @@ const DonorHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        // Fetch all listings and filter for this specific donor
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/listings`);
-        const myDonations = response.data.filter(item => item.donorId?._id === currentUser.id || item.donorId === currentUser.id);
         
-        // Sort by newest first
+        // THE FIX: Grab the user ID safely (checking both _id and id) and force it to be a String
+        const userId = String(currentUser._id || currentUser.id);
+        
+        const myDonations = response.data.filter(item => {
+          // Check all possible ways the backend might send the donor ID and force it to a String
+          const itemDonorId = String(item.donorId?._id || item.donorId || item.donor?._id || item.donor);
+          
+          return itemDonorId === userId;
+        });
+        
         setDonations(myDonations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         setLoading(false);
       } catch (error) {
@@ -24,9 +31,8 @@ const DonorHistory = () => {
       }
     };
     fetchHistory();
-  }, [currentUser.id]);
+  }, []);
 
-  // Calculate Impact Stats
   const totalDonations = donations.length;
   const completedDonations = donations.filter(d => d.status === 'completed').length;
   const activeDonations = donations.filter(d => d.status === 'available').length;
@@ -43,13 +49,11 @@ const DonorHistory = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       
-      {/* Header Section */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Your Impact History</h1>
         <p className="text-slate-500 font-medium mt-1">Track your donations and see the difference you are making.</p>
       </motion.div>
 
-      {/* Impact Stats Row */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-lg shadow-slate-200/40 flex items-center space-x-4">
           <div className="bg-emerald-50 p-4 rounded-2xl text-emerald-600"><TrendingUp className="w-8 h-8" /></div>
@@ -74,7 +78,6 @@ const DonorHistory = () => {
         </div>
       </motion.div>
 
-      {/* Donation Timeline */}
       <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6">
         <h2 className="text-xl font-black text-slate-900 mb-4 flex items-center"><Package className="w-5 h-5 mr-2 text-emerald-500" /> Donation Log</h2>
         
@@ -88,7 +91,6 @@ const DonorHistory = () => {
           donations.map((donation) => (
             <motion.div key={donation._id} variants={itemVariants} className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               
-              {/* Colored side indicator based on status */}
               <div className={`absolute left-0 top-0 w-1.5 h-full transition-colors ${
                 donation.status === 'completed' ? 'bg-emerald-500' :
                 donation.status === 'claimed' ? 'bg-blue-500' : 'bg-orange-400'
@@ -96,10 +98,9 @@ const DonorHistory = () => {
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pl-4">
                 
-                {/* Food Details */}
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-xl font-black text-slate-900">{donation.foodName}</h3>
+                    <h3 className="text-xl font-black text-slate-900">{donation.foodItem || donation.foodName || 'Surplus Food'}</h3>
                     <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
                       donation.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
                       donation.status === 'claimed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'
@@ -111,7 +112,6 @@ const DonorHistory = () => {
                   <p className="text-slate-400 text-sm flex items-center mt-1"><Calendar className="w-4 h-4 mr-1.5" /> Posted: {new Date(donation.createdAt).toLocaleDateString()}</p>
                 </div>
 
-                {/* NGO Information (If Claimed/Completed) */}
                 <div className="bg-slate-50 p-4 rounded-2xl md:min-w-62.5 border border-slate-100">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Claimed By</p>
                   {donation.claimedBy ? (
