@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Package, MapPin, Clock, XCircle } from 'lucide-react';
+import { Package, MapPin, Clock, XCircle, KeyRound } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const MyClaims = () => {
   const [claims, setClaims] = useState([]);
-  const [loading, setLoading] = useState(true); // 1. Added loading state
+  const [loading, setLoading] = useState(true);
   
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
@@ -15,14 +15,14 @@ const MyClaims = () => {
     const fetchClaims = async () => {
       if (!currentUser.id) return;
       try {
-        setLoading(true); // 2. Start the spinner before fetching
+        setLoading(true);
         const response = await axios.get(`${apiUrl}/api/my-claims/${currentUser.id}`);
         setClaims(response.data);
-        setLoading(false); // 3. Stop the spinner when data arrives
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching claims:", error);
         toast.error("Could not load your claims.");
-        setLoading(false); // Stop the spinner even if there is an error
+        setLoading(false);
       }
     };
     fetchClaims();
@@ -32,7 +32,6 @@ const MyClaims = () => {
     try {
       await axios.patch(`${apiUrl}/api/listings/${id}/cancel`);
       toast.success("Claim canceled. Item returned to Live Feed.");
-      // Instantly remove it from the screen
       setClaims(claims.filter(c => c._id !== id));
     } catch (error) {
       console.error("Error canceling claim:", error);
@@ -40,11 +39,9 @@ const MyClaims = () => {
     }
   };
 
-  // Animation variants
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15 } } };
   const cardVariants = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
-  // 4. Show the loading spinner if fetching
   if (loading) {
     return (
       <div className="min-h-[40vh] flex flex-col items-center justify-center">
@@ -66,7 +63,7 @@ const MyClaims = () => {
         </div>
       ) : (
         claims.map((claim) => (
-          <motion.div variants={cardVariants} key={claim._id} className="bg-white border-2 border-gray-100 rounded-4xl p-6 relative overflow-hidden group hover:border-gray-200 transition-colors shadow-sm">
+          <motion.div variants={cardVariants} key={claim._id} className="bg-white border-2 border-gray-100 rounded-4xl p-6 relative overflow-hidden group hover:border-gray-200 transition-colors shadow-sm flex flex-col">
             
             <div className="flex justify-between items-start mb-4">
               <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">
@@ -87,16 +84,32 @@ const MyClaims = () => {
               </div>
             )}
             
-            <div className="space-y-2 mb-6">
+            <div className="space-y-2 mb-6 grow">
               <div className="flex items-center text-gray-600 text-sm font-medium">
-                <MapPin className="w-4 h-4 mr-2 text-orange-400" />
-                {claim.pickupLocation}
+                <MapPin className="w-4 h-4 mr-2 text-orange-400 shrink-0" />
+                <span className="truncate">{claim.pickupLocation}</span>
               </div>
               <div className="flex items-center text-gray-600 text-sm font-medium">
-                <Clock className="w-4 h-4 mr-2 text-orange-400" />
-                {claim.availableSlots && claim.availableSlots.length > 0 ? claim.availableSlots[0] : 'Contact donor for time'}
+                <Clock className="w-4 h-4 mr-2 text-orange-400 shrink-0" />
+                <span>{claim.availableSlots && claim.availableSlots.length > 0 ? claim.availableSlots[0] : 'Contact donor for time'}</span>
               </div>
             </div>
+
+            {/* NEW: OTP Display Block */}
+            {claim.pickupOtp && (
+              <div className="mb-6 bg-linear-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                <div>
+                  <div className="flex items-center text-orange-600 mb-1">
+                    <KeyRound className="w-4 h-4 mr-1.5" />
+                    <p className="text-xs font-bold uppercase tracking-widest">Pickup PIN</p>
+                  </div>
+                  <p className="text-xs font-medium text-orange-800/80">Give this to the donor.</p>
+                </div>
+                <div className="bg-white px-4 py-2 rounded-xl border border-orange-200 shadow-sm">
+                  <span className="text-2xl font-black text-slate-900 tracking-widest">{claim.pickupOtp}</span>
+                </div>
+              </div>
+            )}
 
             <button onClick={() => handleCancel(claim._id)} className="w-full bg-white border-2 border-red-100 hover:bg-red-50 hover:border-red-200 text-red-500 font-bold py-3 rounded-xl transition-colors flex items-center justify-center space-x-2">
               <XCircle className="w-5 h-5" />

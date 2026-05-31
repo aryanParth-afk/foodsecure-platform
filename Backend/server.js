@@ -22,37 +22,24 @@ mongoose.connect(process.env.MONGO_URI)
 // 1. USER SIGNUP
 app.post('/api/auth/register', async (req, res) => {
   try {
-    // We added 'adminSecretCode' to the incoming data request
     const { email, password, orgName, role, adminSecretCode } = req.body;
 
-    // 🚨 THE BOUNCER: If they want to be an Admin, check their VIP pass!
     if (role === 'Admin') {
-      // It will look for the code in your Render settings, or fall back to 'FoodRescueAdmin2026'
       const masterSecret = process.env.ADMIN_SECRET_CODE || 'FoodRescueAdmin2026';
-      
       if (adminSecretCode !== masterSecret) {
         return res.status(403).json({ message: 'Invalid Super Admin Code. Access denied.' });
       }
     }
 
-    // Check if user already exists
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'A user with this email already exists.' });
 
-    // Create new instance
     user = new User({ email, password, orgName, role });
-
-    // Hash the password using bcrypt salt
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
-
-    // Save to MongoDB Atlas
     await user.save();
 
-    // Create JWT Payload
     const payload = { id: user._id, role: user.role, orgName: user.orgName };
-
-    // Sign Token
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.status(201).json({ token, user: payload });
@@ -70,7 +57,6 @@ app.post('/api/auth/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid credentials.' });
 
-    // 🚨 NEW CHECK: Block revoked admins from logging in!
     if (user.role === 'Revoked') {
       return res.status(403).json({ message: 'Your account access has been revoked by a Super Admin.' });
     }
@@ -92,7 +78,6 @@ app.post('/api/auth/login', async (req, res) => {
 // --- DONOR ROUTES ---
 // ==========================================
 
-// Route to CREATE a new food listing
 app.post('/api/listings', async (req, res) => {
   try {
     const newListing = new FoodListing({
@@ -114,10 +99,8 @@ app.post('/api/listings', async (req, res) => {
   }
 });
 
-// Route to GET all listings specifically for the logged-in Donor
 app.get('/api/my-donations/:userId', async (req, res) => {
   try {
-    // UPGRADED: Added .populate() so the donor can see exactly WHICH NGO claimed it!
     const myDonations = await FoodListing.find({ donorId: req.params.userId })
       .populate('claimedBy', 'orgName email') 
       .sort({ createdAt: -1 });
@@ -132,7 +115,6 @@ app.get('/api/my-donations/:userId', async (req, res) => {
 // --- NGO ROUTES ---
 // ==========================================
 
-// 1. Get all AVAILABLE listings (for the main feed) - STRICTLY FILTERED!
 app.get('/api/listings/available', async (req, res) => {
   try {
     const availableListings = await FoodListing.find({ status: 'Available' })
@@ -145,7 +127,6 @@ app.get('/api/listings/available', async (req, res) => {
   }
 });
 
-// 2. Get listings CLAIMED by the logged-in NGO
 app.get('/api/my-claims/:userId', async (req, res) => {
   try {
     const myClaims = await FoodListing.find({ claimedBy: req.params.userId })
@@ -159,14 +140,18 @@ app.get('/api/my-claims/:userId', async (req, res) => {
   }
 });
 
-// 3. Claim a specific food donation
+// 3. Claim a specific food donation (UPGRADED WITH OTP)
 app.patch('/api/listings/:id/claim', async (req, res) => {
   try {
+    // Generate a random 4-digit OTP
+    const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+
     const updatedListing = await FoodListing.findByIdAndUpdate(
       req.params.id,
       { 
         status: 'Claimed',
-        claimedBy: req.body.ngoId 
+        claimedBy: req.body.ngoId,
+        pickupOtp: generatedOtp // Save the secret code to the database
       },
       { new: true }
     );
@@ -177,14 +162,38 @@ app.patch('/api/listings/:id/claim', async (req, res) => {
   }
 });
 
-// 4. CANCEL a claim (returns item to the Live Feed)
+// NEW ROUTE: Verify Pickup using OTP
+app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const listing = await FoodListing.findById(req.params.id);
+
+    if (!listing) return res.status(404).json({ message: "Listing not found" });
+    
+    // Check if the OTP matches
+    if (listing.pickupOtp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP code. Please try again." });
+    }
+
+    // If it matches, complete the order!
+    listing.status = 'completed';
+    await listing.save();
+
+    res.json(listing);
+  } catch (error) {
+    console.error("Verification Error:", error);
+    res.status(500).json({ message: "Server error during verification" });
+  }
+});
+
 app.patch('/api/listings/:id/cancel', async (req, res) => {
   try {
     const canceledListing = await FoodListing.findByIdAndUpdate(
       req.params.id,
       { 
         status: 'Available',
-        claimedBy: null // Clean up the owner so it is fully reset!
+        claimedBy: null,
+        pickupOtp: null // Clean up the OTP if cancelled
       }, 
       { new: true }
     );
@@ -223,21 +232,17 @@ app.patch('/api/admin/users/:id/verify', async (req, res) => {
   }
 });
 
-// 3. Promote a user to Admin role
 app.patch('/api/admin/users/:id/promote', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // FIX: Only save to the memory bank if they are an NGO or Donor!
-    // This prevents legacy "Revoked" users from crashing the database.
     if (user.role === 'NGO' || user.role === 'Donor') {
       user.originalRole = user.role; 
     }
     
     user.role = 'Admin';
     await user.save();
-
     res.json(user);
   } catch (error) {
     console.error("Error promoting user:", error);
@@ -245,14 +250,11 @@ app.patch('/api/admin/users/:id/promote', async (req, res) => {
   }
 });
 
-// 4. Demote an Admin back to their original form (or lock them out)
 app.patch('/api/admin/users/:id/demote', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // FIX: If they have a past life in the memory bank (NGO/Donor), restore it.
-    // If they were created directly as an Admin (no memory bank), lock them out entirely!
     if (user.originalRole) {
       user.role = user.originalRole;
     } else {
@@ -260,14 +262,13 @@ app.patch('/api/admin/users/:id/demote', async (req, res) => {
     }
     
     await user.save();
-
     res.json(user);
   } catch (error) {
     console.error("Error demoting admin:", error);
     res.status(500).json({ message: "Server error during demotion" });
   }
 });
-// 5. Delete a user completely (SuperAdmin Power)
+
 app.delete('/api/admin/users/:id', async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
@@ -279,6 +280,7 @@ app.delete('/api/admin/users/:id', async (req, res) => {
     res.status(500).json({ message: "Server error during deletion" });
   }
 });
+
 app.get('/api/stats', async (req, res) => {
   try {
     const donorCount = await User.countDocuments({ role: 'Donor' });

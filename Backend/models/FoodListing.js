@@ -17,11 +17,16 @@ const foodListingSchema = new mongoose.Schema({
   availableSlots: [{ type: String }], 
   
   // Lifecycle Management
-  // FIX 2: Added 'Claimed' to this list so your NGO Claim button actually works!
   status: { 
     type: String, 
     enum: ['Available', 'Claimed', 'Reserved', 'Completed', 'Expired'], 
     default: 'Available' 
+  },
+  
+  // NEW: Store the secret OTP for secure pickup verification
+  pickupOtp: { 
+    type: String, 
+    default: null 
   },
   
   // Claiming Details
