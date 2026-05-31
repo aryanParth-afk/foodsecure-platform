@@ -7,8 +7,16 @@ const BackButton = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // If the user is on the main landing page, hide the button completely!
-  if (location.pathname === '/') return null;
+  // Define our "Top Level" home pages where a back button shouldn't exist
+  const topLevelPages = [
+    '/', 
+    '/ngo-dashboard', 
+    '/donor-dashboard', 
+    '/admin'
+  ];
+
+  // If the user is on any of these main root pages, hide the button completely!
+  if (topLevelPages.includes(location.pathname)) return null;
 
   return (
     <motion.button
@@ -17,7 +25,6 @@ const BackButton = () => {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={() => navigate(-1)} 
-      // CHANGED: top-6 is now top-24 so it sits below the Navbar!
       className="fixed top-24 left-4 md:left-8 z-40 flex items-center justify-center p-3 md:px-4 md:py-2.5 bg-white/90 backdrop-blur-md border border-gray-200 text-slate-700 rounded-2xl shadow-lg hover:bg-slate-900 hover:text-white transition-colors group cursor-pointer"
     >
       <ArrowLeft className="w-5 h-5 md:mr-2 group-hover:-translate-x-1 transition-transform" />
