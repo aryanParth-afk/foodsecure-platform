@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock, PackageSearch } from 'lucide-react';
+import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // To check which page we are on
+  const location = useLocation(); 
   
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
@@ -16,7 +16,6 @@ const Navbar = () => {
     navigate('/auth?mode=login');
   };
 
-  // Helper function to determine active link styling
   const isActive = (path) => location.pathname === path;
   const linkClass = (path) => `flex items-center text-sm font-bold transition-colors ${isActive(path) ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'}`;
 
@@ -33,17 +32,12 @@ const Navbar = () => {
             <span className="font-black text-2xl text-slate-900 tracking-tight hidden sm:block">FoodRescue</span>
           </Link>
 
-          {/* CENTER: Dynamic Quick Links */}
+          {/* CENTER: Dynamic Quick Links (Removed NGO links to prevent redundancy) */}
           <div className="hidden md:flex items-center space-x-8">
             {user?.role === 'Admin' || user?.role === 'SuperAdmin' ? (
               <>
                 <Link to="/admin" className={linkClass('/admin')}><LayoutDashboard className="w-4 h-4 mr-2" /> Users</Link>
                 <Link to="/analytics" className={linkClass('/analytics')}><BarChart3 className="w-4 h-4 mr-2" /> Analytics</Link>
-              </>
-            ) : user?.role === 'NGO' ? (
-              <>
-                <Link to="/ngo-dashboard" className={linkClass('/ngo-dashboard')}><PackageSearch className="w-4 h-4 mr-2" /> Live Feed</Link>
-                <Link to="/claims" className={linkClass('/claims')}><Clock className="w-4 h-4 mr-2" /> My Claims</Link>
               </>
             ) : user?.role === 'Donor' ? (
               <>
