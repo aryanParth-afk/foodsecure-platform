@@ -7,8 +7,6 @@ const foodListingSchema = new mongoose.Schema({
   // What is it?
   foodName: { type: String, required: true },
   quantity: { type: String, required: true },
-  
-  // FIX 1: Removed the strict 'enum' VIP list so it accepts the fallback from server.js
   category: { type: String, default: 'General Food' },
   imageUrl: { type: String, default: '' }, 
   
@@ -23,15 +21,15 @@ const foodListingSchema = new mongoose.Schema({
     default: 'Available' 
   },
   
-  // NEW: Store the secret OTP for secure pickup verification
-  pickupOtp: { 
-    type: String, 
-    default: null 
-  },
+  // Security
+  pickupOtp: { type: String, default: null },
   
   // Claiming Details
   claimedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  selectedPickupSlot: { type: String, default: null } 
+  selectedPickupSlot: { type: String, default: null },
+  
+  // NEW: Allows Donors to remove history from UI without resetting all-time counters
+  donorHidden: { type: Boolean, default: false }
   
 }, { timestamps: true });
 

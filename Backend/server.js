@@ -111,6 +111,21 @@ app.get('/api/my-donations/:userId', async (req, res) => {
   }
 });
 
+// NEW ROUTE: Soft-delete (hide) a history item for the Donor
+app.patch('/api/listings/:id/hide-donor', async (req, res) => {
+  try {
+    const hiddenListing = await FoodListing.findByIdAndUpdate(
+      req.params.id,
+      { donorHidden: true },
+      { new: true }
+    );
+    res.json(hiddenListing);
+  } catch (error) {
+    console.error("Error hiding listing:", error);
+    res.status(500).json({ message: "Server error while hiding listing" });
+  }
+});
+
 // ==========================================
 // --- NGO ROUTES ---
 // ==========================================
