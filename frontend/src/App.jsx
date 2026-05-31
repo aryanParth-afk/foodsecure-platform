@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HandHeart } from 'lucide-react'; 
+import DonorHistory from './components/DonorHistory';
 
 import Navbar from './components/Navbar';
 import BackButton from './components/BackButton';
@@ -106,6 +107,7 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/ngo-dashboard" element={<ProtectedRoute requiredRole="NGO"><NGODashboard /></ProtectedRoute>} />
               <Route path="/donor-dashboard" element={<ProtectedRoute requiredRole="Donor"><DonorDashboard /></ProtectedRoute>} />
+              <Route path="/history" element={<ProtectedRoute requiredRole="Donor"><DonorHistory /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminDashboard /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute requiredRole="Admin"><AnalyticsDashboard /></ProtectedRoute>} />
             </Routes>
