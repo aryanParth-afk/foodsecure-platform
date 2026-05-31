@@ -11,19 +11,12 @@ const DonorHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/listings`);
-        
-        // THE FIX: Grab the user ID safely (checking both _id and id) and force it to be a String
         const userId = String(currentUser._id || currentUser.id);
         
-        const myDonations = response.data.filter(item => {
-          // Check all possible ways the backend might send the donor ID and force it to a String
-          const itemDonorId = String(item.donorId?._id || item.donorId || item.donor?._id || item.donor);
-          
-          return itemDonorId === userId;
-        });
+        // THE FIX: Pointing to your specific backend route for this donor!
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/my-donations/${userId}`);
         
-        setDonations(myDonations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+        setDonations(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Failed to load history", error);
@@ -31,11 +24,11 @@ const DonorHistory = () => {
       }
     };
     fetchHistory();
-  }, []);
+  }, [currentUser.id, currentUser._id]);
 
   const totalDonations = donations.length;
   const completedDonations = donations.filter(d => d.status === 'completed').length;
-  const activeDonations = donations.filter(d => d.status === 'available').length;
+  const activeDonations = donations.filter(d => d.status === 'Available' || d.status === 'available').length;
 
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -93,7 +86,7 @@ const DonorHistory = () => {
               
               <div className={`absolute left-0 top-0 w-1.5 h-full transition-colors ${
                 donation.status === 'completed' ? 'bg-emerald-500' :
-                donation.status === 'claimed' ? 'bg-blue-500' : 'bg-orange-400'
+                donation.status.toLowerCase() === 'claimed' ? 'bg-blue-500' : 'bg-orange-400'
               }`}></div>
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pl-4">
@@ -103,9 +96,9 @@ const DonorHistory = () => {
                     <h3 className="text-xl font-black text-slate-900">{donation.foodItem || donation.foodName || 'Surplus Food'}</h3>
                     <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${
                       donation.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
-                      donation.status === 'claimed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'
+                      donation.status.toLowerCase() === 'claimed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'
                     }`}>
-                      {donation.status === 'available' ? 'Pending Claim' : donation.status}
+                      {donation.status.toLowerCase() === 'available' ? 'Pending Claim' : donation.status}
                     </span>
                   </div>
                   <p className="text-slate-500 font-medium flex items-center"><Package className="w-4 h-4 mr-1.5" /> Quantity: {donation.quantity}</p>

@@ -117,7 +117,10 @@ app.post('/api/listings', async (req, res) => {
 // Route to GET all listings specifically for the logged-in Donor
 app.get('/api/my-donations/:userId', async (req, res) => {
   try {
-    const myDonations = await FoodListing.find({ donorId: req.params.userId }).sort({ createdAt: -1 });
+    // UPGRADED: Added .populate() so the donor can see exactly WHICH NGO claimed it!
+    const myDonations = await FoodListing.find({ donorId: req.params.userId })
+      .populate('claimedBy', 'orgName email') 
+      .sort({ createdAt: -1 });
     res.json(myDonations);
   } catch (error) {
     console.error("Error fetching donor history:", error);
