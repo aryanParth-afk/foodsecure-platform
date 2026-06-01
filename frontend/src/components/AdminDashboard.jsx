@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Shield, CheckCircle, XCircle, UserPlus, UserMinus, Building2, HeartHandshake, ShieldAlert, Crown, Search, Ban, Trash2, Filter, Users, ClipboardList, EyeOff, Package } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, UserPlus, UserMinus, Building2, HeartHandshake, ShieldAlert, Crown, Search, Ban, Trash2, Filter, Users, ClipboardList, EyeOff, Package, MapPin, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
-  const [listings, setListings] = useState([]); // NEW: State for Audit Log
+  const [listings, setListings] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   
-  // NEW: Master View Toggle
-  const [masterView, setMasterView] = useState('users'); // 'users' or 'audit'
+  const [masterView, setMasterView] = useState('users'); 
   const [activeTab, setActiveTab] = useState("All"); 
   
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -22,7 +21,7 @@ const AdminDashboard = () => {
       try {
         const [usersRes, listingsRes] = await Promise.all([
           axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`),
-          axios.get(`${import.meta.env.VITE_API_URL}/api/admin/listings`) // Fetching the Master Audit Log!
+          axios.get(`${import.meta.env.VITE_API_URL}/api/admin/listings`) 
         ]);
         setUsers(usersRes.data);
         setListings(listingsRes.data);
@@ -93,7 +92,8 @@ const AdminDashboard = () => {
 
   const filteredListings = listings.filter(listing => 
     listing.foodName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    listing.donorId?.orgName?.toLowerCase().includes(searchTerm.toLowerCase())
+    listing.donorId?.orgName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    listing.pickupLocation?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return (
@@ -122,7 +122,7 @@ const AdminDashboard = () => {
         <div className="relative group w-full md:w-72">
           <Search className="w-5 h-5 text-gray-400 absolute left-4 top-3.5 group-focus-within:text-orange-500 transition-colors" />
           <input 
-            type="text" placeholder={`Search ${masterView === 'users' ? 'organizations' : 'food items'}...`} 
+            type="text" placeholder={`Search ${masterView === 'users' ? 'organizations' : 'records'}...`} 
             value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border-2 border-gray-100 text-gray-900 rounded-2xl py-3 pl-12 pr-4 focus:border-orange-500 focus:ring-0 outline-none transition-all shadow-sm font-medium" 
           />
@@ -258,7 +258,7 @@ const AdminDashboard = () => {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500 font-bold text-xs uppercase tracking-widest">
-                      <th className="py-5 px-6">Food Item</th>
+                      <th className="py-5 px-6">Food & Location</th>
                       <th className="py-5 px-6">Donor Details</th>
                       <th className="py-5 px-6">NGO Activity</th>
                       <th className="py-5 px-6">Status & Visibility</th>
@@ -274,30 +274,45 @@ const AdminDashboard = () => {
                         filteredListings.map((listing) => (
                           <motion.tr layout variants={rowVariants} initial="hidden" animate="show" exit="exit" key={listing._id} className="group hover:bg-slate-50 transition-colors">
                             
-                            {/* Food Details */}
+                            {/* Food & Location Details */}
                             <td className="py-6 px-6">
-                              <div className="flex items-center space-x-3">
-                                <div className="bg-orange-100 p-2.5 rounded-xl"><Package className="w-5 h-5 text-orange-600" /></div>
+                              <div className="flex items-start space-x-3">
+                                <div className="bg-orange-100 p-2.5 rounded-xl mt-1"><Package className="w-5 h-5 text-orange-600" /></div>
                                 <div>
                                   <span className="font-bold text-lg block text-slate-900">{listing.foodName}</span>
-                                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block mt-0.5">Qty: {listing.quantity}</span>
+                                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block mt-0.5 mb-1.5">Qty: {listing.quantity}</span>
+                                  <div className="flex items-center text-xs text-slate-500 font-medium">
+                                    <MapPin className="w-3.5 h-3.5 mr-1 text-slate-400" />
+                                    {listing.pickupLocation}
+                                  </div>
                                 </div>
                               </div>
                             </td>
 
-                            {/* Donor Details */}
+                            {/* Donor Details & Date Posted */}
                             <td className="py-6 px-6">
-                              <div className="font-bold text-slate-800">{listing.donorId?.orgName || 'Unknown Donor'}</div>
-                              <div className="text-xs text-slate-500 mt-1">{new Date(listing.createdAt).toLocaleDateString()}</div>
+                              <div className="font-bold text-slate-800 mb-1.5">{listing.donorId?.orgName || 'Unknown Donor'}</div>
+                              <div className="text-xs text-slate-500 flex items-center">
+                                <Clock className="w-3.5 h-3.5 mr-1" /> 
+                                Posted: {new Date(listing.createdAt).toLocaleDateString()}
+                              </div>
                             </td>
 
-                            {/* NGO Details */}
+                            {/* NGO Details & Pickup Date */}
                             <td className="py-6 px-6">
                               {listing.claimedBy ? (
                                 <div>
-                                  <div className="font-bold text-blue-700">{listing.claimedBy.orgName}</div>
-                                  <div className="text-xs text-slate-500 mt-1 flex items-center">
-                                    OTP: <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded ml-1 text-slate-700 font-bold">{listing.pickupOtp || 'N/A'}</span>
+                                  <div className="font-bold text-blue-700 mb-1.5">{listing.claimedBy.orgName}</div>
+                                  <div className="flex flex-col space-y-1.5">
+                                    <span className="text-xs text-slate-500 flex items-center">
+                                      OTP: <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded ml-1 text-slate-700 font-bold">{listing.pickupOtp || 'N/A'}</span>
+                                    </span>
+                                    {listing.status.toLowerCase() === 'completed' && (
+                                      <span className="text-xs font-bold text-emerald-600 flex items-center">
+                                        <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                                        Picked: {new Date(listing.updatedAt).toLocaleDateString()}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               ) : (
