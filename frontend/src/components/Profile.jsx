@@ -3,13 +3,16 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { User, Lock, Building2, Save, KeyRound, ShieldAlert } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const [orgName, setOrgName] = useState(currentUser.orgName || '');
   const [newPassword, setNewPassword] = useState('');
-  const [currentPassword, setCurrentPassword] = useState(''); // NEW: State for verification
+  const [currentPassword, setCurrentPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const navigate = useNavigate();
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -24,21 +27,24 @@ const Profile = () => {
       const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/users/${currentUser.id}`, {
         orgName: orgName !== currentUser.orgName ? orgName : undefined,
         newPassword: newPassword ? newPassword : undefined,
-        currentPassword: currentPassword // Send the old password for verification
+        currentPassword: currentPassword 
       });
 
-      // Update LocalStorage so the Navbar instantly sees the new data
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      toast.success("Profile updated successfully!");
-      
-      // Clear the password fields so they are empty for next time
-      setNewPassword(''); 
-      setCurrentPassword(''); 
-      
-      // Force a soft reload to instantly update the Navbar name
-      setTimeout(() => window.location.reload(), 1000);
+      // LOGIC: Did they change their password?
+      if (newPassword) {
+        // Yes -> Log them out and redirect to Login
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        toast.success("Password changed! Please log in again with your new password.", { duration: 4000 });
+        navigate('/auth?mode=login');
+      } else {
+        // No -> Just update their name and refresh
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        toast.success("Profile updated successfully!");
+        setCurrentPassword(''); 
+        setTimeout(() => window.location.reload(), 1000);
+      }
       
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update profile.");
