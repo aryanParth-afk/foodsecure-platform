@@ -49,6 +49,36 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+// 3. UPDATE USER PROFILE (Settings)
+app.patch('/api/users/:id', async (req, res) => {
+  try {
+    const { orgName, newPassword } = req.body;
+    const user = await User.findById(req.params.id);
+    
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Update Organization Name if provided
+    if (orgName) user.orgName = orgName;
+
+    // Securely hash and update the password if provided
+    if (newPassword) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    await user.save();
+
+    // Create a fresh token so the frontend updates immediately
+    const payload = { id: user._id, role: user.role, orgName: user.orgName };
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
+
+    res.json({ token, user: payload, message: "Profile updated successfully!" });
+  } catch (error) {
+    console.error("Profile Update Error:", error);
+    res.status(500).json({ message: "Server error during profile update." });
+  }
+});
+
 // 2. USER LOGIN
 app.post('/api/auth/login', async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock } from 'lucide-react';
+import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Navbar = () => {
@@ -32,7 +32,7 @@ const Navbar = () => {
             <span className="font-black text-2xl text-slate-900 tracking-tight hidden sm:block">FoodRescue</span>
           </Link>
 
-          {/* CENTER: Dynamic Quick Links (Removed NGO links to prevent redundancy) */}
+          {/* CENTER: Dynamic Quick Links */}
           <div className="hidden md:flex items-center space-x-8">
             {user?.role === 'Admin' || user?.role === 'SuperAdmin' ? (
               <>
@@ -59,8 +59,10 @@ const Navbar = () => {
 
                 <div className="w-px h-6 bg-slate-200 hidden sm:block"></div>
 
-                {/* User Identity & Logout */}
+                {/* User Identity & Actions */}
                 <div className="flex items-center space-x-4">
+                  
+                  {/* Name and Role Badge */}
                   <div className="hidden lg:flex flex-col items-end">
                     <span className="text-sm font-black text-slate-800">{user.orgName || 'User'}</span>
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest mt-0.5 ${
@@ -73,14 +75,23 @@ const Navbar = () => {
                     </span>
                   </div>
 
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={handleLogout} 
-                    className="flex items-center p-2 sm:px-4 sm:py-2.5 text-sm font-bold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm group"
-                  >
-                    <span className="hidden sm:block mr-2">Logout</span>
-                    <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                  </motion.button>
+                  {/* Settings & Logout Buttons */}
+                  <div className="flex items-center space-x-2">
+                    <Link to="/profile" className="flex items-center p-2 sm:px-3 sm:py-2.5 text-slate-500 hover:text-slate-900 bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-200 transition-all shadow-sm">
+                      <span className="hidden sm:inline font-bold text-sm mr-2">Settings</span>
+                      <User className="w-4 h-4" />
+                    </Link>
+
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      onClick={handleLogout} 
+                      className="flex items-center p-2 sm:px-4 sm:py-2.5 text-sm font-bold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm group"
+                    >
+                      <span className="hidden sm:block mr-2">Logout</span>
+                      <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                    </motion.button>
+                  </div>
+                  
                 </div>
               </>
             ) : (

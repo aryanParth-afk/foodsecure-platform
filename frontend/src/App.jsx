@@ -6,6 +6,7 @@ import { HandHeart } from 'lucide-react';
 import DonorHistory from './components/DonorHistory';
 
 import Navbar from './components/Navbar';
+import Profile from './components/Profile';
 import BackButton from './components/BackButton';
 import LandingPage from './components/LandingPage';
 import Auth from './components/Auth';
@@ -103,6 +104,7 @@ const App = () => {
           <Navbar />
           <div className="pt-8 pb-12">
             <Routes>
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/ngo-dashboard" element={<ProtectedRoute requiredRole="NGO"><NGODashboard /></ProtectedRoute>} />
