@@ -22,14 +22,29 @@ const Navbar = () => {
   const profileRef = useRef(null);
   const notifRef = useRef(null);
 
-  // Fetch Notifications on load
+  // THE FIX: "Polling" for real-time notifications!
   useEffect(() => {
-    if (user) {
-      axios.get(`${apiUrl}/api/notifications/${user.id || user._id}`)
-        .then(res => setNotifications(res.data))
-        .catch(err => console.error("Failed to load notifications", err));
-    }
-  }, [user?.id, apiUrl]);
+    if (!user) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const userId = user.id || user._id;
+        const res = await axios.get(`${apiUrl}/api/notifications/${userId}`);
+        setNotifications(res.data);
+      } catch (err) {
+        console.error("Failed to load notifications", err);
+      }
+    };
+
+    // Fetch immediately on load
+    fetchNotifications();
+
+    // Silently check for new notifications every 10 seconds!
+    const intervalId = setInterval(fetchNotifications, 10000);
+
+    // Cleanup the interval when the user logs out or leaves the page
+    return () => clearInterval(intervalId);
+  }, [user?.id, user?._id, apiUrl]);
 
   // Click outside listener for BOTH dropdowns
   useEffect(() => {
@@ -68,7 +83,6 @@ const Navbar = () => {
   const linkClass = (path) => `flex items-center text-sm font-bold transition-colors ${isActive(path) ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'}`;
   const getInitials = (name) => name ? name.substring(0, 2).toUpperCase() : 'U';
 
-  // Helper to pick icons based on notification type
   const getNotifIcon = (type) => {
     if (type === 'success') return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
     if (type === 'warning') return <AlertCircle className="w-5 h-5 text-orange-500" />;
