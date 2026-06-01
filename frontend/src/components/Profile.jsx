@@ -2,22 +2,29 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { User, Lock, Building2, Save } from 'lucide-react';
+import { User, Lock, Building2, Save, KeyRound, ShieldAlert } from 'lucide-react';
 
 const Profile = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const [orgName, setOrgName] = useState(currentUser.orgName || '');
   const [newPassword, setNewPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState(''); // NEW: State for verification
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+    
+    if (!currentPassword) {
+      return toast.error("Please enter your current password to authorize changes.");
+    }
+
     setIsSubmitting(true);
 
     try {
       const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/users/${currentUser.id}`, {
         orgName: orgName !== currentUser.orgName ? orgName : undefined,
-        newPassword: newPassword ? newPassword : undefined
+        newPassword: newPassword ? newPassword : undefined,
+        currentPassword: currentPassword // Send the old password for verification
       });
 
       // Update LocalStorage so the Navbar instantly sees the new data
@@ -25,7 +32,10 @@ const Profile = () => {
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
       toast.success("Profile updated successfully!");
-      setNewPassword(''); // Clear password field after success
+      
+      // Clear the password fields so they are empty for next time
+      setNewPassword(''); 
+      setCurrentPassword(''); 
       
       // Force a soft reload to instantly update the Navbar name
       setTimeout(() => window.location.reload(), 1000);
@@ -77,7 +87,7 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Password Input */}
+          {/* New Password Input */}
           <div className="pt-4 border-t border-slate-100">
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Update Password (Optional)</label>
             <div className="relative">
@@ -91,6 +101,29 @@ const Profile = () => {
               />
             </div>
             <p className="text-xs text-slate-400 mt-2 font-medium">Type a new password here only if you wish to change your current one.</p>
+          </div>
+
+          {/* SECURITY VERIFICATION BLOCK */}
+          <div className="pt-6 mt-6 border-t-2 border-dashed border-slate-200">
+            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-5">
+              <div className="flex items-center space-x-2 mb-3">
+                <ShieldAlert className="w-5 h-5 text-rose-500" />
+                <label className="text-sm font-bold text-rose-900">Authorize Changes</label>
+              </div>
+              <p className="text-xs text-rose-700/80 mb-3 font-medium">To protect your account, please enter your current password to save these changes.</p>
+              
+              <div className="relative">
+                <KeyRound className="w-5 h-5 text-rose-400 absolute left-4 top-3.5" />
+                <input 
+                  type="password" 
+                  placeholder="Enter current password..."
+                  value={currentPassword} 
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full bg-white border-2 border-rose-200 text-slate-900 rounded-xl py-3 pl-12 pr-4 focus:border-rose-500 focus:ring-0 outline-none transition-all font-bold" 
+                  required
+                />
+              </div>
+            </div>
           </div>
 
           <button 
