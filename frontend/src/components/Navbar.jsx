@@ -13,7 +13,16 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    navigate('/auth?mode=login');
+    
+    // FIXING THE BACK BUTTON TRAP:
+    // 1. Replace the current protected route (Dashboard) with the Home page in browser history
+    navigate('/', { replace: true });
+    
+    // 2. Instantly push them to the Login page. 
+    // Now, if they click the browser's "Back" button, they will safely land on the Home page!
+    setTimeout(() => {
+      navigate('/auth?mode=login');
+    }, 10);
   };
 
   const isActive = (path) => location.pathname === path;
