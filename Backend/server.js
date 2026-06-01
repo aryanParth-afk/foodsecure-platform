@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); 
 const FoodListing = require('./models/FoodListing'); 
 const User = require('./models/User'); 
+const Notification = require('./models/Notification'); // NEW: Imported Notifications!
 
 const app = express();
 app.use(cors());
@@ -48,7 +49,6 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(500).json({ message: 'Server error during registration.' });
   }
 });
-
 
 // 2. USER LOGIN
 app.post('/api/auth/login', async (req, res) => {
@@ -114,6 +114,53 @@ app.patch('/api/users/:id', async (req, res) => {
     res.status(500).json({ message: "Server error during profile update." });
   }
 });
+
+// ==========================================
+// --- NOTIFICATION ROUTES ---
+// ==========================================
+
+// Get user's notifications
+app.get('/api/notifications/:userId', async (req, res) => {
+  try {
+    const notifications = await Notification.find({ userId: req.params.userId })
+      .sort({ createdAt: -1 })
+      .limit(20);
+    res.json(notifications);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ message: "Server error fetching notifications" });
+  }
+});
+
+// Mark single notification as read
+app.patch('/api/notifications/:id/read', async (req, res) => {
+  try {
+    const notif = await Notification.findByIdAndUpdate(
+      req.params.id, 
+      { isRead: true }, 
+      { new: true }
+    );
+    res.json(notif);
+  } catch (error) {
+    console.error("Error marking notification read:", error);
+    res.status(500).json({ message: "Server error updating notification" });
+  }
+});
+
+// Mark all as read
+app.patch('/api/notifications/read-all/:userId', async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { userId: req.params.userId, isRead: false }, 
+      { isRead: true }
+    );
+    res.json({ message: "All marked as read" });
+  } catch (error) {
+    console.error("Error marking all read:", error);
+    res.status(500).json({ message: "Server error updating notifications" });
+  }
+});
+
 // ==========================================
 // --- DONOR ROUTES ---
 // ==========================================
@@ -151,7 +198,7 @@ app.get('/api/my-donations/:userId', async (req, res) => {
   }
 });
 
-// NEW ROUTE: Soft-delete (hide) a history item for the Donor
+// Soft-delete (hide) a history item for the Donor
 app.patch('/api/listings/:id/hide-donor', async (req, res) => {
   try {
     const hiddenListing = await FoodListing.findByIdAndUpdate(
@@ -195,7 +242,7 @@ app.get('/api/my-claims/:userId', async (req, res) => {
   }
 });
 
-// 3. Claim a specific food donation (UPGRADED WITH OTP)
+// 3. Claim a specific food donation (UPGRADED WITH OTP & NOTIFICATIONS)
 app.patch('/api/listings/:id/claim', async (req, res) => {
   try {
     // Generate a random 4-digit OTP
@@ -209,7 +256,15 @@ app.patch('/api/listings/:id/claim', async (req, res) => {
         pickupOtp: generatedOtp // Save the secret code to the database
       },
       { new: true }
-    );
+    ).populate('claimedBy', 'orgName'); // Populate so we can use the NGO's name
+
+    // 🔔 NOTIFY THE DONOR!
+    await Notification.create({
+      userId: updatedListing.donorId,
+      message: `${updatedListing.claimedBy?.orgName || 'An NGO'} has claimed your donation of ${updatedListing.foodName}.`,
+      type: 'info'
+    });
+
     res.json(updatedListing);
   } catch (error) {
     console.error("Error claiming listing:", error);
@@ -217,7 +272,7 @@ app.patch('/api/listings/:id/claim', async (req, res) => {
   }
 });
 
-// NEW ROUTE: Verify Pickup using OTP
+// Verify Pickup using OTP (UPGRADED WITH NOTIFICATIONS)
 app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
   try {
     const { otp } = req.body;
@@ -230,9 +285,15 @@ app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
       return res.status(400).json({ message: "Invalid OTP code. Please try again." });
     }
 
-    // THE FIX: Must be 'Completed' with a capital C to match your Mongoose Schema!
     listing.status = 'Completed';
     await listing.save();
+
+    // 🔔 NOTIFY THE NGO!
+    await Notification.create({
+      userId: listing.claimedBy,
+      message: `Pickup verified for ${listing.foodName}! Thank you for rescuing food today.`,
+      type: 'success'
+    });
 
     res.json(listing);
   } catch (error) {
@@ -241,6 +302,7 @@ app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
   }
 });
 
+// Cancel Claim (UPGRADED WITH NOTIFICATIONS)
 app.patch('/api/listings/:id/cancel', async (req, res) => {
   try {
     const canceledListing = await FoodListing.findByIdAndUpdate(
@@ -252,6 +314,14 @@ app.patch('/api/listings/:id/cancel', async (req, res) => {
       }, 
       { new: true }
     );
+
+    // 🔔 NOTIFY THE DONOR!
+    await Notification.create({
+      userId: canceledListing.donorId,
+      message: `An NGO had to cancel their pickup for ${canceledListing.foodName}. It has been returned to the Live Feed.`,
+      type: 'warning'
+    });
+
     res.json(canceledListing);
   } catch (error) {
     console.error("Error canceling claim:", error);
@@ -273,13 +343,12 @@ app.get('/api/admin/users', async (req, res) => {
   }
 });
 
-// NEW ROUTE: Master Audit Log for Admins (Fetches EVERYTHING)
 app.get('/api/admin/listings', async (req, res) => {
   try {
     const allListings = await FoodListing.find()
       .populate('donorId', 'orgName email role')
       .populate('claimedBy', 'orgName email role')
-      .sort({ createdAt: -1 }); // Newest first
+      .sort({ createdAt: -1 }); 
       
     res.json(allListings);
   } catch (error) {
@@ -404,5 +473,5 @@ app.get('/api/admin/analytics', async (req, res) => {
 const PORT = process.env.PORT || 5001; 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🟢 FINGERPRINT TEST: Code successfully deployed with strict filtering!`);
+  console.log(`🔔 NOTIFICATIONS ACTIVATED: Pipeline is live!`);
 });
