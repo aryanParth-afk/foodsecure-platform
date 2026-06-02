@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const FoodListing = require('./models/FoodListing'); 
 const User = require('./models/User'); 
 const Notification = require('./models/Notification'); // NEW: Imported Notifications!
+const crypto = require('crypto'); // Add this near your other requires at the top
 
 const app = express();
 app.use(cors());
@@ -75,7 +76,66 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// 3. UPDATE USER PROFILE (Settings)
+// 3. FORGOT PASSWORD (Generate Token)
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(404).json({ message: "If that email exists, a reset link has been sent." }); // Vague message for security
+
+    // Generate a secure 20-character hex token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+
+    // Save token and set expiration to 1 hour (3600000 ms) from now
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000;
+    await user.save();
+
+    // The Reset URL the user will click
+    // Note: In production, you would email this link using Resend or SendGrid!
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+    
+    // For now, we will send it in the response so you can test it easily
+    res.json({ 
+      message: "Password reset link generated!", 
+      resetUrl: resetUrl 
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error during password reset." });
+  }
+});
+
+// 4. RESET PASSWORD (Verify Token & Update)
+app.post('/api/auth/reset-password/:token', async (req, res) => {
+  try {
+    // Find user by token AND ensure the token hasn't expired yet
+    const user = await User.findOne({ 
+      resetPasswordToken: req.params.token, 
+      resetPasswordExpires: { $gt: Date.now() } 
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Password reset token is invalid or has expired." });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(req.body.password, salt);
+
+    // Clear the reset token fields so they can't be used again
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: "Your password has been successfully reset! You can now log in." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error saving new password." });
+  }
+});
+
+// 5. UPDATE USER PROFILE (Settings)
 app.patch('/api/users/:id', async (req, res) => {
   try {
     const { orgName, newPassword, currentPassword } = req.body;

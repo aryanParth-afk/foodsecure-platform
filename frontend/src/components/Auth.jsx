@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -151,7 +151,15 @@ const Auth = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">Password</label>
+                {/* NEW: Flex container to align the label and Forgot Password link */}
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-sm font-bold text-slate-700">Password</label>
+                  {isLogin && (
+                    <Link to="/forgot-password" className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                      Forgot password?
+                    </Link>
+                  )}
+                </div>
                 <div className="relative group">
                   <Lock className={`w-5 h-5 absolute left-3.5 top-3.5 transition-colors ${authError ? 'text-rose-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} />
                   <input type="password" name="password" required value={formData.password} onChange={handleChange} className={authError ? errorInputClass : defaultInputClass} placeholder="••••••••••••" />

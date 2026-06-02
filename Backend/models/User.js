@@ -7,16 +7,20 @@ const userSchema = new mongoose.Schema({
   
   // THE MOST IMPORTANT FIELD: This dictates which dashboard they see
   role: {
-  type: String,
-  // ADD 'Revoked' TO THE LIST!
-  enum: ['NGO', 'Donor', 'Admin', 'SuperAdmin', 'Revoked'], 
-  required: true
-},
-// NEW: Memory bank to remember what they were before promotion!
+    type: String,
+    // ADD 'Revoked' TO THE LIST!
+    enum: ['NGO', 'Donor', 'Admin', 'SuperAdmin', 'Revoked'], 
+    required: true
+  },
+  // NEW: Memory bank to remember what they were before promotion!
   originalRole: {
     type: String,
     enum: ['NGO', 'Donor']
   },
+
+  // NEW: Forgot Password Fields
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
   
   location: { type: String },
   

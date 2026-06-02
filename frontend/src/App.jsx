@@ -16,6 +16,8 @@ import DonorDashboard from './components/DonorDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -109,6 +111,8 @@ const App = () => {
           
           <div className="pt-8 pb-12 relative z-10">
             <Routes>
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<Auth />} />
@@ -117,6 +121,7 @@ const App = () => {
               <Route path="/history" element={<ProtectedRoute requiredRole="Donor"><DonorHistory /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminDashboard /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute requiredRole="Admin"><AnalyticsDashboard /></ProtectedRoute>} />
+              
             </Routes>
           </div>
         </div>
