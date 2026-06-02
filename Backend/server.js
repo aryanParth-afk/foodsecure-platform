@@ -92,7 +92,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     // The Reset URL the user will click
     // Note: In production, you would email this link using Resend or SendGrid!
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL || 'https://foodsecure-platform.vercel.app'}/reset-password/${resetToken}`;
     
     // For now, we will send it in the response so you can test it easily
     res.json({ 
