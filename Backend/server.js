@@ -8,7 +8,6 @@ const FoodListing = require('./models/FoodListing');
 const User = require('./models/User'); 
 const Notification = require('./models/Notification'); // NEW: Imported Notifications!
 const crypto = require('crypto'); // Add this near your other requires at the top
-const nodemailer = require('nodemailer'); // NEW: Import Nodemailer
 
 const app = express();
 app.use(cors());
@@ -77,7 +76,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// 3. FORGOT PASSWORD (Generate Token & SEND REAL EMAIL)
+// 3. FORGOT PASSWORD (Generate Token & SEND VIA BREVO HTTP API)
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -90,20 +89,12 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     const resetUrl = `${process.env.FRONTEND_URL || 'https://foodsecure-platform.vercel.app'}/reset-password/${resetToken}`;
     
-    // --- NODEMAILER SETUP ---
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    const mailOptions = {
-      from: `"FoodRescue Support" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: 'FoodRescue - Password Reset Request',
-      html: `
+    // --- BREVO HTTP API SETUP (Bypasses Render's SMTP Firewall) ---
+    const emailData = {
+      sender: { name: "FoodRescue Support", email: process.env.EMAIL_USER }, // Your verified Gmail
+      to: [{ email: user.email }],
+      subject: "FoodRescue - Password Reset Request",
+      htmlContent: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f1f5f9; border-radius: 10px;">
           <h2 style="color: #0f172a;">Password Reset Request</h2>
           <p style="color: #475569; font-size: 16px;">Hello ${user.orgName},</p>
@@ -116,14 +107,28 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       `
     };
 
-    // Send the email
-    await transporter.sendMail(mailOptions);
+    // Send the email over standard HTTPS (Port 443) which Render cannot block!
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(emailData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Brevo API Error:", errorData);
+      return res.status(500).json({ message: "Server error sending email. Please try again later." });
+    }
 
     res.json({ message: "Password reset link sent to your email!" });
 
   } catch (error) {
     console.error("Email Error:", error);
-    res.status(500).json({ message: "Server error sending email. Please try again later." });
+    res.status(500).json({ message: "Server error during password reset." });
   }
 });
 
