@@ -8,17 +8,15 @@ import { KeyRound, ArrowLeft, Mail, Send } from 'lucide-react';
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [demoLink, setDemoLink] = useState(''); // Used for local testing without an email server
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setDemoLink('');
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, { email });
-      toast.success("Reset link generated!");
-      setDemoLink(response.data.resetUrl); // In production, remove this and actually email it!
+      // Uses the success message sent directly from your Nodemailer backend!
+      toast.success(response.data.message || "Reset link sent to your email!"); 
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to process request.");
     } finally {
@@ -56,14 +54,6 @@ const ForgotPassword = () => {
             {isSubmitting ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Send className="w-4 h-4 mr-2" /> Send Reset Link</>}
           </button>
         </form>
-
-        {/* DEMO PURPOSES ONLY: Show the link on screen since we don't have an email server yet */}
-        {demoLink && (
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="mt-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-center">
-            <p className="text-xs font-bold text-emerald-800 mb-2">Development Mode: Link Generated!</p>
-            <a href={demoLink} className="text-sm font-black text-emerald-600 hover:underline break-all">Click here to reset password</a>
-          </motion.div>
-        )}
 
         <div className="mt-8 text-center">
           <Link to="/auth?mode=login" className="text-sm font-bold text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors">

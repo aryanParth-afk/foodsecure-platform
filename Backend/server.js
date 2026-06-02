@@ -8,6 +8,7 @@ const FoodListing = require('./models/FoodListing');
 const User = require('./models/User'); 
 const Notification = require('./models/Notification'); // NEW: Imported Notifications!
 const crypto = require('crypto'); // Add this near your other requires at the top
+const nodemailer = require('nodemailer'); // NEW: Import Nodemailer
 
 const app = express();
 app.use(cors());
@@ -76,33 +77,53 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// 3. FORGOT PASSWORD (Generate Token)
+// 3. FORGOT PASSWORD (Generate Token & SEND REAL EMAIL)
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(404).json({ message: "If that email exists, a reset link has been sent." }); // Vague message for security
+    if (!user) return res.status(404).json({ message: "If that email exists, a reset link has been sent." });
 
-    // Generate a secure 20-character hex token
     const resetToken = crypto.randomBytes(20).toString('hex');
-
-    // Save token and set expiration to 1 hour (3600000 ms) from now
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    // The Reset URL the user will click
-    // Note: In production, you would email this link using Resend or SendGrid!
     const resetUrl = `${process.env.FRONTEND_URL || 'https://foodsecure-platform.vercel.app'}/reset-password/${resetToken}`;
     
-    // For now, we will send it in the response so you can test it easily
-    res.json({ 
-      message: "Password reset link generated!", 
-      resetUrl: resetUrl 
+    // --- NODEMAILER SETUP ---
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
     });
 
+    const mailOptions = {
+      from: `"FoodRescue Support" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: 'FoodRescue - Password Reset Request',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f1f5f9; border-radius: 10px;">
+          <h2 style="color: #0f172a;">Password Reset Request</h2>
+          <p style="color: #475569; font-size: 16px;">Hello ${user.orgName},</p>
+          <p style="color: #475569; font-size: 16px;">We received a request to reset your password for your FoodRescue account. This link will expire in 1 hour.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #0f172a; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Reset Your Password</a>
+          </div>
+          <p style="color: #94a3b8; font-size: 14px;">If you did not request this, please ignore this email and your password will remain unchanged.</p>
+        </div>
+      `
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: "Password reset link sent to your email!" });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error during password reset." });
+    console.error("Email Error:", error);
+    res.status(500).json({ message: "Server error sending email. Please try again later." });
   }
 });
 
