@@ -6,6 +6,7 @@ import { HandHeart } from 'lucide-react';
 import DonorHistory from './components/DonorHistory';
 
 import Navbar from './components/Navbar';
+import AmbientFlow from './components/AmbientFlow';
 import Profile from './components/Profile';
 import BackButton from './components/BackButton';
 import LandingPage from './components/LandingPage';
@@ -58,7 +59,11 @@ const App = () => {
       </AnimatePresence>
 
       <Router>
-        <div className="min-h-screen bg-slate-50 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-orange-50/50 via-slate-50 to-emerald-50/30 font-sans text-slate-900 selection:bg-orange-500 selection:text-white">
+        {/* THE NEW AMBIENT BACKGROUND */}
+        <AmbientFlow />
+        
+        {/* Adjusted wrapper to be slightly transparent so blobs show through */}
+        <div className="relative min-h-screen bg-transparent bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-orange-50/40 via-slate-50/60 to-emerald-50/30 font-sans text-slate-900 selection:bg-orange-500 selection:text-white z-0">
           <Toaster 
             position="top-center"
             reverseOrder={false}
@@ -98,11 +103,11 @@ const App = () => {
             }} 
           />
           
-          {/* THE NEW SMART BACK BUTTON */}
           <BackButton />
           
           <Navbar />
-          <div className="pt-8 pb-12">
+          
+          <div className="pt-8 pb-12 relative z-10">
             <Routes>
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/" element={<LandingPage />} />
