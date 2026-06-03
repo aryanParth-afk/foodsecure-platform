@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock, User, ChevronDown, Settings, CheckCircle2, AlertCircle, Info, CheckCheck } from 'lucide-react';
+// <-- IMPORTED 'MapPin' FOR THE NEW LIVE MAP LINK -->
+import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock, User, ChevronDown, Settings, CheckCircle2, AlertCircle, Info, CheckCheck, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -22,7 +23,7 @@ const Navbar = () => {
   const profileRef = useRef(null);
   const notifRef = useRef(null);
 
-  // THE FIX: "Polling" for real-time notifications!
+  // "Polling" for real-time notifications
   useEffect(() => {
     if (!user) return;
 
@@ -36,17 +37,12 @@ const Navbar = () => {
       }
     };
 
-    // Fetch immediately on load
     fetchNotifications();
 
-    // Silently check for new notifications every 10 seconds!
     const intervalId = setInterval(fetchNotifications, 10000);
-
-    // Cleanup the interval when the user logs out or leaves the page
     return () => clearInterval(intervalId);
   }, [user?.id, user?._id, apiUrl]);
 
-  // Click outside listener for BOTH dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) setIsProfileOpen(false);
@@ -106,11 +102,19 @@ const Navbar = () => {
               <>
                 <Link to="/admin" className={linkClass('/admin')}><LayoutDashboard className="w-4 h-4 mr-2" /> Users</Link>
                 <Link to="/analytics" className={linkClass('/analytics')}><BarChart3 className="w-4 h-4 mr-2" /> Analytics</Link>
+                {/* Admin can also see the map */}
+                <Link to="/ngo-map" className={linkClass('/ngo-map')}><MapPin className="w-4 h-4 mr-2" /> Live Map</Link>
               </>
             ) : user?.role === 'Donor' ? (
               <>
                 <Link to="/donor-dashboard" className={linkClass('/donor-dashboard')}><LayoutDashboard className="w-4 h-4 mr-2" /> Post Food</Link>
                 <Link to="/history" className={linkClass('/history')}><Clock className="w-4 h-4 mr-2" /> Impact History</Link>
+              </>
+            // <-- NEW SECTION: NGO ROLE LINKS ADDED HERE -->
+            ) : user?.role === 'NGO' ? (
+              <>
+                <Link to="/ngo-dashboard" className={linkClass('/ngo-dashboard')}><LayoutDashboard className="w-4 h-4 mr-2" /> Dashboard</Link>
+                <Link to="/ngo-map" className={linkClass('/ngo-map')}><MapPin className="w-4 h-4 mr-2" /> Live Map</Link>
               </>
             ) : null}
           </div>

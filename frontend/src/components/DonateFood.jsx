@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import LocationPicker from './LocationPicker'; // <-- IMPORTED YOUR MAP COMPONENT
 
 const DonateFood = () => {
   const navigate = useNavigate();
@@ -10,11 +11,23 @@ const DonateFood = () => {
     quantity: '',
     category: 'Veg',
     pickupLocation: '',
+    lat: null, // <-- ADDED FOR MAPBOX
+    lng: null, // <-- ADDED FOR MAPBOX
     hoursUntilExpiry: '2'
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // <-- NEW FUNCTION: Updates state when donor drops a pin on the map
+  const handleLocationSelect = (address, selectedLat, selectedLng) => {
+    setFormData({
+      ...formData,
+      pickupLocation: address,
+      lat: selectedLat,
+      lng: selectedLng
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -33,6 +46,11 @@ const DonateFood = () => {
     if (formData.pickupLocation.trim().length < 5) {
       return toast.error("Please provide a more specific pickup location.");
     }
+    // <-- NEW: Ensure coordinates are captured before submitting
+    if (!formData.lat || !formData.lng) {
+      return toast.error("Please select your exact pickup location on the map.");
+    }
+
     const hours = Number(formData.hoursUntilExpiry);
     if (hours < 1 || hours > 72) {
       return toast.error("Expiry time must be between 1 and 72 hours.");
@@ -43,7 +61,10 @@ const DonateFood = () => {
     const dataToSend = { ...formData, expiryTime: expiryDate };
 
     try {
-      await axios.post('http://localhost:5001/api/listings', dataToSend);
+      // <-- UPDATED: Uses dynamic environment URL and points to the right route
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+      await axios.post(`${apiUrl}/api/foodlistings`, dataToSend);
+      
       toast.dismiss(loadingToast);
       toast.success('Donation successfully posted!');
       setTimeout(() => navigate('/'), 1500);
@@ -81,10 +102,16 @@ const DonateFood = () => {
           </div>
         </div>
 
+        {/* <-- REPLACED THE TEXT INPUT WITH YOUR LOCATION PICKER --> */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Pickup Location</label>
-          <input type="text" name="pickupLocation" required value={formData.pickupLocation} onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" placeholder="e.g., Downtown Community Center" />
+          {/* Note: Check your LocationPicker.jsx to ensure it accepts an 'onSelect' or similar prop to pass data back up! */}
+          <LocationPicker onSelect={handleLocationSelect} />
+          
+          {/* Optional: Show the selected text address below the map for confirmation */}
+          {formData.pickupLocation && (
+            <p className="text-xs text-gray-500 mt-2">Selected: {formData.pickupLocation}</p>
+          )}
         </div>
 
         <div>

@@ -12,6 +12,11 @@ const foodListingSchema = new mongoose.Schema({
   
   // Logistics
   pickupLocation: { type: String, required: true },
+  
+  // NEW: Coordinates for Mapbox Integration
+  lat: { type: Number },
+  lng: { type: Number },
+
   availableSlots: [{ type: String }], 
   
   // Lifecycle Management
@@ -28,7 +33,7 @@ const foodListingSchema = new mongoose.Schema({
   claimedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   selectedPickupSlot: { type: String, default: null },
   
-  // NEW: Allows Donors to remove history from UI without resetting all-time counters
+  // Allows Donors to remove history from UI without resetting all-time counters
   donorHidden: { type: Boolean, default: false }
   
 }, { timestamps: true });

@@ -18,6 +18,7 @@ import AnalyticsDashboard from './components/AnalyticsDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import NgoMapDashboard from './components/NgoMapDashboard';
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -121,6 +122,7 @@ const App = () => {
               <Route path="/history" element={<ProtectedRoute requiredRole="Donor"><DonorHistory /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminDashboard /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute requiredRole="Admin"><AnalyticsDashboard /></ProtectedRoute>} />
+              <Route path="/ngo-map" element={<NgoMapDashboard />} />
               
             </Routes>
           </div>
