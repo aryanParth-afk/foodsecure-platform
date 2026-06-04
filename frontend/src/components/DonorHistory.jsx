@@ -55,6 +55,22 @@ const DonorHistory = () => {
     }
   };
 
+  // NEW: Delete active/pending donation
+  const handleDelete = async (id, foodName) => {
+    if (!window.confirm(`Are you sure you want to delete "${foodName}"? This will permanently remove it from the live map.`)) {
+      return;
+    }
+
+    const toastId = toast.loading("Deleting donation...");
+    try {
+      await axios.delete(`${apiUrl}/api/listings/${id}`);
+      setDonations(donations.filter(donation => donation._id !== id));
+      toast.success("Donation removed successfully!", { id: toastId });
+    } catch (error) {
+      toast.error("Failed to delete donation.", { id: toastId });
+    }
+  };
+
   // STATS CALCULATION
   const totalDonations = donations.length;
   const completedDonations = donations.filter(d => d.status.toLowerCase() === 'completed').length;
@@ -182,7 +198,7 @@ const DonorHistory = () => {
                         </div>
 
                         <div className="bg-slate-50 p-3 rounded-xl md:min-w-65 border border-slate-100 relative">
-                          {/* DUSTBIN BUTTON (Slightly more compact) */}
+                          {/* DUSTBIN BUTTON (For completed history removal) */}
                           {donation.status.toLowerCase() === 'completed' && (
                             <button 
                               onClick={() => handleHideListing(donation._id)}
@@ -226,9 +242,19 @@ const DonorHistory = () => {
                               </div>
                             </div>
                           ) : (
-                            <div className="flex items-center space-x-2 text-slate-400 pb-1">
-                              <Clock className="w-4 h-4" />
-                              <span className="font-medium text-sm">Waiting for an NGO...</span>
+                            <div className="flex flex-col space-y-2.5">
+                              <div className="flex items-center space-x-2 text-slate-400 pb-1">
+                                <Clock className="w-4 h-4" />
+                                <span className="font-medium text-sm">Waiting for an NGO...</span>
+                              </div>
+                              
+                              {/* NEW: Cancel & Delete button for Available/Pending donations */}
+                              <button 
+                                onClick={() => handleDelete(donation._id, donation.foodItem || donation.foodName)}
+                                className="flex items-center justify-center gap-1.5 w-full bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 rounded-lg py-1.5 text-xs font-bold transition-all shadow-sm"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" /> Cancel & Delete
+                              </button>
                             </div>
                           )}
                         </div>

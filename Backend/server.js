@@ -270,6 +270,19 @@ app.get('/api/my-donations/:userId', async (req, res) => {
   }
 });
 
+// DELETE a donation (Removes it from the map completely)
+app.delete('/api/listings/:id', async (req, res) => {
+  try {
+    const deletedListing = await FoodListing.findByIdAndDelete(req.params.id);
+    if (!deletedListing) return res.status(404).json({ message: "Listing not found" });
+    
+    res.json({ message: "Donation permanently deleted." });
+  } catch (error) {
+    console.error("Error deleting listing:", error);
+    res.status(500).json({ message: "Server error while deleting listing" });
+  }
+});
+
 app.patch('/api/listings/:id/hide-donor', async (req, res) => {
   try {
     const hiddenListing = await FoodListing.findByIdAndUpdate(
