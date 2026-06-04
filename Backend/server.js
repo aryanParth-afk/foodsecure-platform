@@ -6,8 +6,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); 
 const FoodListing = require('./models/FoodListing'); 
 const User = require('./models/User'); 
-const Notification = require('./models/Notification'); // NEW: Imported Notifications!
-const crypto = require('crypto'); // Add this near your other requires at the top
+const Notification = require('./models/Notification'); 
+const crypto = require('crypto'); 
 
 const app = express();
 app.use(cors());
@@ -21,7 +21,6 @@ mongoose.connect(process.env.MONGO_URI)
 // --- REAL AUTHENTICATION ROUTES ---
 // ==========================================
 
-// 1. USER SIGNUP
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, orgName, role, adminSecretCode } = req.body;
@@ -51,7 +50,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// 2. USER LOGIN
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -76,7 +74,6 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// 3. FORGOT PASSWORD (Generate Token & SEND VIA BREVO HTTP API)
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -84,14 +81,13 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     const resetToken = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    user.resetPasswordExpires = Date.now() + 3600000; 
     await user.save();
 
     const resetUrl = `${process.env.FRONTEND_URL || 'https://foodsecure-platform.vercel.app'}/reset-password/${resetToken}`;
     
-    // --- BREVO HTTP API SETUP (Bypasses Render's SMTP Firewall) ---
     const emailData = {
-      sender: { name: "FoodRescue Support", email: process.env.EMAIL_USER }, // Your verified Gmail
+      sender: { name: "FoodRescue Support", email: process.env.EMAIL_USER }, 
       to: [{ email: user.email }],
       subject: "FoodRescue - Password Reset Request",
       htmlContent: `
@@ -107,7 +103,6 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       `
     };
 
-    // Send the email over standard HTTPS (Port 443) which Render cannot block!
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
@@ -132,10 +127,8 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   }
 });
 
-// 4. RESET PASSWORD (Verify Token & Update)
 app.post('/api/auth/reset-password/:token', async (req, res) => {
   try {
-    // Find user by token AND ensure the token hasn't expired yet
     const user = await User.findOne({ 
       resetPasswordToken: req.params.token, 
       resetPasswordExpires: { $gt: Date.now() } 
@@ -145,11 +138,9 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
       return res.status(400).json({ message: "Password reset token is invalid or has expired." });
     }
 
-    // Hash the new password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(req.body.password, salt);
 
-    // Clear the reset token fields so they can't be used again
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
@@ -161,7 +152,6 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
   }
 });
 
-// 5. UPDATE USER PROFILE (Settings)
 app.patch('/api/users/:id', async (req, res) => {
   try {
     const { orgName, newPassword, currentPassword } = req.body;
@@ -169,7 +159,6 @@ app.patch('/api/users/:id', async (req, res) => {
     
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // 🚨 SECURITY CHECK: Verify the current password before allowing ANY changes
     if (!currentPassword) {
       return res.status(400).json({ message: "Current password is required to save changes." });
     }
@@ -179,10 +168,8 @@ app.patch('/api/users/:id', async (req, res) => {
       return res.status(401).json({ message: "Incorrect current password. Changes denied." });
     }
 
-    // Update Organization Name if provided
     if (orgName) user.orgName = orgName;
 
-    // Securely hash and update the password if a new one is provided
     if (newPassword) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
@@ -190,7 +177,6 @@ app.patch('/api/users/:id', async (req, res) => {
 
     await user.save();
 
-    // Create a fresh token so the frontend updates immediately
     const payload = { id: user._id, role: user.role, orgName: user.orgName };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
@@ -205,7 +191,6 @@ app.patch('/api/users/:id', async (req, res) => {
 // --- NOTIFICATION ROUTES ---
 // ==========================================
 
-// Get user's notifications
 app.get('/api/notifications/:userId', async (req, res) => {
   try {
     const notifications = await Notification.find({ userId: req.params.userId })
@@ -218,7 +203,6 @@ app.get('/api/notifications/:userId', async (req, res) => {
   }
 });
 
-// Mark single notification as read
 app.patch('/api/notifications/:id/read', async (req, res) => {
   try {
     const notif = await Notification.findByIdAndUpdate(
@@ -233,7 +217,6 @@ app.patch('/api/notifications/:id/read', async (req, res) => {
   }
 });
 
-// Mark all as read
 app.patch('/api/notifications/read-all/:userId', async (req, res) => {
   try {
     await Notification.updateMany(
@@ -251,13 +234,16 @@ app.patch('/api/notifications/read-all/:userId', async (req, res) => {
 // --- DONOR ROUTES ---
 // ==========================================
 
-app.post('/api/listings', async (req, res) => {
+// UPDATED: Now listens to BOTH '/api/listings' and '/api/foodlistings'
+app.post(['/api/listings', '/api/foodlistings'], async (req, res) => {
   try {
     const newListing = new FoodListing({
       donorId: req.body.donorId,
       foodName: req.body.foodName,
       quantity: req.body.quantity,
       pickupLocation: req.body.pickupLocation,
+      lat: req.body.lat, // Capture Map Lat
+      lng: req.body.lng, // Capture Map Lng
       category: req.body.category || 'General Food', 
       availableSlots: req.body.availableSlots || 'Contact for pickup time', 
       imageUrl: req.body.imageUrl || '', 
@@ -284,7 +270,6 @@ app.get('/api/my-donations/:userId', async (req, res) => {
   }
 });
 
-// Soft-delete (hide) a history item for the Donor
 app.patch('/api/listings/:id/hide-donor', async (req, res) => {
   try {
     const hiddenListing = await FoodListing.findByIdAndUpdate(
@@ -303,7 +288,8 @@ app.patch('/api/listings/:id/hide-donor', async (req, res) => {
 // --- NGO ROUTES ---
 // ==========================================
 
-app.get('/api/listings/available', async (req, res) => {
+// UPDATED: Now listens to BOTH the old dashboard and the new Map routes
+app.get(['/api/listings/available', '/api/foodlistings/active'], async (req, res) => {
   try {
     const availableListings = await FoodListing.find({ status: 'Available' })
       .populate('donorId', 'orgName location isVerified') 
@@ -328,37 +314,40 @@ app.get('/api/my-claims/:userId', async (req, res) => {
   }
 });
 
-// 3. Claim a specific food donation (UPGRADED WITH OTP & NOTIFICATIONS)
-app.patch('/api/listings/:id/claim', async (req, res) => {
+// UPDATED: Centralized logic so both PATCH and POST work perfectly
+const processClaimRequest = async (req, res) => {
   try {
-    // Generate a random 4-digit OTP
     const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
     const updatedListing = await FoodListing.findByIdAndUpdate(
       req.params.id,
       { 
         status: 'Claimed',
-        claimedBy: req.body.ngoId,
-        pickupOtp: generatedOtp // Save the secret code to the database
+        claimedBy: req.body.ngoId || null, // Fail-safe if NGO id is missing in simple requests
+        pickupOtp: generatedOtp 
       },
       { new: true }
-    ).populate('claimedBy', 'orgName'); // Populate so we can use the NGO's name
+    ).populate('claimedBy', 'orgName'); 
 
-    // 🔔 NOTIFY THE DONOR!
-    await Notification.create({
-      userId: updatedListing.donorId,
-      message: `${updatedListing.claimedBy?.orgName || 'An NGO'} has claimed your donation of ${updatedListing.foodName}.`,
-      type: 'info'
-    });
+    if (updatedListing) {
+      await Notification.create({
+        userId: updatedListing.donorId,
+        message: `${updatedListing.claimedBy?.orgName || 'An NGO'} has claimed your donation of ${updatedListing.foodName}.`,
+        type: 'info'
+      });
+    }
 
     res.json(updatedListing);
   } catch (error) {
     console.error("Error claiming listing:", error);
     res.status(500).json({ message: "Server error while claiming listing" });
   }
-});
+};
 
-// Verify Pickup using OTP (UPGRADED WITH NOTIFICATIONS)
+// Bind both routes to the same claiming logic!
+app.patch('/api/listings/:id/claim', processClaimRequest);
+app.post('/api/foodlistings/claim/:id', processClaimRequest);
+
 app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
   try {
     const { otp } = req.body;
@@ -366,7 +355,6 @@ app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
 
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     
-    // Convert both to strings just to be 100% safe on the comparison
     if (String(listing.pickupOtp) !== String(otp)) {
       return res.status(400).json({ message: "Invalid OTP code. Please try again." });
     }
@@ -374,7 +362,6 @@ app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
     listing.status = 'Completed';
     await listing.save();
 
-    // 🔔 NOTIFY THE NGO!
     await Notification.create({
       userId: listing.claimedBy,
       message: `Pickup verified for ${listing.foodName}! Thank you for rescuing food today.`,
@@ -388,7 +375,6 @@ app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
   }
 });
 
-// Cancel Claim (UPGRADED WITH NOTIFICATIONS)
 app.patch('/api/listings/:id/cancel', async (req, res) => {
   try {
     const canceledListing = await FoodListing.findByIdAndUpdate(
@@ -396,12 +382,11 @@ app.patch('/api/listings/:id/cancel', async (req, res) => {
       { 
         status: 'Available',
         claimedBy: null,
-        pickupOtp: null // Clean up the OTP if cancelled
+        pickupOtp: null 
       }, 
       { new: true }
     );
 
-    // 🔔 NOTIFY THE DONOR!
     await Notification.create({
       userId: canceledListing.donorId,
       message: `An NGO had to cancel their pickup for ${canceledListing.foodName}. It has been returned to the Live Feed.`,
