@@ -1,19 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import mapboxgl from 'mapbox-gl';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import toast from 'react-hot-toast';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
-// TODO: Paste your real Mapbox public token here!
-mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+// Fix for default Leaflet marker icons in React
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const NgoMapDashboard = () => {
-  const mapContainerRef = useRef(null);
-  const mapRef = useRef(null);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch 'Available' listings from the backend
   useEffect(() => {
     const fetchActiveListings = async () => {
       try {
@@ -28,66 +34,16 @@ const NgoMapDashboard = () => {
     fetchActiveListings();
   }, []);
 
-  // 2. Initialize the Map and paint markers
-  useEffect(() => {
-    if (loading || !mapContainerRef.current) return;
-
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [77.4126, 23.2599], // Default center (adjust to your target city)
-      zoom: 12,
-    });
-
-    mapRef.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-    listings.forEach((listing) => {
-      // Skip if the donor didn't provide coordinates
-      if (!listing.lng || !listing.lat) return;
-
-      const popupHTML = `
-        <div style="font-family: sans-serif; padding: 5px;">
-          <h4 style="margin: 0 0 5px 0; color: #0f172a; font-weight: 800;">${listing.foodName}</h4>
-          <p style="margin: 0 0 5px 0; color: #475569; font-size: 12px;">Quantity: <strong>${listing.quantity}</strong></p>
-          <p style="margin: 0 0 10px 0; color: #475569; font-size: 12px;">📍 ${listing.pickupLocation}</p>
-          <button 
-            id="claim-btn-${listing._id}" 
-            style="background-color: #0f172a; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; width: 100%;"
-          >
-            Claim Pickup
-          </button>
-        </div>
-      `;
-
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
-
-      const marker = new mapboxgl.Marker({ color: '#f97316' }) 
-        .setLngLat([listing.lng, listing.lat])
-        .setPopup(popup)
-        .addTo(mapRef.current);
-
-      // Handle the Claim button click inside the popup
-      popup.on('open', () => {
-        const claimBtn = document.getElementById(`claim-btn-${listing._id}`);
-        if (claimBtn) {
-          claimBtn.addEventListener('click', async () => {
-            try {
-              await axios.post(`${import.meta.env.VITE_API_URL}/api/foodlistings/claim/${listing._id}`);
-              toast.success(`${listing.foodName} claimed successfully!`);
-              marker.remove(); 
-              popup.remove();
-            } catch (error) {
-              toast.error(error.response?.data?.message || "Failed to claim listing.");
-            }
-          });
-        }
-      });
-    });
-
-    return () => {
-      if (mapRef.current) mapRef.current.remove();
-    };
-  }, [listings, loading]);
+  const handleClaim = async (listingId, foodName) => {
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/foodlistings/claim/${listingId}`);
+      toast.success(`${foodName} claimed successfully!`);
+      // Remove claimed listing from the map visually
+      setListings(listings.filter(listing => listing._id !== listingId));
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to claim listing.");
+    }
+  };
 
   if (loading) {
     return (
@@ -105,8 +61,40 @@ const NgoMapDashboard = () => {
           Browse visual pickup markers placed across the city to coordinate rescue routes.
         </p>
       </div>
-      <div className="border border-slate-100 rounded-3xl overflow-hidden shadow-xl shadow-slate-100 bg-slate-50">
-        <div ref={mapContainerRef} className="w-full h-137.5" />
+      
+      <div className="border border-slate-200 rounded-3xl overflow-hidden shadow-xl bg-slate-50 relative z-0">
+        <MapContainer 
+          center={[23.2599, 77.4126]} // Default center (Bhopal)
+          zoom={12} 
+          style={{ height: '550px', width: '100%' }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          
+          {listings.map((listing) => {
+            if (!listing.lat || !listing.lng) return null;
+            
+            return (
+              <Marker key={listing._id} position={[listing.lat, listing.lng]}>
+                <Popup className="custom-popup">
+                  <div className="p-1 min-w-37.5">
+                    <h4 className="font-bold text-slate-900 text-base mb-1">{listing.foodName}</h4>
+                    <p className="text-slate-600 text-xs mb-1">Qty: <strong>{listing.quantity}</strong></p>
+                    <p className="text-slate-500 text-[10px] mb-3 leading-tight line-clamp-2">{listing.pickupLocation}</p>
+                    <button 
+                      onClick={() => handleClaim(listing._id, listing.foodName)}
+                      className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-lg text-xs transition-colors"
+                    >
+                      Claim Pickup
+                    </button>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MapContainer>
       </div>
     </div>
   );

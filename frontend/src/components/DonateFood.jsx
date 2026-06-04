@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import LocationPicker from './LocationPicker'; // <-- IMPORTED YOUR MAP COMPONENT
+import LocationPicker from './LocationPicker'; 
 
 const DonateFood = () => {
   const navigate = useNavigate();
@@ -11,16 +11,19 @@ const DonateFood = () => {
     quantity: '',
     category: 'Veg',
     pickupLocation: '',
-    lat: null, // <-- ADDED FOR MAPBOX
-    lng: null, // <-- ADDED FOR MAPBOX
+    lat: null, 
+    lng: null, 
     hoursUntilExpiry: '2'
   });
+
+  // <-- NEW: Controls whether the map is visible or hidden
+  const [showMapPicker, setShowMapPicker] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // <-- NEW FUNCTION: Updates state when donor drops a pin on the map
+  // <-- UPDATED: Now receives the exact data from your new LocationPicker and closes the map
   const handleLocationSelect = (address, selectedLat, selectedLng) => {
     setFormData({
       ...formData,
@@ -28,6 +31,7 @@ const DonateFood = () => {
       lat: selectedLat,
       lng: selectedLng
     });
+    setShowMapPicker(false); // Hide map after they confirm
   };
 
   const handleSubmit = async (e) => {
@@ -43,11 +47,8 @@ const DonateFood = () => {
     if (formData.quantity.trim().length === 0) {
       return toast.error("Please provide a valid quantity.");
     }
-    if (formData.pickupLocation.trim().length < 5) {
-      return toast.error("Please provide a more specific pickup location.");
-    }
-    // <-- NEW: Ensure coordinates are captured before submitting
-    if (!formData.lat || !formData.lng) {
+    // Ensure coordinates are captured
+    if (!formData.lat || !formData.lng || formData.pickupLocation.trim().length < 5) {
       return toast.error("Please select your exact pickup location on the map.");
     }
 
@@ -61,7 +62,6 @@ const DonateFood = () => {
     const dataToSend = { ...formData, expiryTime: expiryDate };
 
     try {
-      // <-- UPDATED: Uses dynamic environment URL and points to the right route
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
       await axios.post(`${apiUrl}/api/foodlistings`, dataToSend);
       
@@ -102,15 +102,34 @@ const DonateFood = () => {
           </div>
         </div>
 
-        {/* <-- REPLACED THE TEXT INPUT WITH YOUR LOCATION PICKER --> */}
+        {/* <-- UPDATED MAP LOGIC --> */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Pickup Location</label>
-          {/* Note: Check your LocationPicker.jsx to ensure it accepts an 'onSelect' or similar prop to pass data back up! */}
-          <LocationPicker onSelect={handleLocationSelect} />
           
-          {/* Optional: Show the selected text address below the map for confirmation */}
-          {formData.pickupLocation && (
-            <p className="text-xs text-gray-500 mt-2">Selected: {formData.pickupLocation}</p>
+          {showMapPicker ? (
+            <div className="mt-2 relative z-10">
+              <LocationPicker 
+                onConfirm={handleLocationSelect} 
+                onCancel={() => setShowMapPicker(false)} 
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-3">
+              <button 
+                type="button" 
+                onClick={() => setShowMapPicker(true)}
+                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold py-3 px-4 rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span>📍</span> {formData.pickupLocation ? "Change Pickup Location" : "Select Location on Map"}
+              </button>
+              
+              {formData.pickupLocation && (
+                <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex flex-col">
+                  <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Selected Address:</span>
+                  <span className="text-sm font-medium text-slate-800 line-clamp-2">{formData.pickupLocation}</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
