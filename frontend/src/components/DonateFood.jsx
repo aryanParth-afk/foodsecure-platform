@@ -6,6 +6,11 @@ import LocationPicker from './LocationPicker';
 
 const DonateFood = () => {
   const navigate = useNavigate();
+  
+  // Grab the logged-in user so we can attach their donor ID to the post
+  const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : null;
+
   const [formData, setFormData] = useState({
     foodName: '',
     quantity: '',
@@ -16,22 +21,20 @@ const DonateFood = () => {
     hoursUntilExpiry: '2'
   });
 
-  // <-- NEW: Controls whether the map is visible or hidden
   const [showMapPicker, setShowMapPicker] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // <-- UPDATED: Now receives the exact data from your new LocationPicker and closes the map
   const handleLocationSelect = (address, selectedLat, selectedLng) => {
-    setFormData({
-      ...formData,
+    setFormData(prevData => ({
+      ...prevData,
       pickupLocation: address,
       lat: selectedLat,
       lng: selectedLng
-    });
-    setShowMapPicker(false); // Hide map after they confirm
+    }));
+    setShowMapPicker(false); 
   };
 
   const handleSubmit = async (e) => {
@@ -59,7 +62,21 @@ const DonateFood = () => {
 
     const loadingToast = toast.loading('Publishing donation...');
     const expiryDate = new Date(Date.now() + hours * 60 * 60 * 1000);
-    const dataToSend = { ...formData, expiryTime: expiryDate };
+    
+    // Explicitly build the payload to guarantee map coordinates are included
+    const dataToSend = { 
+      donorId: user?.id || user?._id,
+      foodName: formData.foodName,
+      quantity: formData.quantity,
+      category: formData.category,
+      pickupLocation: formData.pickupLocation,
+      lat: formData.lat, // Forcing Map Latitude
+      lng: formData.lng, // Forcing Map Longitude
+      expiryTime: expiryDate 
+    };
+
+    // THIS WILL SHOW YOU IF THE COORDINATES ARE WORKING!
+    console.log("🚀 SENDING THIS TO BACKEND:", dataToSend);
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
@@ -102,7 +119,6 @@ const DonateFood = () => {
           </div>
         </div>
 
-        {/* <-- UPDATED MAP LOGIC --> */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Pickup Location</label>
           
