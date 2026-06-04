@@ -7,12 +7,18 @@ import LocationPicker from './LocationPicker';
 
 const DonorDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-  const [formData, setFormData] = useState({ foodType: '', quantity: '', address: '' });
+  
+  // 1. UPDATED: Added lat and lng to the initial state
+  const [formData, setFormData] = useState({ 
+    foodType: '', 
+    quantity: '', 
+    address: '',
+    lat: null,
+    lng: null
+  });
   
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false); 
-  
-  // NEW: State to control the map popup window
   const [isMapOpen, setIsMapOpen] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
@@ -32,9 +38,12 @@ const DonorDashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.address) {
-      return toast.error("Please provide a pickup location!");
+    
+    // 2. UPDATED: Validation now checks that map coordinates actually exist
+    if (!formData.address || !formData.lat || !formData.lng) {
+      return toast.error("Please drop a pin on the map for the pickup location!");
     }
+
     setIsSubmitting(true);
     try {
       let imageUrl = '';
@@ -43,15 +52,26 @@ const DonorDashboard = () => {
         imageUrl = await uploadToCloudinary(imageFile);
         toast.dismiss("uploadToast");
       }
-      await axios.post(`${apiUrl}/api/listings`, {
-        donorId: currentUser.id,           
-        foodName: formData.foodType,       
-        quantity: formData.quantity,       
+
+      // 3. UPDATED: Explicitly packaging the coordinates into the payload
+      const dataToSend = {
+        donorId: currentUser.id,          
+        foodName: formData.foodType,      
+        quantity: formData.quantity,      
         pickupLocation: formData.address,
+        lat: formData.lat,
+        lng: formData.lng,
         imageUrl: imageUrl 
-      });
+      };
+
+      console.log("🚀 SENDING THIS TO BACKEND:", dataToSend);
+
+      await axios.post(`${apiUrl}/api/listings`, dataToSend);
+      
       toast.success("Donation successfully posted to the network!");
-      setFormData({ foodType: '', quantity: '', address: '' });
+      
+      // Reset the form
+      setFormData({ foodType: '', quantity: '', address: '', lat: null, lng: null });
       setImageFile(null); 
     } catch (error) {
       toast.error("Failed to post donation. Please try again.");
@@ -63,7 +83,7 @@ const DonorDashboard = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 relative">
       
-      {/* THE MAP MODAL (Hidden until they click the button) */}
+      {/* THE MAP MODAL */}
       <AnimatePresence>
         {isMapOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
@@ -75,9 +95,15 @@ const DonorDashboard = () => {
             >
               <LocationPicker 
                 onCancel={() => setIsMapOpen(false)}
-                onConfirm={(selectedAddress) => {
-                  setFormData({...formData, address: selectedAddress});
-                  setIsMapOpen(false); // Auto-close when confirmed!
+                // 4. UPDATED: Capturing the selectedLat and selectedLng from the map widget
+                onConfirm={(selectedAddress, selectedLat, selectedLng) => {
+                  setFormData({
+                    ...formData, 
+                    address: selectedAddress,
+                    lat: selectedLat,
+                    lng: selectedLng
+                  });
+                  setIsMapOpen(false); 
                 }}
               />
             </motion.div>
@@ -118,12 +144,10 @@ const DonorDashboard = () => {
             </div>
           </div>
 
-          {/* UPGRADED LOCATION SELECTION UI */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1.5">Pickup Location</label>
             
             {!formData.address ? (
-              // Show the "Choose from Map" button if no address is selected yet
               <button 
                 type="button" 
                 onClick={() => setIsMapOpen(true)}
@@ -133,7 +157,6 @@ const DonorDashboard = () => {
                 <span>Choose pickup point from Map</span>
               </button>
             ) : (
-              // Show the selected address card with Re-select and Remove buttons
               <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-start justify-between">
                 <div className="flex items-start space-x-3 pr-4">
                   <div className="mt-0.5"><MapPin className="w-5 h-5 text-emerald-600" /></div>
@@ -146,7 +169,7 @@ const DonorDashboard = () => {
                   <button type="button" onClick={() => setIsMapOpen(true)} className="text-xs font-bold text-blue-600 hover:text-blue-700 bg-white px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm transition-colors">
                     Re-select
                   </button>
-                  <button type="button" onClick={() => setFormData({...formData, address: ''})} className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-white px-3 py-1.5 rounded-lg border border-rose-100 shadow-sm transition-colors">
+                  <button type="button" onClick={() => setFormData({...formData, address: '', lat: null, lng: null})} className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-white px-3 py-1.5 rounded-lg border border-rose-100 shadow-sm transition-colors">
                     Remove
                   </button>
                 </div>
@@ -154,7 +177,6 @@ const DonorDashboard = () => {
             )}
           </div>
 
-          {/* IMAGE UPLOAD FIELD */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1.5">Photo of Food (Optional)</label>
             {!imageFile ? (
