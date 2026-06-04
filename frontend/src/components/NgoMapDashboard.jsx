@@ -48,10 +48,14 @@ const NgoMapDashboard = () => {
     locateNGO();
   }, []);
 
-  const fetchActiveListings = async () => {
+const fetchActiveListings = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
       const response = await axios.get(`${apiUrl}/api/foodlistings/active`);
+      
+      // ADD THIS ONE LINE:
+      console.log("Raw Data from Backend:", response.data); 
+      
       setListings(response.data);
     } catch (error) {
       toast.error("Failed to load map listings.");
