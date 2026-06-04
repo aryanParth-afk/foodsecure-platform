@@ -152,7 +152,7 @@ const fetchActiveListings = async () => {
               </Marker>
               <Circle 
                 center={ngoLocation} 
-                radius={2000} // 2km highlight radius
+                radius={5000} // 2km highlight radius
                 pathOptions={{ color: '#10b981', fillColor: '#10b981', fillOpacity: 0.1, weight: 1 }} 
               />
             </>
