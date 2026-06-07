@@ -12,6 +12,10 @@ const Navbar = () => {
   const user = userString ? JSON.parse(userString) : null;
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
+  // --- NEW: Scroll Animation States ---
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
   // State for Dropdowns
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -22,10 +26,32 @@ const Navbar = () => {
   const profileRef = useRef(null);
   const notifRef = useRef(null);
 
+  // --- NEW: The "Smart Scroll" Listener ---
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // If scrolling down, and we are past the very top (80px), hide the nav
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setIsVisible(false);
+        setIsProfileOpen(false); // Auto-close dropdowns if they start scrolling
+        setIsNotifOpen(false);
+      } 
+      // If scrolling up, immediately show the nav
+      else if (currentScrollY < lastScrollY) {
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   // "Polling" for real-time notifications
   useEffect(() => {
     if (!user) return;
-
     const fetchNotifications = async () => {
       try {
         const userId = user.id || user._id;
@@ -35,9 +61,7 @@ const Navbar = () => {
         console.error("Failed to load notifications", err);
       }
     };
-
     fetchNotifications();
-
     const intervalId = setInterval(fetchNotifications, 10000);
     return () => clearInterval(intervalId);
   }, [user?.id, user?._id, apiUrl]);
@@ -84,7 +108,7 @@ const Navbar = () => {
     return <Info className="w-5 h-5 text-blue-500" />;
   };
 
-  // --- DYNAMIC NAVIGATION LINKS BASED ON ROLE ---
+  // Dynamic links
   let navLinks = [];
   if (user?.role === 'Admin' || user?.role === 'SuperAdmin') {
     navLinks = [
@@ -106,8 +130,20 @@ const Navbar = () => {
 
   return (
     <>
-      {/* 1. TOP NAVBAR */}
-      <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all">
+      {/* INVISIBLE PLACEHOLDER: 
+        Because our top nav is now "fixed", it gets pulled out of the layout. 
+        We add this 80px tall empty div so the page content doesn't snap up and hide behind the nav! 
+      */}
+      <div className="h-20 w-full shrink-0"></div>
+
+      {/* 1. TOP NAVBAR 
+        UPDATED: Switched from 'sticky' to 'fixed', and added the smooth sliding transition.
+      */}
+      <nav 
+        className={`fixed top-0 left-0 right-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-transform duration-300 ease-in-out ${
+          isVisible ? 'translate-y-0' : '-translate-y-full'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             
@@ -119,7 +155,7 @@ const Navbar = () => {
               <span className="font-black text-2xl text-slate-900 tracking-tight hidden sm:block">FoodRescue</span>
             </Link>
 
-            {/* DESKTOP NAVIGATION LINKS (Hidden on Mobile) */}
+            {/* DESKTOP NAVIGATION LINKS */}
             <div className="hidden md:flex items-center space-x-8">
               {navLinks.map((link) => (
                 <Link key={link.path} to={link.path} className={linkClass(link.path)}>
@@ -132,7 +168,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
               {user ? (
                 <>
-                  {/* 🔔 NOTIFICATION BELL DROPDOWN */}
+                  {/* 🔔 NOTIFICATION BELL */}
                   <div className="relative" ref={notifRef}>
                     <button 
                       onClick={() => { setIsNotifOpen(!isNotifOpen); setIsProfileOpen(false); }}
@@ -247,9 +283,15 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* 2. BOTTOM MOBILE APP BAR (Hidden on Desktop) */}
+      {/* 2. BOTTOM MOBILE APP BAR 
+        UPDATED: Also added the slide-down animation when scrolling down.
+      */}
       {user && navLinks.length > 0 && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-999 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
+        <div 
+          className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-999 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe transition-transform duration-300 ease-in-out ${
+            isVisible ? 'translate-y-0' : 'translate-y-full'
+          }`}
+        >
           <div className="flex justify-around items-center h-16 px-2">
             {navLinks.map((link) => (
               <Link 
