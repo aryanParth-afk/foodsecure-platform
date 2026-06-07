@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound } from 'lucide-react';
+import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Auth = () => {
@@ -11,7 +11,7 @@ const Auth = () => {
     orgName: '', 
     email: '', 
     password: '', 
-    role: 'NGO',
+    role: 'NGO', // Defaults to NGO, but is instantly overwritten by the URL
     adminSecretCode: '' 
   });
   const [authError, setAuthError] = useState(false);
@@ -19,6 +19,7 @@ const Auth = () => {
   
   const location = useLocation();
 
+  // Read the URL to lock the portal to the specific role clicked on the home page
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const mode = searchParams.get('mode');
@@ -44,7 +45,6 @@ const Auth = () => {
       : `${import.meta.env.VITE_API_URL}/api/auth/register`;
 
     try {
-      // formData explicitly includes the `role`, which triggers the backend Bouncer logic during login
       const response = await axios.post(url, formData);
       toast.success(isLogin ? `Welcome back to the ${formData.role} Portal!` : "Account created successfully!");
       
@@ -76,7 +76,7 @@ const Auth = () => {
   const itemVariants = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }, exit: { opacity: 0, y: -15, transition: { duration: 0.2 } } };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 relative z-10">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 relative z-10 py-10">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -85,16 +85,20 @@ const Auth = () => {
       >
         <div className={`absolute top-0 left-0 w-full h-1.5 bg-linear-to-r transition-colors duration-500 ${authError ? 'from-rose-400 to-rose-600' : isLogin ? 'from-blue-500 to-indigo-600' : 'from-orange-400 to-emerald-500'}`}></div>
 
-        <div className="text-center mb-8 mt-2">
+        {/* NEW: Back Button to easily return to home page if they clicked the wrong card */}
+        <Link to="/" className="absolute top-6 left-6 p-2 rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+
+        <div className="text-center mb-8 mt-6">
           <motion.div layout className={`mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-colors duration-500 shadow-sm ${authError ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-slate-50 text-slate-700 border border-slate-100'}`}>
             <Shield className="w-7 h-7" />
           </motion.div>
-          {/* DYNAMIC TITLE BASED ON SELECTED ROLE */}
           <motion.h2 layout className="text-3xl font-black text-slate-900 tracking-tight">
             {formData.role} Portal
           </motion.h2>
-          <motion.p layout className="text-slate-500 font-medium mt-2 text-sm">
-            {isLogin ? 'Securely access your dashboard.' : 'Join the food rescue network today.'}
+          <motion.p layout className="text-slate-500 font-medium mt-2 text-sm px-4">
+            {isLogin ? `Securely access your ${formData.role} dashboard.` : `Register as a new ${formData.role}.`}
           </motion.p>
         </div>
 
@@ -108,15 +112,7 @@ const Auth = () => {
           <AnimatePresence mode="popLayout">
             <motion.div key={isLogin ? 'login' : 'register'} variants={containerVariants} initial="hidden" animate="show" exit="exit" className="space-y-5">
               
-              {/* ROLE SELECTOR: NOW VISIBLE ON BOTH LOGIN AND REGISTER */}
-              <motion.div variants={itemVariants}>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Access Level</label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button type="button" onClick={() => setFormData({...formData, role: 'NGO'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'NGO' ? 'bg-orange-50 border-orange-500 text-orange-700 shadow-sm shadow-orange-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>NGO</button>
-                  <button type="button" onClick={() => setFormData({...formData, role: 'Donor'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Donor' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm shadow-emerald-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Donor</button>
-                  <button type="button" onClick={() => setFormData({...formData, role: 'Admin'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Admin' ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm shadow-blue-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Admin</button>
-                </div>
-              </motion.div>
+              {/* THE ROLE SELECTOR HAS BEEN COMPLETELY REMOVED */}
 
               {!isLogin && (
                 <motion.div variants={itemVariants}>
@@ -168,7 +164,7 @@ const Auth = () => {
 
               <motion.div variants={itemVariants} className="pt-2">
                 <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" className={`w-full text-white font-black text-lg py-4 rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 group ${authError ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200/50' : 'bg-slate-900 hover:bg-slate-800 shadow-slate-300'}`}>
-                  <span>{isLogin ? 'Secure Login' : 'Create Account'}</span>
+                  <span>{isLogin ? `Log into ${formData.role} Portal` : 'Create Account'}</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
               </motion.div>
