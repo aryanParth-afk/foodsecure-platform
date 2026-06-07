@@ -40,7 +40,8 @@ app.post('/api/auth/register', async (req, res) => {
     user.password = await bcrypt.hash(password, salt);
     await user.save();
 
-    const payload = { id: user._id, role: user.role, orgName: user.orgName };
+    // FIXED: Added isVerified to the payload
+    const payload = { id: user._id, role: user.role, orgName: user.orgName, isVerified: user.isVerified };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.status(201).json({ token, user: payload });
@@ -64,7 +65,8 @@ app.post('/api/auth/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials.' });
 
-    const payload = { id: user._id, role: user.role, orgName: user.orgName };
+    // FIXED: Added isVerified to the payload
+    const payload = { id: user._id, role: user.role, orgName: user.orgName, isVerified: user.isVerified };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.json({ token, user: payload });
@@ -177,7 +179,8 @@ app.patch('/api/users/:id', async (req, res) => {
 
     await user.save();
 
-    const payload = { id: user._id, role: user.role, orgName: user.orgName };
+    // FIXED: Added isVerified to the payload
+    const payload = { id: user._id, role: user.role, orgName: user.orgName, isVerified: user.isVerified };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.json({ token, user: payload, message: "Profile updated successfully!" });
@@ -234,7 +237,6 @@ app.patch('/api/notifications/read-all/:userId', async (req, res) => {
 // --- DONOR ROUTES ---
 // ==========================================
 
-// UPDATED: Now listens to BOTH '/api/listings' and '/api/foodlistings'
 app.post(['/api/listings', '/api/foodlistings'], async (req, res) => {
   try {
     const newListing = new FoodListing({
@@ -242,8 +244,8 @@ app.post(['/api/listings', '/api/foodlistings'], async (req, res) => {
       foodName: req.body.foodName,
       quantity: req.body.quantity,
       pickupLocation: req.body.pickupLocation,
-      lat: req.body.lat, // Capture Map Lat
-      lng: req.body.lng, // Capture Map Lng
+      lat: req.body.lat, 
+      lng: req.body.lng, 
       category: req.body.category || 'General Food', 
       availableSlots: req.body.availableSlots || 'Contact for pickup time', 
       imageUrl: req.body.imageUrl || '', 
@@ -270,7 +272,6 @@ app.get('/api/my-donations/:userId', async (req, res) => {
   }
 });
 
-// DELETE a donation (Removes it from the map completely)
 app.delete('/api/listings/:id', async (req, res) => {
   try {
     const deletedListing = await FoodListing.findByIdAndDelete(req.params.id);
@@ -301,7 +302,6 @@ app.patch('/api/listings/:id/hide-donor', async (req, res) => {
 // --- NGO ROUTES ---
 // ==========================================
 
-// UPDATED: Now listens to BOTH the old dashboard and the new Map routes
 app.get(['/api/listings/available', '/api/foodlistings/active'], async (req, res) => {
   try {
     const availableListings = await FoodListing.find({ status: 'Available' })
@@ -327,7 +327,6 @@ app.get('/api/my-claims/:userId', async (req, res) => {
   }
 });
 
-// UPDATED: Centralized logic so both PATCH and POST work perfectly
 const processClaimRequest = async (req, res) => {
   try {
     const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
@@ -336,7 +335,7 @@ const processClaimRequest = async (req, res) => {
       req.params.id,
       { 
         status: 'Claimed',
-        claimedBy: req.body.ngoId || null, // Fail-safe if NGO id is missing in simple requests
+        claimedBy: req.body.ngoId || null, 
         pickupOtp: generatedOtp 
       },
       { new: true }
@@ -357,7 +356,6 @@ const processClaimRequest = async (req, res) => {
   }
 };
 
-// Bind both routes to the same claiming logic!
 app.patch('/api/listings/:id/claim', processClaimRequest);
 app.post('/api/foodlistings/claim/:id', processClaimRequest);
 
