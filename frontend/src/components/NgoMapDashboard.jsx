@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import toast from 'react-hot-toast';
-import { Navigation, MapPin, Package, Navigation2 } from 'lucide-react';
+import { Navigation, MapPin, Package, Navigation2, ShieldAlert } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -40,9 +40,18 @@ const NgoMapDashboard = () => {
   const [ngoLocation, setNgoLocation] = useState(null); 
   const [mapCenter, setMapCenter] = useState([25.5941, 85.1376]);
 
+  // Grab the current user
+  const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : null;
+
   useEffect(() => {
-    fetchActiveListings();
-    locateNGO();
+    // ONLY fetch map data if the user is verified, or if they are an Admin
+    if (user?.role === 'Admin' || user?.role === 'SuperAdmin' || (user?.role === 'NGO' && user?.isVerified)) {
+      fetchActiveListings();
+      locateNGO();
+    } else {
+      setLoading(false); // Stop loading immediately if they are locked out
+    }
   }, []);
 
   const fetchActiveListings = async () => {
@@ -79,11 +88,8 @@ const NgoMapDashboard = () => {
 
   const handleClaim = async (listingId, foodName) => {
     try {
-      const userString = localStorage.getItem('user');
-      const user = userString ? JSON.parse(userString) : { id: null };
-      
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-      await axios.post(`${apiUrl}/api/foodlistings/claim/${listingId}`, { ngoId: user.id });
+      await axios.post(`${apiUrl}/api/foodlistings/claim/${listingId}`, { ngoId: user.id || user._id });
       
       toast.success(`${foodName} claimed! Check your dashboard.`);
       setListings(listings.filter(listing => listing._id !== listingId));
@@ -100,8 +106,29 @@ const NgoMapDashboard = () => {
     );
   }
 
+  // --- THE GATEKEEPER: Block Unverified NGOs ---
+  if (user?.role === 'NGO' && !user?.isVerified) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center relative z-10">
+        <div className="bg-orange-50 p-6 rounded-full mb-6 border-4 border-orange-100 shadow-sm">
+          <ShieldAlert className="w-16 h-16 text-orange-500" />
+        </div>
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Verification Pending</h2>
+        <p className="text-lg text-slate-500 font-medium max-w-lg mx-auto leading-relaxed">
+          Your organization is currently under review by our administration team. 
+        </p>
+        <div className="mt-8 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-md w-full">
+          <p className="text-sm text-slate-600 font-medium flex items-start gap-3 text-left">
+            <span className="text-2xl">🔒</span>
+            To protect our donors and ensure food safety, the Live Rescue Map and claiming features are strictly locked until your NGO credentials have been fully verified.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // --- THE MAP (Rendered only for Verified NGOs and Admins) ---
   return (
-    // MOBILE TWEAK: Reduced padding on mobile (px-2 py-4) so the map gets more screen real estate
     <div className="max-w-6xl mx-auto px-2 md:px-4 py-4 md:py-8 flex flex-col h-full">
       
       <div className="mb-4 px-2 md:px-0 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -112,7 +139,6 @@ const NgoMapDashboard = () => {
           </p>
         </div>
         
-        {/* DESKTOP BUTTON: Hidden on mobile screens */}
         <button 
           onClick={locateNGO}
           className="hidden md:flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition-colors shadow-sm"
@@ -121,10 +147,8 @@ const NgoMapDashboard = () => {
         </button>
       </div>
       
-      {/* MOBILE TWEAK: The container's height dynamically adjusts. 70vh on mobile, 600px on desktop */}
       <div className="border border-slate-200 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl bg-slate-50 relative z-0 h-[70vh] md:h-150 w-full">
         
-        {/* MOBILE BUTTON: Floating over the map in the bottom right corner */}
         <button 
           onClick={locateNGO}
           className="md:hidden absolute bottom-6 right-4 z-400 bg-white border-2 border-slate-100 text-emerald-600 p-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 active:scale-95 transition-all"
@@ -132,38 +156,26 @@ const NgoMapDashboard = () => {
           <Navigation2 className="w-6 h-6 fill-emerald-100" />
         </button>
 
-        <MapContainer 
-          center={mapCenter} 
-          zoom={13} 
-          style={{ height: '100%', width: '100%' }} // Map fills 100% of the dynamic container
-        >
+        <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          
           <MapController center={mapCenter} />
 
           {ngoLocation && (
             <>
               <Marker position={ngoLocation} icon={ngoIcon}>
                 <Popup className="custom-popup">
-                  <div className="p-1 font-bold text-emerald-700 text-center text-sm">
-                    📍 You are here
-                  </div>
+                  <div className="p-1 font-bold text-emerald-700 text-center text-sm">📍 You are here</div>
                 </Popup>
               </Marker>
-              <Circle 
-                center={ngoLocation} 
-                radius={2000} 
-                pathOptions={{ color: '#10b981', fillColor: '#10b981', fillOpacity: 0.1, weight: 1 }} 
-              />
+              <Circle center={ngoLocation} radius={2000} pathOptions={{ color: '#10b981', fillColor: '#10b981', fillOpacity: 0.1, weight: 1 }} />
             </>
           )}
           
           {listings.map((listing) => {
             if (!listing.lat || !listing.lng) return null;
-            
             return (
               <Marker key={listing._id} position={[listing.lat, listing.lng]}>
                 <Popup className="custom-popup">
