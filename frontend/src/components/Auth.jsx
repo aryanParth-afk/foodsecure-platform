@@ -17,7 +17,6 @@ const Auth = () => {
   const [authError, setAuthError] = useState(false);
   const navigate = useNavigate();
   
-  // NEW: Read the URL to auto-configure the form
   const location = useLocation();
 
   useEffect(() => {
@@ -45,8 +44,9 @@ const Auth = () => {
       : `${import.meta.env.VITE_API_URL}/api/auth/register`;
 
     try {
+      // formData explicitly includes the `role`, which triggers the backend Bouncer logic during login
       const response = await axios.post(url, formData);
-      toast.success(isLogin ? "Welcome back!" : "Account created successfully!");
+      toast.success(isLogin ? `Welcome back to the ${formData.role} Portal!` : "Account created successfully!");
       
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -89,11 +89,12 @@ const Auth = () => {
           <motion.div layout className={`mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-colors duration-500 shadow-sm ${authError ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-slate-50 text-slate-700 border border-slate-100'}`}>
             <Shield className="w-7 h-7" />
           </motion.div>
+          {/* DYNAMIC TITLE BASED ON SELECTED ROLE */}
           <motion.h2 layout className="text-3xl font-black text-slate-900 tracking-tight">
-            {isLogin ? 'Unified Login' : 'Create Account'}
+            {formData.role} Portal
           </motion.h2>
           <motion.p layout className="text-slate-500 font-medium mt-2 text-sm">
-            {isLogin ? 'Enter your details to access your portal.' : 'Join the food rescue network today.'}
+            {isLogin ? 'Securely access your dashboard.' : 'Join the food rescue network today.'}
           </motion.p>
         </div>
 
@@ -107,40 +108,40 @@ const Auth = () => {
           <AnimatePresence mode="popLayout">
             <motion.div key={isLogin ? 'login' : 'register'} variants={containerVariants} initial="hidden" animate="show" exit="exit" className="space-y-5">
               
-              {!isLogin && (
-                <motion.div variants={itemVariants} className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Organization Name</label>
-                    <div className="relative group">
-                      <Building2 className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 group-focus-within:text-blue-500 transition-colors" />
-                      <input type="text" name="orgName" required value={formData.orgName} onChange={handleChange} className={defaultInputClass} placeholder="e.g. City Hope Shelter" />
-                    </div>
-                  </div>
+              {/* ROLE SELECTOR: NOW VISIBLE ON BOTH LOGIN AND REGISTER */}
+              <motion.div variants={itemVariants}>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Access Level</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button type="button" onClick={() => setFormData({...formData, role: 'NGO'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'NGO' ? 'bg-orange-50 border-orange-500 text-orange-700 shadow-sm shadow-orange-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>NGO</button>
+                  <button type="button" onClick={() => setFormData({...formData, role: 'Donor'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Donor' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm shadow-emerald-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Donor</button>
+                  <button type="button" onClick={() => setFormData({...formData, role: 'Admin'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Admin' ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm shadow-blue-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Admin</button>
+                </div>
+              </motion.div>
 
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Registration Type</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button type="button" onClick={() => setFormData({...formData, role: 'NGO'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'NGO' ? 'bg-orange-50 border-orange-500 text-orange-700 shadow-sm shadow-orange-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>NGO</button>
-                      <button type="button" onClick={() => setFormData({...formData, role: 'Donor'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Donor' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm shadow-emerald-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Donor</button>
-                      <button type="button" onClick={() => setFormData({...formData, role: 'Admin'})} className={`py-2 text-sm rounded-xl font-bold border-2 transition-all ${formData.role === 'Admin' ? 'bg-red-50 border-red-500 text-red-700 shadow-sm shadow-red-100' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'}`}>Admin</button>
-                    </div>
+              {!isLogin && (
+                <motion.div variants={itemVariants}>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Organization Name</label>
+                  <div className="relative group">
+                    <Building2 className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 group-focus-within:text-blue-500 transition-colors" />
+                    <input type="text" name="orgName" required value={formData.orgName} onChange={handleChange} className={defaultInputClass} placeholder="e.g. City Hope Shelter" />
                   </div>
-                  
-                  <AnimatePresence>
-                    {formData.role === 'Admin' && (
-                      <motion.div initial={{ opacity: 0, height: 0, y: -10 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} className="overflow-hidden">
-                        <div className="pt-2">
-                          <label className="block text-xs font-black text-red-600 mb-1.5 uppercase tracking-wide items-center"><KeyRound className="w-3 h-3 mr-1" />Authorized Code Required</label>
-                          <div className="relative group">
-                            <Lock className="w-5 h-5 text-red-400 absolute left-3.5 top-3.5" />
-                            <input type="password" name="adminSecretCode" required value={formData.adminSecretCode} onChange={handleChange} className={adminInputClass} placeholder="Enter Master Passcode" />
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </motion.div>
               )}
+
+              {/* ADMIN SECRET CODE: Only visible during Admin Registration */}
+              <AnimatePresence>
+                {!isLogin && formData.role === 'Admin' && (
+                  <motion.div initial={{ opacity: 0, height: 0, y: -10 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} className="overflow-hidden">
+                    <div className="pt-2">
+                      <label className="block text-xs font-black text-red-600 mb-1.5 uppercase tracking-wide items-center"><KeyRound className="w-3 h-3 mr-1" />Authorized Code Required</label>
+                      <div className="relative group">
+                        <Lock className="w-5 h-5 text-red-400 absolute left-3.5 top-3.5" />
+                        <input type="password" name="adminSecretCode" required value={formData.adminSecretCode} onChange={handleChange} className={adminInputClass} placeholder="Enter Master Passcode" />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <motion.div variants={itemVariants}>
                 <label className="block text-sm font-bold text-slate-700 mb-1.5">Email Address</label>
@@ -151,7 +152,6 @@ const Auth = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                {/* NEW: Flex container to align the label and Forgot Password link */}
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="block text-sm font-bold text-slate-700">Password</label>
                   {isLogin && (

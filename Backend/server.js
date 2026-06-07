@@ -53,7 +53,8 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    // 1. UPDATED: We now extract the 'role' they are trying to log in as
+    const { email, password, role } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid credentials.' });
@@ -62,10 +63,16 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(403).json({ message: 'Your account access has been revoked by a Super Admin.' });
     }
 
+    // 2. NEW STRICT LOCK: If the portal role doesn't match the database role, reject them!
+    if (role && user.role !== role) {
+      return res.status(403).json({ 
+        message: `Access Denied: You are trying to log into the ${role} portal, but your account is registered as a ${user.role}.` 
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials.' });
 
-    // FIXED: Added isVerified to the payload
     const payload = { id: user._id, role: user.role, orgName: user.orgName, isVerified: user.isVerified };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
