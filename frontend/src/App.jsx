@@ -110,7 +110,8 @@ const App = () => {
           
           <Navbar />
           
-          <div className="pt-8 pb-12 relative z-10">
+          {/* UPDATED MOBILE PADDING: pb-28 gives enough space for the mobile nav bar, md:pb-12 keeps desktop normal */}
+          <main className="pt-8 pb-28 md:pb-12 relative z-10">
             <Routes>
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
@@ -123,9 +124,8 @@ const App = () => {
               <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminDashboard /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute requiredRole="Admin"><AnalyticsDashboard /></ProtectedRoute>} />
               <Route path="/ngo-map" element={<NgoMapDashboard />} />
-              
             </Routes>
-          </div>
+          </main>
         </div>
       </Router>
     </>
