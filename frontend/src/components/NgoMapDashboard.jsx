@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import toast from 'react-hot-toast';
-import { Navigation, MapPin, Package } from 'lucide-react';
+import { Navigation, MapPin, Package, Navigation2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Standard Food Marker Icon (Blue)
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 let DefaultIcon = L.icon({
@@ -17,7 +16,6 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Custom NGO Marker Icon (Green) to show their live location
 const ngoIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -26,12 +24,11 @@ const ngoIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-// Helper component to smoothly fly the map to the NGO's location
 const MapController = ({ center }) => {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.flyTo(center, 13, { animate: true, duration: 1.5 });
+      map.flyTo(center, 14, { animate: true, duration: 1.5 });
     }
   }, [center, map]);
   return null;
@@ -41,21 +38,17 @@ const NgoMapDashboard = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ngoLocation, setNgoLocation] = useState(null); 
-  const [mapCenter, setMapCenter] = useState([25.5941, 85.1376]); // Fallback center
+  const [mapCenter, setMapCenter] = useState([25.5941, 85.1376]);
 
   useEffect(() => {
     fetchActiveListings();
     locateNGO();
   }, []);
 
-const fetchActiveListings = async () => {
+  const fetchActiveListings = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
       const response = await axios.get(`${apiUrl}/api/foodlistings/active`);
-      
-      // ADD THIS ONE LINE:
-      console.log("Raw Data from Backend:", response.data); 
-      
       setListings(response.data);
     } catch (error) {
       toast.error("Failed to load map listings.");
@@ -64,7 +57,6 @@ const fetchActiveListings = async () => {
     }
   };
 
-  // The new GPS Locator Function
   const locateNGO = () => {
     toast.loading("Finding your live location...", { id: 'gps' });
     if (navigator.geolocation) {
@@ -72,12 +64,12 @@ const fetchActiveListings = async () => {
         (pos) => {
           const { latitude, longitude } = pos.coords;
           setNgoLocation([latitude, longitude]);
-          setMapCenter([latitude, longitude]); // Auto-center map on the NGO
-          toast.success("Live location found! Showing nearby donations.", { id: 'gps' });
+          setMapCenter([latitude, longitude]); 
+          toast.success("Location found!", { id: 'gps' });
         },
         (error) => {
           console.error(error);
-          toast.error("GPS access denied. Showing default map area.", { id: 'gps' });
+          toast.error("GPS access denied.", { id: 'gps' });
         }
       );
     } else {
@@ -93,7 +85,7 @@ const fetchActiveListings = async () => {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
       await axios.post(`${apiUrl}/api/foodlistings/claim/${listingId}`, { ngoId: user.id });
       
-      toast.success(`${foodName} claimed successfully! Check your dashboard.`);
+      toast.success(`${foodName} claimed! Check your dashboard.`);
       setListings(listings.filter(listing => listing._id !== listingId));
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to claim listing.");
@@ -102,81 +94,90 @@ const fetchActiveListings = async () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900"></div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    // MOBILE TWEAK: Reduced padding on mobile (px-2 py-4) so the map gets more screen real estate
+    <div className="max-w-6xl mx-auto px-2 md:px-4 py-4 md:py-8 flex flex-col h-full">
+      
+      <div className="mb-4 px-2 md:px-0 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900">Live Rescue Map</h2>
-          <p className="text-slate-500 font-medium mt-1">
-            Real-time GPS tracking. Green pin shows your location, blue pins are nearby donations.
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900">Live Rescue Map</h2>
+          <p className="text-slate-500 text-sm md:text-base font-medium mt-1">
+            Tap the green pin to find your location. Blue pins are nearby donations.
           </p>
         </div>
         
+        {/* DESKTOP BUTTON: Hidden on mobile screens */}
         <button 
           onClick={locateNGO}
-          className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition-colors shadow-sm"
+          className="hidden md:flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition-colors shadow-sm"
         >
-          <Navigation className="w-4 h-4 text-emerald-600" />
-          Re-center on Me
+          <Navigation className="w-4 h-4 text-emerald-600" /> Re-center on Me
         </button>
       </div>
       
-      <div className="border border-slate-200 rounded-3xl overflow-hidden shadow-xl bg-slate-50 relative z-0">
+      {/* MOBILE TWEAK: The container's height dynamically adjusts. 70vh on mobile, 600px on desktop */}
+      <div className="border border-slate-200 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl bg-slate-50 relative z-0 h-[70vh] md:h-150 w-full">
+        
+        {/* MOBILE BUTTON: Floating over the map in the bottom right corner */}
+        <button 
+          onClick={locateNGO}
+          className="md:hidden absolute bottom-6 right-4 z-400 bg-white border-2 border-slate-100 text-emerald-600 p-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 active:scale-95 transition-all"
+        >
+          <Navigation2 className="w-6 h-6 fill-emerald-100" />
+        </button>
+
         <MapContainer 
           center={mapCenter} 
           zoom={13} 
-          style={{ height: '550px', width: '100%' }}
+          style={{ height: '100%', width: '100%' }} // Map fills 100% of the dynamic container
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           
           <MapController center={mapCenter} />
 
-          {/* Render the NGO's Live Location */}
           {ngoLocation && (
             <>
               <Marker position={ngoLocation} icon={ngoIcon}>
                 <Popup className="custom-popup">
-                  <div className="p-1 font-bold text-emerald-700 text-center">
+                  <div className="p-1 font-bold text-emerald-700 text-center text-sm">
                     📍 You are here
                   </div>
                 </Popup>
               </Marker>
               <Circle 
                 center={ngoLocation} 
-                radius={5000} // 2km highlight radius
+                radius={2000} 
                 pathOptions={{ color: '#10b981', fillColor: '#10b981', fillOpacity: 0.1, weight: 1 }} 
               />
             </>
           )}
           
-          {/* Render the Active Food Donations */}
           {listings.map((listing) => {
-            // Safety check: Skip old items that don't have GPS coordinates
             if (!listing.lat || !listing.lng) return null;
             
             return (
               <Marker key={listing._id} position={[listing.lat, listing.lng]}>
                 <Popup className="custom-popup">
-                  <div className="p-1 min-w-40">
-                    <h4 className="font-bold text-slate-900 text-base mb-1">{listing.foodName}</h4>
-                    <p className="text-slate-600 text-xs mb-1 flex items-center gap-1">
-                      <Package className="w-3 h-3" /> Qty: <strong>{listing.quantity}</strong>
+                  <div className="p-1 min-w-37.5">
+                    <h4 className="font-bold text-slate-900 text-sm md:text-base mb-1">{listing.foodName}</h4>
+                    <p className="text-slate-600 text-[11px] md:text-xs mb-1 flex items-center gap-1">
+                      <Package className="w-3 h-3" /> <strong>{listing.quantity}</strong>
                     </p>
                     <p className="text-slate-500 text-[10px] mb-3 leading-tight line-clamp-2 flex items-start gap-1">
                       <MapPin className="w-3 h-3 shrink-0" /> {listing.pickupLocation}
                     </p>
                     <button 
                       onClick={() => handleClaim(listing._id, listing.foodName)}
-                      className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-lg text-xs transition-colors"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition-colors"
                     >
                       Claim Pickup
                     </button>
