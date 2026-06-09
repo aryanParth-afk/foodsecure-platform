@@ -7,9 +7,11 @@ const BackButton = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Hide the back button on the main Landing Page and Dashboard pages
-  const hiddenPaths = ['/', '/ngo-dashboard', '/donor-dashboard', '/admin'];
-  const shouldHide = hiddenPaths.includes(location.pathname);
+  // ADDED '/auth' to the hidden paths so it doesn't duplicate the button on the login card!
+  const hiddenPaths = ['/', '/ngo-dashboard', '/donor-dashboard', '/admin', '/auth'];
+  
+  // Also check if the path starts with these, just in case there are URL parameters
+  const shouldHide = hiddenPaths.some(path => location.pathname === path || location.pathname.startsWith(path + '?'));
 
   return (
     <AnimatePresence>
