@@ -1,35 +1,31 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const BackButton = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Define our "Top Level" home pages where a back button shouldn't exist
-  const topLevelPages = [
-    '/', 
-    '/ngo-dashboard', 
-    '/donor-dashboard', 
-    '/admin'
-  ];
-
-  // If the user is on any of these main root pages, hide the button completely!
-  if (topLevelPages.includes(location.pathname)) return null;
+  // Hide the back button on the main Landing Page and Dashboard pages
+  const hiddenPaths = ['/', '/ngo-dashboard', '/donor-dashboard', '/admin'];
+  const shouldHide = hiddenPaths.includes(location.pathname);
 
   return (
-    <motion.button
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => navigate(-1)} 
-      className="fixed top-24 left-4 md:left-8 z-40 flex items-center justify-center p-3 md:px-4 md:py-2.5 bg-white/90 backdrop-blur-md border border-gray-200 text-slate-700 rounded-2xl shadow-lg hover:bg-slate-900 hover:text-white transition-colors group cursor-pointer"
-    >
-      <ArrowLeft className="w-5 h-5 md:mr-2 group-hover:-translate-x-1 transition-transform" />
-      <span className="hidden md:block font-bold text-sm">Back</span>
-    </motion.button>
+    <AnimatePresence>
+      {!shouldHide && (
+        <motion.button 
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          onClick={() => navigate(-1)}
+          className="fixed top-24 left-4 md:left-8 z-40 bg-white/90 backdrop-blur-md p-2.5 rounded-full shadow-md border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all focus:outline-none focus:ring-4 focus:ring-slate-100"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 };
 
