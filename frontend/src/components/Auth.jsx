@@ -16,8 +16,23 @@ const Auth = () => {
   });
   const [authError, setAuthError] = useState(false);
   const navigate = useNavigate();
-  
   const location = useLocation();
+
+  // Auto-redirect if already logged in (prevents back-button bug)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+    if (token && userString) {
+      try {
+        const user = JSON.parse(userString);
+        if (user.role === 'NGO') navigate('/ngo-dashboard', { replace: true });
+        else if (user.role === 'Donor') navigate('/donor-dashboard', { replace: true });
+        else if (user.role === 'Admin' || user.role === 'SuperAdmin') navigate('/admin', { replace: true });
+      } catch (e) {
+        // Fallback if localStorage is corrupted
+      }
+    }
+  }, [navigate]);
 
   // Read the URL to lock the portal to the specific role clicked on the home page
   useEffect(() => {
@@ -52,9 +67,9 @@ const Auth = () => {
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
       const role = response.data.user.role;
-      if (role === 'NGO') navigate('/ngo-dashboard');
-      else if (role === 'Donor') navigate('/donor-dashboard');
-      else if (role === 'Admin' || role === 'SuperAdmin') navigate('/admin');
+      if (role === 'NGO') navigate('/ngo-dashboard', { replace: true });
+      else if (role === 'Donor') navigate('/donor-dashboard', { replace: true });
+      else if (role === 'Admin' || role === 'SuperAdmin') navigate('/admin', { replace: true });
 
     } catch (error) {
       setAuthError(true);
