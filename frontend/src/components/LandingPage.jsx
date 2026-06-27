@@ -71,7 +71,7 @@ const LandingPage = () => {
               We connect local restaurants and bakeries with charities. Together, we turn surplus food into meals for those in need, ensuring good food never goes to waste.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/auth?role=NGO" className="bg-primary text-center text-on-primary px-8 py-4 font-label-md uppercase tracking-wider hover:bg-on-primary-fixed-variant transition-colors rounded-lg">Start Rescue Mission</Link>
+              <a href="#ecosystem" className="bg-primary text-center text-on-primary px-8 py-4 font-label-md uppercase tracking-wider hover:bg-on-primary-fixed-variant transition-colors rounded-lg">Start Rescue Mission</a>
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="md:col-span-6 order-1 md:order-2 mb-8 md:mb-0">
@@ -114,6 +114,7 @@ const LandingPage = () => {
 
       {/* Bento Grid: Portals & Impact */}
       <motion.section 
+        id="ecosystem"
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}

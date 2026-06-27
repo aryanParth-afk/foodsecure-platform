@@ -15,12 +15,14 @@ const Navbar = () => {
   // State for Dropdowns
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isJoinMenuOpen, setIsJoinMenuOpen] = useState(false);
   
   // State for Notifications
   const [notifications, setNotifications] = useState([]);
   
   const profileRef = useRef(null);
   const notifRef = useRef(null);
+  const joinMenuRef = useRef(null);
 
   // "Polling" for real-time notifications
   useEffect(() => {
@@ -47,6 +49,9 @@ const Navbar = () => {
       }
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setIsNotifOpen(false);
+      }
+      if (joinMenuRef.current && !joinMenuRef.current.contains(event.target)) {
+        setIsJoinMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -243,9 +248,33 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              <Link to="/auth" className="hidden md:block px-8 py-2 bg-primary text-on-primary font-label-md rounded active:scale-95 transition-transform uppercase tracking-wider">
-                Join Now
-              </Link>
+              <div className="relative hidden md:block" ref={joinMenuRef}>
+                <button 
+                  onClick={() => setIsJoinMenuOpen(!isJoinMenuOpen)}
+                  className="px-8 py-2 bg-primary text-on-primary font-label-md rounded active:scale-95 transition-transform uppercase tracking-wider flex items-center gap-2"
+                >
+                  Join Now <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isJoinMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {isJoinMenuOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-2 w-56 bg-surface-container-lowest border ink-border rounded-lg shadow-xl overflow-hidden origin-top-right z-50 p-2 space-y-1"
+                    >
+                      <Link to="/auth?role=NGO" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+                        <span>NGO Portal</span>
+                      </Link>
+                      <Link to="/auth?role=Donor" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+                        <span>Donor Portal</span>
+                      </Link>
+                      <Link to="/auth?role=Admin" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+                        <span>Admin Portal</span>
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
           </div>
         </div>
