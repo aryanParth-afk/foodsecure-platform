@@ -264,13 +264,9 @@ const LandingPage = () => {
             <div className="md:col-span-4 space-y-6">
               <h4 className="font-headline-sm text-lg uppercase tracking-wider">Contact Us</h4>
               <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <span className="font-body-md text-on-surface-variant">123 Innovation Drive<br/>Tech Hub City, TH 10023</span>
-                </li>
                 <li className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-primary shrink-0" />
-                  <span className="font-body-md text-on-surface-variant">+1 (555) 123-4567</span>
+                  <span className="font-body-md text-on-surface-variant">+91 7479657488</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-primary shrink-0" />
