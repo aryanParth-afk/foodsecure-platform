@@ -183,6 +183,7 @@ const LandingPage = () => {
             <div className="flex flex-wrap justify-center gap-8">
               <Link to="/auth?role=NGO" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">NGO Portal</Link>
               <Link to="/auth?role=Donor" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Donor Portal</Link>
+              <Link to="/auth?role=Admin" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Admin Portal</Link>
             </div>
           </div>
           <div className="text-center md:text-left pt-8 border-t border-outline-variant/30">
