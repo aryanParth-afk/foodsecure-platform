@@ -108,6 +108,12 @@ const NGODashboard = () => {
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> 
                     <span className="line-clamp-2">{listing.pickupLocation}</span>
                   </p>
+                  {listing.expiresAt && (
+                    <p className="text-sm text-slate-600 flex items-center gap-2 font-medium">
+                      <Clock className="w-4 h-4 text-slate-400" /> 
+                      <span className="text-orange-600 font-bold">Expires: {new Date(listing.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </p>
+                  )}
                 </div>
 
                 <button 

@@ -14,7 +14,8 @@ const DonorDashboard = () => {
     quantity: '', 
     address: '',
     lat: null,
-    lng: null
+    lng: null,
+    expiresInHours: '24'
   });
   
   const [imageFile, setImageFile] = useState(null);
@@ -61,7 +62,8 @@ const DonorDashboard = () => {
         pickupLocation: formData.address,
         lat: formData.lat,
         lng: formData.lng,
-        imageUrl: imageUrl 
+        imageUrl: imageUrl,
+        expiresInHours: formData.expiresInHours
       };
 
       console.log("🚀 SENDING THIS TO BACKEND:", dataToSend);
@@ -71,7 +73,7 @@ const DonorDashboard = () => {
       toast.success("Donation successfully posted to the network!");
       
       // Reset the form
-      setFormData({ foodType: '', quantity: '', address: '', lat: null, lng: null });
+      setFormData({ foodType: '', quantity: '', address: '', lat: null, lng: null, expiresInHours: '24' });
       setImageFile(null); 
     } catch (error) {
       toast.error("Failed to post donation. Please try again.");
@@ -133,14 +135,24 @@ const DonorDashboard = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1.5">What are you donating?</label>
-              <input type="text" required value={formData.foodType} onChange={(e) => setFormData({...formData, foodType: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium" placeholder="e.g. 5 Trays of Sandwiches" />
+              <input type="text" required value={formData.foodType} onChange={(e) => setFormData({...formData, foodType: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium" placeholder="e.g. 5 Trays" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1.5">Estimated Quantity/Weight</label>
-              <input type="text" required value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium" placeholder="e.g. 20 lbs or 50 servings" />
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">Quantity/Weight</label>
+              <input type="text" required value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium" placeholder="e.g. 20 lbs" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">Expires In</label>
+              <select value={formData.expiresInHours} onChange={(e) => setFormData({...formData, expiresInHours: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium appearance-none">
+                <option value="2">2 Hours</option>
+                <option value="4">4 Hours</option>
+                <option value="8">8 Hours</option>
+                <option value="24">24 Hours</option>
+                <option value="48">48 Hours</option>
+              </select>
             </div>
           </div>
 

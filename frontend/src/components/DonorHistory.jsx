@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 const DonorHistory = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('active'); // Tabs: 'active' or 'picked_up'
+  const [activeTab, setActiveTab] = useState('active'); // Tabs: 'active' or 'history'
   const [activeOtpInput, setActiveOtpInput] = useState({ id: null, code: '' });
   
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -78,8 +78,8 @@ const DonorHistory = () => {
 
   // DISPLAY LOGIC
   const visibleDonations = donations.filter(d => !d.donorHidden);
-  const activeList = visibleDonations.filter(d => d.status.toLowerCase() !== 'completed');
-  const pickedUpList = visibleDonations.filter(d => d.status.toLowerCase() === 'completed');
+  const activeList = visibleDonations.filter(d => ['available', 'claimed'].includes(d.status.toLowerCase()));
+  const historyList = visibleDonations.filter(d => ['completed', 'expired'].includes(d.status.toLowerCase()));
 
   const groupDonationsByDate = (list, dateField) => {
     const grouped = {};
@@ -92,8 +92,8 @@ const DonorHistory = () => {
   };
 
   const groupedActive = groupDonationsByDate(activeList, 'createdAt');
-  const groupedPickedUp = groupDonationsByDate(pickedUpList, 'updatedAt');
-  const displayedGroups = activeTab === 'active' ? groupedActive : groupedPickedUp;
+  const groupedHistory = groupDonationsByDate(historyList, 'updatedAt');
+  const displayedGroups = activeTab === 'active' ? groupedActive : groupedHistory;
 
   if (loading) return (
     <div className="min-h-[70vh] flex items-center justify-center">
@@ -132,9 +132,9 @@ const DonorHistory = () => {
             Active & Pending
             <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'active' ? 'bg-orange-100 text-orange-700' : 'bg-slate-200 text-slate-500'}`}>{activeList.length}</span>
           </button>
-          <button onClick={() => setActiveTab('picked_up')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'picked_up' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-            <History className={`w-4 h-4 mr-2 ${activeTab === 'picked_up' ? 'text-emerald-500' : ''}`} />
-            Picked Up History
+          <button onClick={() => setActiveTab('history')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'history' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            <History className={`w-4 h-4 mr-2 ${activeTab === 'history' ? 'text-emerald-500' : ''}`} />
+            Past History
           </button>
         </div>
       </div>
@@ -153,8 +153,8 @@ const DonorHistory = () => {
             {displayedGroups.length === 0 ? (
               <div className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center">
                 <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-slate-700">No {activeTab === 'active' ? 'active donations' : 'picked up items'}</h3>
-                <p className="text-sm text-slate-500">{activeTab === 'active' ? 'When you post surplus food, it will appear here.' : 'Verified pickups will be saved here.'}</p>
+                <h3 className="text-base font-bold text-slate-700">No {activeTab === 'active' ? 'active donations' : 'past items'}</h3>
+                <p className="text-sm text-slate-500">{activeTab === 'active' ? 'When you post surplus food, it will appear here.' : 'Completed and expired items will be saved here.'}</p>
               </div>
             ) : (
               displayedGroups.map((group) => (
@@ -181,6 +181,7 @@ const DonorHistory = () => {
                         {/* Thin Colored Edge Indicator */}
                         <div className={`absolute left-0 top-0 w-1 h-full transition-colors ${
                           donation.status.toLowerCase() === 'completed' ? 'bg-emerald-500' :
+                          donation.status.toLowerCase() === 'expired' ? 'bg-slate-400' :
                           donation.status.toLowerCase() === 'claimed' ? 'bg-blue-500' : 'bg-orange-400'
                         }`}></div>
 
@@ -189,6 +190,7 @@ const DonorHistory = () => {
                             <h3 className="text-lg font-black text-slate-900">{donation.foodItem || donation.foodName || 'Surplus Food'}</h3>
                             <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
                               donation.status.toLowerCase() === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                              donation.status.toLowerCase() === 'expired' ? 'bg-slate-100 text-slate-600' :
                               donation.status.toLowerCase() === 'claimed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'
                             }`}>
                               {donation.status.toLowerCase() === 'available' ? 'Pending Claim' : donation.status}
@@ -198,8 +200,8 @@ const DonorHistory = () => {
                         </div>
 
                         <div className="bg-slate-50 p-3 rounded-xl md:min-w-65 border border-slate-100 relative">
-                          {/* DUSTBIN BUTTON (For completed history removal) */}
-                          {donation.status.toLowerCase() === 'completed' && (
+                          {/* DUSTBIN BUTTON (For completed/expired history removal) */}
+                          {['completed', 'expired'].includes(donation.status.toLowerCase()) && (
                             <button 
                               onClick={() => handleHideListing(donation._id)}
                               className="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
@@ -217,6 +219,14 @@ const DonorHistory = () => {
                               <div className="leading-tight">
                                 <span className="font-bold block text-sm">Verified & Picked Up</span>
                                 <span className="text-[10px] font-medium text-emerald-600/70">by {donation.claimedBy?.orgName || 'NGO'}</span>
+                              </div>
+                            </div>
+                          ) : donation.status.toLowerCase() === 'expired' ? (
+                            <div className="flex items-center space-x-2.5 text-slate-500 bg-slate-100 p-2 rounded-lg border border-slate-200 pr-10">
+                              <AlertCircle className="w-4 h-4 shrink-0" />
+                              <div className="leading-tight">
+                                <span className="font-bold block text-sm">Expired</span>
+                                <span className="text-[10px] font-medium text-slate-500">Not picked up in time</span>
                               </div>
                             </div>
                           ) : donation.status.toLowerCase() === 'claimed' && donation.claimedBy ? (

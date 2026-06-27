@@ -250,6 +250,10 @@ app.patch('/api/notifications/read-all/:userId', auth, async (req, res) => {
 
 app.post(['/api/listings', '/api/foodlistings'], auth, async (req, res) => {
   try {
+    const hours = parseInt(req.body.expiresInHours) || 24;
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + hours);
+
     const newListing = new FoodListing({
       donorId: req.body.donorId,
       foodName: req.body.foodName,
@@ -260,7 +264,8 @@ app.post(['/api/listings', '/api/foodlistings'], auth, async (req, res) => {
       category: req.body.category || 'General Food', 
       availableSlots: req.body.availableSlots || 'Contact for pickup time', 
       imageUrl: req.body.imageUrl || '', 
-      status: 'Available'
+      status: 'Available',
+      expiresAt: expiresAt
     });
 
     const savedListing = await newListing.save();
@@ -273,6 +278,11 @@ app.post(['/api/listings', '/api/foodlistings'], auth, async (req, res) => {
 
 app.get('/api/my-donations/:userId', auth, async (req, res) => {
   try {
+    await FoodListing.updateMany(
+      { status: { $in: ['Available', 'Claimed'] }, expiresAt: { $lt: new Date() } },
+      { $set: { status: 'Expired' } }
+    );
+
     const myDonations = await FoodListing.find({ donorId: req.params.userId })
       .populate('claimedBy', 'orgName email') 
       .sort({ createdAt: -1 });
@@ -315,6 +325,11 @@ app.patch('/api/listings/:id/hide-donor', auth, async (req, res) => {
 
 app.get(['/api/listings/available', '/api/foodlistings/active'], auth, async (req, res) => {
   try {
+    await FoodListing.updateMany(
+      { status: { $in: ['Available', 'Claimed'] }, expiresAt: { $lt: new Date() } },
+      { $set: { status: 'Expired' } }
+    );
+
     const availableListings = await FoodListing.find({ status: 'Available' })
       .populate('donorId', 'orgName location isVerified') 
       .sort({ createdAt: -1 });
@@ -327,6 +342,11 @@ app.get(['/api/listings/available', '/api/foodlistings/active'], auth, async (re
 
 app.get('/api/my-claims/:userId', auth, async (req, res) => {
   try {
+    await FoodListing.updateMany(
+      { status: { $in: ['Available', 'Claimed'] }, expiresAt: { $lt: new Date() } },
+      { $set: { status: 'Expired' } }
+    );
+
     const myClaims = await FoodListing.find({ claimedBy: req.params.userId })
       .populate('donorId', 'orgName location')
       .sort({ updatedAt: -1 });
@@ -438,6 +458,11 @@ app.get('/api/admin/users', auth, async (req, res) => {
 
 app.get('/api/admin/listings', auth, async (req, res) => {
   try {
+    await FoodListing.updateMany(
+      { status: { $in: ['Available', 'Claimed'] }, expiresAt: { $lt: new Date() } },
+      { $set: { status: 'Expired' } }
+    );
+
     const allListings = await FoodListing.find()
       .populate('donorId', 'orgName email role')
       .populate('claimedBy', 'orgName email role')

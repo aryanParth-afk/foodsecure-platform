@@ -13,6 +13,9 @@ const foodListingSchema = new mongoose.Schema({
   // Logistics
   pickupLocation: { type: String, required: true },
   
+  // NEW: Expiration system
+  expiresAt: { type: Date },
+
   // NEW: Coordinates for Mapbox Integration
   lat: { type: Number },
   lng: { type: Number },

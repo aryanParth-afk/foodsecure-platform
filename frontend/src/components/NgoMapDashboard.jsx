@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import toast from 'react-hot-toast';
-import { Navigation, MapPin, Package, Navigation2, ShieldAlert } from 'lucide-react';
+import { Navigation, MapPin, Package, Navigation2, ShieldAlert, Clock } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -187,6 +187,11 @@ const NgoMapDashboard = () => {
                     <p className="text-slate-500 text-[10px] mb-3 leading-tight line-clamp-2 flex items-start gap-1">
                       <MapPin className="w-3 h-3 shrink-0" /> {listing.pickupLocation}
                     </p>
+                    {listing.expiresAt && (
+                      <p className="text-orange-600 text-[10px] mb-3 leading-tight flex items-center gap-1 font-bold">
+                        <Clock className="w-3 h-3 shrink-0" /> Expires {new Date(listing.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    )}
                     <button 
                       onClick={() => handleClaim(listing._id, listing.foodName)}
                       className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition-colors"
