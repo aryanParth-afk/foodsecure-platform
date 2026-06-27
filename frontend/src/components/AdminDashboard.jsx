@@ -206,10 +206,8 @@ const AdminDashboard = () => {
                                 <span className="text-slate-500 font-bold text-sm">System Override</span>
                               ) : user.role === 'Revoked' ? (
                                 <span className="text-rose-500 font-bold text-sm flex items-center"><Ban className="w-4 h-4 mr-1.5"/> Locked Out</span>
-                              ) : user.isVerified ? (
-                                <span className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1.5 rounded-xl text-sm font-bold shadow-sm border border-blue-100"><CheckCircle className="w-4 h-4 mr-1.5" /> Verified</span>
                               ) : (
-                                <span className="inline-flex items-center text-gray-400 px-3 py-1.5 text-sm font-medium"><XCircle className="w-4 h-4 mr-1.5" /> Pending</span>
+                                <span className="inline-flex items-center bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl text-sm font-bold shadow-sm border border-emerald-100"><CheckCircle className="w-4 h-4 mr-1.5" /> Active</span>
                               )}
                             </td>
                             <td className="py-6 px-6 text-right">
@@ -224,9 +222,6 @@ const AdminDashboard = () => {
                                   )
                                 ) : (
                                   <>
-                                    {user.role !== 'Revoked' && (
-                                      <button onClick={() => handleToggleVerify(user._id)} className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm ${user.isVerified ? 'bg-white border-2 border-gray-100 hover:border-gray-200 text-gray-600' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200'}`}>{user.isVerified ? 'Unverify' : 'Verify'}</button>
-                                    )}
                                     {isSuperAdmin && (
                                       <button onClick={() => handlePromoteAdmin(user._id, user.orgName)} className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-900 hover:bg-slate-800 text-white flex items-center transition-all shadow-sm"><UserPlus className="w-4 h-4 mr-1.5" /><span>{user.role === 'Revoked' ? 'Restore' : 'Promote'}</span></button>
                                     )}
