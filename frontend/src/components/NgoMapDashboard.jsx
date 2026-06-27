@@ -45,13 +45,8 @@ const NgoMapDashboard = () => {
   const user = userString ? JSON.parse(userString) : null;
 
   useEffect(() => {
-    // ONLY fetch map data if the user is verified, or if they are an Admin
-    if (user?.role === 'Admin' || user?.role === 'SuperAdmin' || (user?.role === 'NGO' && user?.isVerified)) {
-      fetchActiveListings();
-      locateNGO();
-    } else {
-      setLoading(false); // Stop loading immediately if they are locked out
-    }
+    fetchActiveListings();
+    locateNGO();
   }, []);
 
   const fetchActiveListings = async () => {
@@ -106,28 +101,7 @@ const NgoMapDashboard = () => {
     );
   }
 
-  // --- THE GATEKEEPER: Block Unverified NGOs ---
-  if (user?.role === 'NGO' && !user?.isVerified) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center relative z-10">
-        <div className="bg-orange-50 p-6 rounded-full mb-6 border-4 border-orange-100 shadow-sm">
-          <ShieldAlert className="w-16 h-16 text-orange-500" />
-        </div>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Verification Pending</h2>
-        <p className="text-lg text-slate-500 font-medium max-w-lg mx-auto leading-relaxed">
-          Your organization is currently under review by our administration team. 
-        </p>
-        <div className="mt-8 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-md w-full">
-          <p className="text-sm text-slate-600 font-medium flex items-start gap-3 text-left">
-            <span className="text-2xl">🔒</span>
-            To protect our donors and ensure food safety, the Live Rescue Map and claiming features are strictly locked until your NGO credentials have been fully verified.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // --- THE MAP (Rendered only for Verified NGOs and Admins) ---
+  // --- THE MAP ---
   return (
     <div className="max-w-6xl mx-auto px-2 md:px-4 py-4 md:py-8 flex flex-col h-full">
       
