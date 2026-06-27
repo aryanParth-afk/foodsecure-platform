@@ -66,9 +66,12 @@ app.post('/api/auth/login', async (req, res) => {
 
     // 2. NEW STRICT LOCK: If the portal role doesn't match the database role, reject them!
     if (role && user.role !== role) {
-      return res.status(403).json({ 
-        message: `Access Denied: You are trying to log into the ${role} portal, but your account is registered as a ${user.role}.` 
-      });
+      // Allow SuperAdmin to log in through the Admin portal
+      if (!(user.role === 'SuperAdmin' && role === 'Admin')) {
+        return res.status(403).json({ 
+          message: `Access Denied: You are trying to log into the ${role} portal, but your account is registered as a ${user.role}.` 
+        });
+      }
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
