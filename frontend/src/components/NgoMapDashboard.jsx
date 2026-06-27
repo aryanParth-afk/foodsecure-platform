@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import toast from 'react-hot-toast';
-import { Navigation, MapPin, Package, Navigation2, ShieldAlert, Clock } from 'lucide-react';
+import { Navigation, MapPin, Package, Navigation2, Clock } from 'lucide-react';
 import { io } from 'socket.io-client';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';

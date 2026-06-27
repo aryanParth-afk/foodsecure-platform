@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock, User, ChevronDown, Settings, CheckCircle2, AlertCircle, Info, CheckCheck, MapPin } from 'lucide-react';
+import { HandHeart, LogOut, Bell, LayoutDashboard, BarChart3, Clock, ChevronDown, Settings, CheckCircle2, AlertCircle, Info, CheckCheck, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
