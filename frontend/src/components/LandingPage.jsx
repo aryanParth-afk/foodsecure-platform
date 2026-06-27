@@ -66,17 +66,17 @@ const LandingPage = () => {
       <section className="bg-on-secondary-fixed text-surface-bright py-4 overflow-hidden my-12">
         <div className="ticker-wrap flex items-center">
           <div className="ticker flex gap-12 font-label-md uppercase tracking-[0.2em] whitespace-nowrap">
-            <span>Live Impact Tracker</span><span className="text-primary-container">•</span>
-            <span>{stats.savedMeals}+ kg Rescued</span><span className="text-primary-container">•</span>
-            <span>{stats.ngos}+ NGOs Active</span><span className="text-primary-container">•</span>
-            <span>{stats.donors}+ Donors Partnered</span><span className="text-primary-container">•</span>
-            <span>Live Impact Tracker</span><span className="text-primary-container">•</span>
-            <span>{stats.savedMeals}+ kg Rescued</span><span className="text-primary-container">•</span>
-            <span>{stats.ngos}+ NGOs Active</span><span className="text-primary-container">•</span>
-            <span>{stats.donors}+ Donors Partnered</span><span className="text-primary-container">•</span>
-            <span>Live Impact Tracker</span><span className="text-primary-container">•</span>
-            <span>{stats.savedMeals}+ kg Rescued</span><span className="text-primary-container">•</span>
-            <span>{stats.ngos}+ NGOs Active</span><span className="text-primary-container">•</span>
+            <span>Live Impact Tracker</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.savedMeals}+ kg Rescued</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.ngos}+ NGOs Active</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.donors}+ Donors Partnered</span><span className="text-primary-container mx-8">•</span>
+            <span>Live Impact Tracker</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.savedMeals}+ kg Rescued</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.ngos}+ NGOs Active</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.donors}+ Donors Partnered</span><span className="text-primary-container mx-8">•</span>
+            <span>Live Impact Tracker</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.savedMeals}+ kg Rescued</span><span className="text-primary-container mx-8">•</span>
+            <span>{stats.ngos}+ NGOs Active</span><span className="text-primary-container mx-8">•</span>
             <span>{stats.donors}+ Donors Partnered</span>
           </div>
         </div>
