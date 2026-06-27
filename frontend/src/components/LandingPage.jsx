@@ -274,7 +274,7 @@ const LandingPage = () => {
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-primary shrink-0" />
-                  <a href="mailto:engineer@foodrescue.org" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">engineer@foodrescue.org</a>
+                  <a href="mailto:aryan10c112077@gmail.com" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">support@foodsecure.com</a>
                 </li>
               </ul>
             </div>
