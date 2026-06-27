@@ -2,11 +2,26 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { Building2, HeartHandshake, ShieldCheck, ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const LandingPage = () => {
   const [stats, setStats] = useState({ savedMeals: 0, donors: 0, ngos: 0 });
+  const [currentIssue, setCurrentIssue] = useState(0);
   const navigate = useNavigate(); 
+  
+  const issues = [
+    "Issue No. 04 — The Culinary Waste Revolution",
+    "Issue No. 05 — Sustainable Urban Logistics",
+    "Issue No. 06 — Empowering Local Communities",
+    "Issue No. 07 — Zero Waste Initiatives"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIssue(prev => (prev + 1) % issues.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [issues.length]);
 
   useEffect(() => {
     const userString = localStorage.getItem('user');
@@ -34,8 +49,21 @@ const LandingPage = () => {
       {/* Hero Section: Editorial Layout */}
       <section className="max-w-container-max mx-auto px-4 md:px-margin-desktop py-12 md:py-24 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter-desktop items-center">
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="md:col-span-6 order-2 md:order-1">
-            <span className="text-primary font-label-md uppercase tracking-widest mb-4 block italic">Issue No. 04 — The Culinary Waste Revolution</span>
+          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="md:col-span-6 order-2 md:order-1 relative">
+            <div className="h-6 mb-4 overflow-hidden relative">
+              <AnimatePresence mode="wait">
+                <motion.span 
+                  key={currentIssue}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-primary font-label-md uppercase tracking-widest block italic absolute"
+                >
+                  {issues[currentIssue]}
+                </motion.span>
+              </AnimatePresence>
+            </div>
             <h1 className="font-display-lg text-5xl md:text-display-lg text-on-surface leading-tight tracking-tight mb-6">
               Stop <span className="italic font-normal">Food Waste</span>. Start <span className="italic font-normal">Feeding People</span>.
             </h1>
@@ -52,7 +80,7 @@ const LandingPage = () => {
                 <img 
                   alt="High-end culinary waste revolution"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                  src="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?auto=format&fit=crop&w=800&q=80"
+                  src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80"
                 />
               </div>
               <div className="absolute -bottom-8 -left-8 hidden md:block bg-surface-container-lowest p-8 ink-border max-w-[240px] soft-elevation rounded-xl">
@@ -85,7 +113,13 @@ const LandingPage = () => {
       </section>
 
       {/* Bento Grid: Portals & Impact */}
-      <section className="max-w-container-max mx-auto px-4 md:px-margin-desktop py-12 md:py-24">
+      <motion.section 
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+        className="max-w-container-max mx-auto px-4 md:px-margin-desktop py-12 md:py-24"
+      >
         <div className="mb-16 text-center">
           <h2 className="font-headline-lg text-headline-lg mb-4 italic">The Rescue Ecosystem</h2>
           <div className="h-px w-24 bg-primary mx-auto mb-6"></div>
@@ -122,10 +156,17 @@ const LandingPage = () => {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* About Section */}
-      <section id="about" className="bg-surface-container py-12 md:py-24">
+      <motion.section 
+        id="about" 
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+        className="bg-surface-container py-12 md:py-24"
+      >
         <div className="max-w-container-max mx-auto px-4 md:px-margin-desktop">
           <div className="flex flex-col md:flex-row gap-12 items-stretch">
             <div className="md:w-5/12">
@@ -181,7 +222,7 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Footer / CTA */}
       <footer className="bg-surface-container-highest border-t border-outline-variant text-on-surface">
