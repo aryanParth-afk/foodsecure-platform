@@ -161,7 +161,7 @@ const LandingPage = () => {
                 <img 
                   alt="Community coming together"
                   className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-1000" 
-                  src="https://images.unsplash.com/photo-1594282486552-05b4d70fbb92?auto=format&fit=crop&w=800&q=80"
+                  src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4 md:gap-gutter-desktop">
