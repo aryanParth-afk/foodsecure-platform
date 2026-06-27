@@ -424,13 +424,9 @@ const processClaimRequest = async (req, res) => {
                 <p style="margin: 0; color: #475569;"><strong>NGO Contact Number:</strong> ${updatedListing.claimedBy?.phone || 'No phone provided'}</p>
               </div>
 
-              <p style="color: #475569; font-size: 16px;">When they arrive to pick up the food, they must provide this 4-digit OTP code to verify the pickup:</p>
+              <p style="color: #475569; font-size: 16px;">When they arrive to pick up the food, they will provide a <strong>4-digit secret OTP code</strong>. Please enter this code in your Donor Dashboard to verify the successful pickup.</p>
               
-              <div style="text-align: center; margin: 30px 0;">
-                <span style="font-size: 32px; font-weight: bold; color: #10b981; letter-spacing: 5px; background: #ecfdf5; padding: 10px 30px; border-radius: 8px;">${generatedOtp}</span>
-              </div>
-              
-              <p style="color: #64748b; font-size: 14px;">Thank you for rescuing food today and making a difference in the community!</p>
+              <p style="color: #64748b; font-size: 14px; margin-top: 30px;">Thank you for rescuing food today and making a difference in the community!</p>
             </div>
           `
         };
