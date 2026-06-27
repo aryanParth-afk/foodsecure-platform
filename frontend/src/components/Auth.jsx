@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound, ArrowLeft, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Auth = () => {
@@ -10,6 +10,7 @@ const Auth = () => {
   const [formData, setFormData] = useState({ 
     orgName: '', 
     email: '', 
+    phone: '',
     password: '', 
     role: 'NGO', // Defaults to NGO, but is instantly overwritten by the URL
     adminSecretCode: '' 
@@ -130,13 +131,22 @@ const Auth = () => {
               {/* THE ROLE SELECTOR HAS BEEN COMPLETELY REMOVED */}
 
               {!isLogin && (
-                <motion.div variants={itemVariants}>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Organization Name</label>
-                  <div className="relative group">
-                    <Building2 className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 group-focus-within:text-blue-500 transition-colors" />
-                    <input type="text" name="orgName" required value={formData.orgName} onChange={handleChange} className={defaultInputClass} placeholder="e.g. City Hope Shelter" />
-                  </div>
-                </motion.div>
+                <>
+                  <motion.div variants={itemVariants}>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Organization Name</label>
+                    <div className="relative group">
+                      <Building2 className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 group-focus-within:text-blue-500 transition-colors" />
+                      <input type="text" name="orgName" required value={formData.orgName} onChange={handleChange} className={defaultInputClass} placeholder="e.g. City Hope Shelter" />
+                    </div>
+                  </motion.div>
+                  <motion.div variants={itemVariants}>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Contact Number</label>
+                    <div className="relative group">
+                      <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 group-focus-within:text-blue-500 transition-colors" />
+                      <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className={defaultInputClass} placeholder="e.g. +1 234 567 8900" />
+                    </div>
+                  </motion.div>
+                </>
               )}
 
               {/* ADMIN SECRET CODE: Only visible during Admin Registration */}

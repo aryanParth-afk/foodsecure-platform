@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   orgName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }, // For when you add real login later
+  phone: { type: String, required: false }, 
   
   // THE MOST IMPORTANT FIELD: This dictates which dashboard they see
   role: {

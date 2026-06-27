@@ -8,6 +8,7 @@ const FoodListing = require('./models/FoodListing');
 const User = require('./models/User'); 
 const Notification = require('./models/Notification'); 
 const crypto = require('crypto'); 
+const nodemailer = require('nodemailer');
 const auth = require('./middleware/auth'); 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -18,6 +19,16 @@ const io = new Server(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PATCH', 'DELETE']
+  }
+});
+
+// Configure Nodemailer with Brevo
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.BREVO_API_KEY?.trim() // Trim to handle spaces in .env
   }
 });
 
@@ -34,7 +45,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, orgName, role, adminSecretCode } = req.body;
+    const { email, password, orgName, role, adminSecretCode, phone } = req.body;
 
     if (role === 'Admin') {
       const masterSecret = process.env.ADMIN_SECRET_CODE || 'FoodRescueAdmin2026';
@@ -46,7 +57,7 @@ app.post('/api/auth/register', async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'A user with this email already exists.' });
 
-    user = new User({ email, password, orgName, role });
+    user = new User({ email, password, orgName, role, phone });
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
     await user.save();
@@ -386,16 +397,49 @@ const processClaimRequest = async (req, res) => {
         pickupOtp: generatedOtp 
       },
       { new: true }
-    ).populate('claimedBy', 'orgName'); 
+    ).populate('claimedBy', 'orgName phone')
+     .populate('donorId', 'orgName email'); 
 
     if (updatedListing) {
       io.emit('listingClaimed', { listingId: updatedListing._id, ngoId: updatedListing.claimedBy?._id, status: 'Claimed' });
 
       await Notification.create({
-        userId: updatedListing.donorId,
+        userId: updatedListing.donorId._id,
         message: `${updatedListing.claimedBy?.orgName || 'An NGO'} has claimed your donation of ${updatedListing.foodName}.`,
         type: 'info'
       });
+
+      // Send email to donor
+      if (updatedListing.donorId?.email) {
+        const mailOptions = {
+          from: `"FoodRescue App" <${process.env.EMAIL_USER}>`,
+          to: updatedListing.donorId.email,
+          subject: 'Your Food Donation was Claimed! 🎉',
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <h2 style="color: #0f172a;">Great news, ${updatedListing.donorId.orgName}!</h2>
+              <p style="color: #475569; font-size: 16px;"><strong>${updatedListing.claimedBy?.orgName}</strong> has just claimed your donation of <strong>${updatedListing.foodName}</strong>.</p>
+              
+              <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; color: #475569;"><strong>NGO Contact Number:</strong> ${updatedListing.claimedBy?.phone || 'No phone provided'}</p>
+              </div>
+
+              <p style="color: #475569; font-size: 16px;">When they arrive to pick up the food, they must provide this 4-digit OTP code to verify the pickup:</p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <span style="font-size: 32px; font-weight: bold; color: #10b981; letter-spacing: 5px; background: #ecfdf5; padding: 10px 30px; border-radius: 8px;">${generatedOtp}</span>
+              </div>
+              
+              <p style="color: #64748b; font-size: 14px;">Thank you for rescuing food today and making a difference in the community!</p>
+            </div>
+          `
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) console.error("Error sending email:", error);
+          else console.log("Email sent successfully:", info.response);
+        });
+      }
     }
 
     res.json(updatedListing);
