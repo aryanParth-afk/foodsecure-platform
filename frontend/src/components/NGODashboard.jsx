@@ -81,21 +81,21 @@ const NGODashboard = () => {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900">NGO Dashboard</h2>
-          <p className="text-slate-500 font-medium mt-1">Review available donations and manage your rescue routes.</p>
+          <h2 className="text-3xl font-black text-white">NGO Dashboard</h2>
+          <p className="text-slate-300 font-medium mt-1">Review available donations and manage your rescue routes.</p>
         </div>
         
         {/* Toggle Tabs */}
-        <div className="flex bg-slate-100 p-1 rounded-xl w-full md:w-auto">
+        <div className="flex bg-black/20 p-1 rounded-xl w-full md:w-auto border border-white/10 backdrop-blur-md">
           <button 
             onClick={() => setActiveTab('feed')}
-            className={`flex-1 md:px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'feed' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex-1 md:px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'feed' ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-slate-400 hover:text-white'}`}
           >
             Live Feed
           </button>
           <button 
             onClick={() => setActiveTab('claims')}
-            className={`flex-1 md:px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'claims' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex-1 md:px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'claims' ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-slate-400 hover:text-white'}`}
           >
             My Pickups
           </button>
@@ -104,45 +104,45 @@ const NGODashboard = () => {
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400"></div>
         </div>
       ) : activeTab === 'feed' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {listings.length === 0 ? (
-            <div className="col-span-full bg-slate-50 border border-slate-100 rounded-3xl p-12 text-center">
-              <Package className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-slate-700">No food available right now</h3>
-              <p className="text-slate-500 text-sm mt-1">Check back later or view the Live Map for updates.</p>
+            <div className="col-span-full glass-panel p-12 text-center">
+              <Package className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-white">No food available right now</h3>
+              <p className="text-slate-300 text-sm mt-1">Check back later or view the Live Map for updates.</p>
             </div>
           ) : (
             listings.map(listing => (
-              <div key={listing._id} className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col border border-slate-100">
+              <div key={listing._id} className="glass-panel glass-panel-hover p-6 flex flex-col">
                 <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{listing.foodName}</h3>
-                  <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2">
+                  <h3 className="font-bold text-lg text-white line-clamp-1">{listing.foodName}</h3>
+                  <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2">
                     {listing.category}
                   </span>
                 </div>
                 
                 <div className="space-y-2 mb-6 flex-1">
-                  <p className="text-sm text-slate-600 flex items-center gap-2 font-medium">
+                  <p className="text-sm text-slate-200 flex items-center gap-2 font-medium">
                     <Package className="w-4 h-4 text-slate-400" /> {listing.quantity}
                   </p>
-                  <p className="text-sm text-slate-600 flex items-start gap-2 font-medium">
+                  <p className="text-sm text-slate-200 flex items-start gap-2 font-medium">
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> 
                     <span className="line-clamp-2">{listing.pickupLocation}</span>
                   </p>
                   {listing.expiresAt && (
-                    <p className="text-sm text-slate-600 flex items-center gap-2 font-medium">
+                    <p className="text-sm text-slate-200 flex items-center gap-2 font-medium">
                       <Clock className="w-4 h-4 text-slate-400" /> 
-                      <span className="text-orange-600 font-bold">Expires: {new Date(listing.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-orange-400 font-bold drop-shadow-[0_0_5px_rgba(251,146,60,0.5)]">Expires: {new Date(listing.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                     </p>
                   )}
                 </div>
 
                 <button 
                   onClick={() => handleClaim(listing._id, listing.foodName)}
-                  className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-emerald-500/30 transition-all mt-auto"
+                  className="glass-btn mt-auto py-3.5"
                 >
                   Claim & Rescue
                 </button>
@@ -153,35 +153,35 @@ const NGODashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {myClaims.length === 0 ? (
-            <div className="col-span-full bg-slate-50 border border-slate-100 rounded-3xl p-12 text-center">
-              <CheckCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-slate-700">No pickups yet</h3>
-              <p className="text-slate-500 text-sm mt-1">Go to the Live Feed to claim your first donation!</p>
+            <div className="col-span-full glass-panel p-12 text-center">
+              <CheckCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-white">No pickups yet</h3>
+              <p className="text-slate-300 text-sm mt-1">Go to the Live Feed to claim your first donation!</p>
             </div>
           ) : (
             myClaims.map(claim => (
-              <div key={claim._id} className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/40 hover:-translate-y-1 transition-all flex flex-col border border-slate-100">
+              <div key={claim._id} className="glass-panel glass-panel-hover p-6 flex flex-col">
                 <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{claim.foodName}</h3>
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2 ${claim.status === 'Completed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'}`}>
+                  <h3 className="font-bold text-lg text-white line-clamp-1">{claim.foodName}</h3>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2 border ${claim.status === 'Completed' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-orange-500/20 text-orange-300 border-orange-500/30'}`}>
                     {claim.status}
                   </span>
                 </div>
                 
                 <div className="space-y-2 mb-4 flex-1">
-                  <p className="text-sm text-slate-600 flex items-center gap-2 font-medium">
+                  <p className="text-sm text-slate-200 flex items-center gap-2 font-medium">
                     <Package className="w-4 h-4 text-slate-400" /> {claim.quantity}
                   </p>
-                  <p className="text-sm text-slate-600 flex items-start gap-2 font-medium">
+                  <p className="text-sm text-slate-200 flex items-start gap-2 font-medium">
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" /> 
                     <span className="line-clamp-2">{claim.pickupLocation}</span>
                   </p>
                 </div>
 
                 {claim.status === 'Claimed' && claim.pickupOtp && (
-                  <div className="mt-auto bg-slate-50 rounded-2xl p-4 border border-slate-100 text-center shadow-inner">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Secret Pickup OTP</p>
-                    <p className="text-2xl font-black text-emerald-600 tracking-[0.2em]">{claim.pickupOtp}</p>
+                  <div className="mt-auto bg-black/30 rounded-2xl p-4 border border-white/10 text-center backdrop-blur-md">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Secret Pickup OTP</p>
+                    <p className="text-2xl font-mono font-black text-emerald-400 tracking-[0.2em] drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]">{claim.pickupOtp}</p>
                   </div>
                 )}
               </div>

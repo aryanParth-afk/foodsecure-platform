@@ -120,7 +120,7 @@ const NgoMapDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400"></div>
       </div>
     );
   }
@@ -131,27 +131,27 @@ const NgoMapDashboard = () => {
       
       <div className="mb-4 px-2 md:px-0 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900">Live Rescue Map</h2>
-          <p className="text-slate-500 text-sm md:text-base font-medium mt-1">
+          <h2 className="text-2xl md:text-3xl font-black text-white">Live Rescue Map</h2>
+          <p className="text-slate-300 text-sm md:text-base font-medium mt-1">
             Tap the green pin to find your location. Blue pins are nearby donations.
           </p>
         </div>
         
         <button 
           onClick={locateNGO}
-          className="hidden md:flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition-colors shadow-sm"
+          className="hidden md:flex items-center gap-2 bg-white/10 border border-white/20 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm backdrop-blur-md"
         >
-          <Navigation className="w-4 h-4 text-emerald-600" /> Re-center on Me
+          <Navigation className="w-4 h-4 text-emerald-400" /> Re-center on Me
         </button>
       </div>
       
-      <div className="rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/50 relative z-0 h-[70vh] md:h-150 w-full">
+      <div className="glass-panel relative z-0 h-[70vh] md:h-150 w-full border-2 border-white/20">
         
         <button 
           onClick={locateNGO}
-          className="md:hidden absolute bottom-6 right-4 z-400 bg-white border-2 border-slate-100 text-emerald-600 p-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 active:scale-95 transition-all"
+          className="md:hidden absolute bottom-6 right-4 z-400 bg-black/50 backdrop-blur-md border border-white/20 text-emerald-400 p-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:bg-black/70 active:scale-95 transition-all"
         >
-          <Navigation2 className="w-6 h-6 fill-emerald-100" />
+          <Navigation2 className="w-6 h-6 fill-emerald-400/20" />
         </button>
 
         <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -177,22 +177,22 @@ const NgoMapDashboard = () => {
             return (
               <Marker key={listing._id} position={[listing.lat, listing.lng]}>
                 <Popup className="custom-popup">
-                  <div className="p-1 min-w-37.5">
-                    <h4 className="font-bold text-slate-900 text-sm md:text-base mb-1">{listing.foodName}</h4>
-                    <p className="text-slate-600 text-[11px] md:text-xs mb-1 flex items-center gap-1">
-                      <Package className="w-3 h-3" /> <strong>{listing.quantity}</strong>
+                  <div className="p-2 min-w-40 bg-slate-900 rounded-xl">
+                    <h4 className="font-bold text-white text-sm md:text-base mb-1">{listing.foodName}</h4>
+                    <p className="text-slate-300 text-[11px] md:text-xs mb-1 flex items-center gap-1">
+                      <Package className="w-3 h-3 text-slate-400" /> <strong>{listing.quantity}</strong>
                     </p>
-                    <p className="text-slate-500 text-[10px] mb-3 leading-tight line-clamp-2 flex items-start gap-1">
-                      <MapPin className="w-3 h-3 shrink-0" /> {listing.pickupLocation}
+                    <p className="text-slate-400 text-[10px] mb-3 leading-tight line-clamp-2 flex items-start gap-1">
+                      <MapPin className="w-3 h-3 shrink-0 text-slate-500" /> {listing.pickupLocation}
                     </p>
                     {listing.expiresAt && (
-                      <p className="text-orange-600 text-[10px] mb-3 leading-tight flex items-center gap-1 font-bold">
+                      <p className="text-orange-400 text-[10px] mb-3 leading-tight flex items-center gap-1 font-bold">
                         <Clock className="w-3 h-3 shrink-0" /> Expires {new Date(listing.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </p>
                     )}
                     <button 
                       onClick={() => handleClaim(listing._id, listing.foodName)}
-                      className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-2.5 rounded-xl text-xs transition-all shadow-md shadow-emerald-500/20"
+                      className="glass-btn py-2 text-xs"
                     >
                       Claim Pickup
                     </button>

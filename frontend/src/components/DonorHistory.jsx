@@ -121,36 +121,36 @@ const DonorHistory = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 overflow-hidden">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Your Impact History</h1>
-        <p className="text-slate-500 font-medium mt-1">Track your donations and verify NGO pickups.</p>
+        <h1 className="text-3xl font-black text-white tracking-tight">Your Impact History</h1>
+        <p className="text-slate-300 font-medium mt-1">Track your donations and verify NGO pickups.</p>
       </motion.div>
 
       {/* Persistent Stats Bar */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-lg shadow-slate-200/40 flex items-center space-x-4">
-          <div className="bg-emerald-50 p-4 rounded-2xl text-emerald-600"><TrendingUp className="w-8 h-8" /></div>
-          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Total Posts</p><p className="text-3xl font-black text-slate-900">{totalDonations}</p></div>
+        <div className="glass-panel p-6 flex items-center space-x-4">
+          <div className="bg-emerald-500/20 p-4 rounded-2xl text-emerald-400"><TrendingUp className="w-8 h-8" /></div>
+          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Total Posts</p><p className="text-3xl font-black text-white">{totalDonations}</p></div>
         </div>
-        <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-lg shadow-slate-200/40 flex items-center space-x-4">
-          <div className="bg-blue-50 p-4 rounded-2xl text-blue-600"><CheckCircle className="w-8 h-8" /></div>
-          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Rescued Successfully</p><p className="text-3xl font-black text-slate-900">{completedDonations}</p></div>
+        <div className="glass-panel p-6 flex items-center space-x-4">
+          <div className="bg-blue-500/20 p-4 rounded-2xl text-blue-400"><CheckCircle className="w-8 h-8" /></div>
+          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Rescued Successfully</p><p className="text-3xl font-black text-white">{completedDonations}</p></div>
         </div>
-        <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-lg shadow-slate-200/40 flex items-center space-x-4">
-          <div className="bg-orange-50 p-4 rounded-2xl text-orange-600"><AlertCircle className="w-8 h-8" /></div>
-          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Active / Pending</p><p className="text-3xl font-black text-slate-900">{activeDonationsCount}</p></div>
+        <div className="glass-panel p-6 flex items-center space-x-4">
+          <div className="bg-orange-500/20 p-4 rounded-2xl text-orange-400"><AlertCircle className="w-8 h-8" /></div>
+          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Active / Pending</p><p className="text-3xl font-black text-white">{activeDonationsCount}</p></div>
         </div>
       </motion.div>
 
       {/* Tab Switcher */}
       <div className="flex justify-center mb-8 relative z-10">
-        <div className="bg-slate-100 p-1.5 rounded-2xl inline-flex shadow-inner border border-slate-200/60">
-          <button onClick={() => setActiveTab('active')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'active' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-            <Clock className={`w-4 h-4 mr-2 ${activeTab === 'active' ? 'text-orange-500' : ''}`} />
+        <div className="bg-black/30 p-1.5 rounded-2xl inline-flex border border-white/10 backdrop-blur-md">
+          <button onClick={() => setActiveTab('active')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'active' ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-slate-400 hover:text-white'}`}>
+            <Clock className={`w-4 h-4 mr-2 ${activeTab === 'active' ? 'text-orange-400' : ''}`} />
             Active & Pending
-            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'active' ? 'bg-orange-100 text-orange-700' : 'bg-slate-200 text-slate-500'}`}>{activeList.length}</span>
+            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'active' ? 'bg-orange-500/20 text-orange-300' : 'bg-white/10 text-slate-300'}`}>{activeList.length}</span>
           </button>
-          <button onClick={() => setActiveTab('history')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'history' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-            <History className={`w-4 h-4 mr-2 ${activeTab === 'history' ? 'text-emerald-500' : ''}`} />
+          <button onClick={() => setActiveTab('history')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'history' ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-slate-400 hover:text-white'}`}>
+            <History className={`w-4 h-4 mr-2 ${activeTab === 'history' ? 'text-emerald-400' : ''}`} />
             Past History
           </button>
         </div>
@@ -178,21 +178,24 @@ const DonorHistory = () => {
                 <div key={group.date} className="mb-6">
                   
                   {/* Date Divider */}
-                  <div className="flex items-center space-x-4 mb-3 pl-2">
-                    <div className="h-px bg-slate-200 flex-1"></div>
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center">
-                      <Calendar className="w-3.5 h-3.5 mr-1.5" /> {group.date}
-                    </span>
-                    <div className="h-px bg-slate-200 flex-3"></div>
-                  </div>
+                  <div className="mb-4">
+                  <h2 className="text-xl font-black text-white flex items-center mb-1">
+                    <Calendar className="w-5 h-5 mr-2 text-emerald-400" /> {group.date}
+                  </h2>
+                  <div className="h-0.5 w-16 bg-gradient-to-r from-emerald-400 to-transparent rounded-full"></div>
+                </div>
+
+                <div className="relative pl-4 md:pl-8">
+                  {/* Timeline line */}
+                  <div className="absolute left-[7px] md:left-[15px] top-4 bottom-0 w-0.5 bg-white/10 rounded-full"></div>
 
                   {/* MORE COMPACT CARD DESIGN */}
                   <div className="space-y-3">
                     {group.items.map((donation) => (
                       <motion.div 
                         key={donation._id} 
-                        layout="position" 
-                        className="bg-white rounded-3xl p-5 shadow-lg shadow-slate-200/40 hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4 pl-6 border border-slate-100 group"
+                        initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                        className="glass-panel glass-panel-hover relative flex flex-col md:flex-row md:items-center justify-between gap-4 pl-6 group"
                       >
                         
                         {/* Thin Colored Edge Indicator */}
@@ -202,26 +205,26 @@ const DonorHistory = () => {
                           donation.status.toLowerCase() === 'claimed' ? 'bg-blue-500' : 'bg-orange-400'
                         }`}></div>
 
-                        <div className="flex-1">
+                        <div className="flex-1 py-5">
                           <div className="flex items-center space-x-3 mb-1.5">
-                            <h3 className="text-lg font-black text-slate-900">{donation.foodItem || donation.foodName || 'Surplus Food'}</h3>
-                            <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${
-                              donation.status.toLowerCase() === 'completed' ? 'bg-emerald-50 text-emerald-700' :
-                              donation.status.toLowerCase() === 'expired' ? 'bg-slate-100 text-slate-600' :
-                              donation.status.toLowerCase() === 'claimed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'
+                            <h3 className="text-lg font-black text-white">{donation.foodItem || donation.foodName || 'Surplus Food'}</h3>
+                            <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
+                              donation.status.toLowerCase() === 'completed' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+                              donation.status.toLowerCase() === 'expired' ? 'bg-slate-500/20 text-slate-300 border-slate-500/30' :
+                              donation.status.toLowerCase() === 'claimed' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-orange-500/20 text-orange-300 border-orange-500/30'
                             }`}>
                               {donation.status.toLowerCase() === 'available' ? 'Pending Claim' : donation.status}
                             </span>
                           </div>
-                          <p className="text-slate-500 font-medium text-sm flex items-center"><Package className="w-4 h-4 mr-1.5" /> Quantity: {donation.quantity}</p>
+                          <p className="text-slate-300 font-medium text-sm flex items-center"><Package className="w-4 h-4 mr-1.5 text-slate-400" /> Quantity: {donation.quantity}</p>
                         </div>
 
-                        <div className="bg-slate-50 p-3 rounded-xl md:min-w-65 border border-slate-100 relative">
+                        <div className="bg-black/20 p-4 rounded-r-3xl md:min-w-65 border-l border-white/10 relative h-full flex flex-col justify-center min-h-[100px]">
                           {/* DUSTBIN BUTTON (For completed/expired history removal) */}
                           {['completed', 'expired'].includes(donation.status.toLowerCase()) && (
                             <button 
                               onClick={() => handleHideListing(donation._id)}
-                              className="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                              className="absolute top-2 right-2 p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
                               title="Remove from history"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -231,39 +234,39 @@ const DonorHistory = () => {
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Pickup Status</p>
                           
                           {donation.status.toLowerCase() === 'completed' ? (
-                            <div className="flex items-center space-x-2.5 text-emerald-600 bg-emerald-50 p-2 rounded-lg border border-emerald-100 pr-10">
+                            <div className="flex items-center space-x-2.5 text-emerald-400 bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20 pr-10">
                               <CheckCircle className="w-4 h-4 shrink-0" />
                               <div className="leading-tight">
-                                <span className="font-bold block text-sm">Verified & Picked Up</span>
-                                <span className="text-[10px] font-medium text-emerald-600/70">by {donation.claimedBy?.orgName || 'NGO'}</span>
+                                <span className="font-bold block text-sm text-emerald-300">Verified & Picked Up</span>
+                                <span className="text-[10px] font-medium text-emerald-500">by {donation.claimedBy?.orgName || 'NGO'}</span>
                               </div>
                             </div>
                           ) : donation.status.toLowerCase() === 'expired' ? (
-                            <div className="flex items-center space-x-2.5 text-slate-500 bg-slate-100 p-2 rounded-lg border border-slate-200 pr-10">
+                            <div className="flex items-center space-x-2.5 text-slate-400 bg-slate-800/50 p-2 rounded-lg border border-slate-700 pr-10">
                               <AlertCircle className="w-4 h-4 shrink-0" />
                               <div className="leading-tight">
-                                <span className="font-bold block text-sm">Expired</span>
+                                <span className="font-bold block text-sm text-slate-300">Expired</span>
                                 <span className="text-[10px] font-medium text-slate-500">Not picked up in time</span>
                               </div>
                             </div>
                           ) : donation.status.toLowerCase() === 'claimed' && donation.claimedBy ? (
                             <div>
                               <div className="flex items-center space-x-2.5 mb-2.5">
-                                <div className="bg-white p-1.5 rounded-lg shadow-sm"><Building2 className="w-4 h-4 text-blue-500" /></div>
-                                <span className="font-bold text-sm text-slate-800">{donation.claimedBy.orgName || 'NGO Partner'}</span>
+                                <div className="bg-white/10 p-1.5 rounded-lg border border-white/10"><Building2 className="w-4 h-4 text-blue-400" /></div>
+                                <span className="font-bold text-sm text-white">{donation.claimedBy.orgName || 'NGO Partner'}</span>
                               </div>
                               
                               <div className="flex items-center space-x-2">
                                 <div className="relative flex-1">
-                                  <KeyRound className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+                                  <KeyRound className="w-3.5 h-3.5 text-emerald-400 absolute left-2.5 top-3" />
                                   <input 
                                     type="text" maxLength="4" placeholder="Enter OTP" 
                                     value={activeOtpInput.id === donation._id ? activeOtpInput.code : ''}
                                     onChange={(e) => setActiveOtpInput({ id: donation._id, code: e.target.value.replace(/\D/g, '') })}
-                                    className="w-full bg-white border border-slate-200 text-sm font-mono font-black tracking-widest text-emerald-700 rounded-xl py-2 pl-9 pr-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all shadow-inner"
+                                    className="w-full bg-black/40 border border-white/20 text-sm font-mono font-black tracking-widest text-emerald-400 rounded-xl py-2.5 pl-9 pr-2 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 outline-none transition-all placeholder:text-emerald-900"
                                   />
                                 </div>
-                                <button onClick={() => handleVerifyPickup(donation._id)} className="bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white p-2.5 rounded-xl transition-all shadow-md shadow-emerald-500/30">
+                                <button onClick={() => handleVerifyPickup(donation._id)} className="glass-btn py-2.5 px-3 w-auto min-w-10">
                                   <Check className="w-4 h-4" />
                                 </button>
                               </div>
@@ -278,7 +281,7 @@ const DonorHistory = () => {
                               {/* NEW: Cancel & Delete button for Available/Pending donations */}
                               <button 
                                 onClick={() => handleDelete(donation._id, donation.foodItem || donation.foodName)}
-                                className="flex items-center justify-center gap-1.5 w-full bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 rounded-lg py-1.5 text-xs font-bold transition-all shadow-sm"
+                                className="flex items-center justify-center gap-1.5 w-full bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 rounded-lg py-1.5 text-xs font-bold transition-all shadow-sm backdrop-blur-md mt-1"
                               >
                                 <Trash2 className="w-3.5 h-3.5" /> Cancel & Delete
                               </button>

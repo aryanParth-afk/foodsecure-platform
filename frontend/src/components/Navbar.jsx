@@ -99,13 +99,13 @@ const Navbar = () => {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
   const isActive = (path) => location.pathname === path;
-  const linkClass = (path) => `flex items-center text-sm font-bold transition-colors ${isActive(path) ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'}`;
+  const linkClass = (path) => `flex items-center text-sm font-bold transition-colors ${isActive(path) ? 'text-emerald-400' : 'text-slate-300 hover:text-white'}`;
   const getInitials = (name) => name ? name.substring(0, 2).toUpperCase() : 'U';
 
   const getNotifIcon = (type) => {
-    if (type === 'success') return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-    if (type === 'warning') return <AlertCircle className="w-5 h-5 text-orange-500" />;
-    return <Info className="w-5 h-5 text-blue-500" />;
+    if (type === 'success') return <CheckCircle2 className="w-5 h-5 text-emerald-400" />;
+    if (type === 'warning') return <AlertCircle className="w-5 h-5 text-orange-400" />;
+    return <Info className="w-5 h-5 text-blue-400" />;
   };
 
   // Dynamic links
@@ -140,7 +140,7 @@ const Navbar = () => {
         UPDATED: Switched from 'sticky' to 'fixed', and added the smooth sliding transition.
       */}
       <nav 
-        className={`fixed top-0 left-0 right-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 right-0 z-50 w-full bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-lg transition-transform duration-300 ease-in-out ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
@@ -149,10 +149,10 @@ const Navbar = () => {
             
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group shrink-0">
-              <div className="bg-orange-50 p-2.5 rounded-2xl border border-orange-100 group-hover:bg-orange-100 transition-colors shadow-sm">
-                <HandHeart className="w-7 h-7 text-orange-500 group-hover:scale-110 transition-transform" />
+              <div className="bg-emerald-500/20 p-2.5 rounded-2xl border border-emerald-500/30 group-hover:bg-emerald-500/30 transition-colors shadow-sm">
+                <HandHeart className="w-7 h-7 text-emerald-400 group-hover:scale-110 transition-transform" />
               </div>
-              <span className="font-black text-2xl text-slate-900 tracking-tight hidden sm:block">FoodRescue</span>
+              <span className="font-black text-2xl text-white tracking-tight hidden sm:block">FoodRescue</span>
             </Link>
 
             {/* DESKTOP NAVIGATION LINKS */}
@@ -172,7 +172,7 @@ const Navbar = () => {
                   <div className="relative" ref={notifRef}>
                     <button 
                       onClick={() => { setIsNotifOpen(!isNotifOpen); setIsProfileOpen(false); }}
-                      className="relative p-2 text-slate-400 hover:text-slate-700 transition-colors rounded-full hover:bg-slate-100 focus:outline-none"
+                      className="relative p-2 text-slate-300 hover:text-white transition-colors rounded-full hover:bg-white/10 focus:outline-none"
                     >
                       <Bell className="w-5 h-5" />
                       {unreadCount > 0 && (
@@ -186,12 +186,12 @@ const Navbar = () => {
                       {isNotifOpen && (
                         <motion.div 
                           initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.15 }}
-                          className="absolute right-0 mt-2 w-80 bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden origin-top-right z-50 flex flex-col max-h-100"
+                          className="absolute right-0 mt-2 w-80 bg-slate-900 border border-white/10 rounded-3xl shadow-2xl overflow-hidden origin-top-right z-50 flex flex-col max-h-100 backdrop-blur-xl"
                         >
-                          <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center shrink-0">
-                            <h3 className="font-black text-slate-900">Notifications</h3>
+                          <div className="p-4 bg-black/40 border-b border-white/10 flex justify-between items-center shrink-0">
+                            <h3 className="font-black text-white">Notifications</h3>
                             {unreadCount > 0 && (
-                              <button onClick={handleMarkAllRead} className="text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded-md transition-colors">
+                              <button onClick={handleMarkAllRead} className="text-[10px] font-bold text-blue-400 hover:text-blue-300 flex items-center bg-blue-500/10 px-2 py-1 rounded-md transition-colors border border-blue-500/20">
                                 <CheckCheck className="w-3 h-3 mr-1" /> Mark all read
                               </button>
                             )}
@@ -200,23 +200,23 @@ const Navbar = () => {
                           <div className="overflow-y-auto overflow-x-hidden flex-1 max-h-[60vh]">
                             {notifications.length === 0 ? (
                               <div className="p-8 text-center text-slate-400 font-medium text-sm">
-                                <Bell className="w-8 h-8 mx-auto mb-2 text-slate-300 opacity-50" />
+                                <Bell className="w-8 h-8 mx-auto mb-2 text-slate-500 opacity-50" />
                                 You're all caught up!
                               </div>
                             ) : (
-                              <div className="divide-y divide-slate-50">
+                              <div className="divide-y divide-white/10">
                                 {notifications.map(notif => (
                                   <div 
                                     key={notif._id} 
                                     onClick={() => !notif.isRead && handleMarkAsRead(notif._id)}
-                                    className={`p-4 flex gap-3 transition-colors ${!notif.isRead ? 'bg-blue-50/50 cursor-pointer hover:bg-blue-50' : 'bg-white'}`}
+                                    className={`p-4 flex gap-3 transition-colors ${!notif.isRead ? 'bg-blue-500/10 cursor-pointer hover:bg-blue-500/20' : 'bg-transparent'}`}
                                   >
                                     <div className="shrink-0 mt-0.5">{getNotifIcon(notif.type)}</div>
                                     <div>
-                                      <p className={`text-sm ${!notif.isRead ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}`}>{notif.message}</p>
-                                      <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{new Date(notif.createdAt).toLocaleDateString()} at {new Date(notif.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                      <p className={`text-sm ${!notif.isRead ? 'font-bold text-white' : 'font-medium text-slate-300'}`}>{notif.message}</p>
+                                      <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wider">{new Date(notif.createdAt).toLocaleDateString()} at {new Date(notif.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                                     </div>
-                                    {!notif.isRead && <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 shrink-0 ml-auto"></div>}
+                                    {!notif.isRead && <div className="w-2 h-2 bg-blue-400 rounded-full mt-1.5 shrink-0 ml-auto shadow-[0_0_8px_rgba(96,165,250,0.8)]"></div>}
                                   </div>
                                 ))}
                               </div>
@@ -227,44 +227,44 @@ const Navbar = () => {
                     </AnimatePresence>
                   </div>
 
-                  <div className="w-px h-6 bg-slate-200 hidden sm:block mx-1"></div>
+                  <div className="w-px h-6 bg-white/20 hidden sm:block mx-1"></div>
 
                   {/* 👤 PROFILE DROPDOWN */}
                   <div className="relative" ref={profileRef}>
                     <button 
                       onClick={() => { setIsProfileOpen(!isProfileOpen); setIsNotifOpen(false); }}
-                      className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 focus:outline-none"
+                      className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 focus:outline-none"
                     >
-                      <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center shadow-sm">
-                        <span className="text-white text-xs font-black tracking-widest">{getInitials(user.orgName)}</span>
+                      <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shadow-sm">
+                        <span className="text-emerald-400 text-xs font-black tracking-widest">{getInitials(user.orgName)}</span>
                       </div>
-                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 hidden sm:block ${isProfileOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-4 h-4 text-slate-300 transition-transform duration-200 hidden sm:block ${isProfileOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     <AnimatePresence>
                       {isProfileOpen && (
                         <motion.div 
                           initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.15 }}
-                          className="absolute right-0 mt-2 w-64 bg-white border border-slate-100 rounded-3xl shadow-xl overflow-hidden origin-top-right z-50"
+                          className="absolute right-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-3xl shadow-xl overflow-hidden origin-top-right z-50 backdrop-blur-xl"
                         >
-                          <div className="p-5 bg-slate-50 border-b border-slate-100">
-                            <p className="text-sm font-black text-slate-900 truncate">{user.orgName || 'User'}</p>
-                            <p className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest mt-1.5 ${
-                              user.role === 'SuperAdmin' ? 'bg-amber-100 text-amber-700' :
-                              user.role === 'Admin' ? 'bg-blue-100 text-blue-700' :
-                              user.role === 'Donor' ? 'bg-emerald-100 text-emerald-700' :
-                              'bg-orange-100 text-orange-700'
+                          <div className="p-5 bg-black/40 border-b border-white/10">
+                            <p className="text-sm font-black text-white truncate">{user.orgName || 'User'}</p>
+                            <p className={`inline-block px-2.5 py-1 rounded-md border text-[10px] font-black uppercase tracking-widest mt-1.5 ${
+                              user.role === 'SuperAdmin' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+                              user.role === 'Admin' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                              user.role === 'Donor' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+                              'bg-orange-500/20 text-orange-300 border-orange-500/30'
                             }`}>
                               {user.role} Account
                             </p>
                           </div>
 
                           <div className="p-2 space-y-1">
-                            <Link to="/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center px-4 py-3 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors">
+                            <Link to="/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center px-4 py-3 text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
                               <Settings className="w-4 h-4 mr-3 text-slate-400" /> Account Settings
                             </Link>
-                            <button onClick={() => { setIsProfileOpen(false); handleLogout(); }} className="w-full flex items-center px-4 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left">
-                              <LogOut className="w-4 h-4 mr-3 text-rose-400" /> Secure Logout
+                            <button onClick={() => { setIsProfileOpen(false); handleLogout(); }} className="w-full flex items-center px-4 py-3 text-sm font-bold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-xl transition-colors text-left">
+                              <LogOut className="w-4 h-4 mr-3 text-rose-500" /> Secure Logout
                             </button>
                           </div>
                         </motion.div>
@@ -274,8 +274,8 @@ const Navbar = () => {
                 </>
               ) : (
                 <div className="flex items-center space-x-4">
-                  <Link to="/auth?mode=login" className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">Log In</Link>
-                  <Link to="/auth?mode=register" className="px-5 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg">Get Started</Link>
+                  <Link to="/auth?mode=login" className="text-sm font-bold text-slate-300 hover:text-white transition-colors hidden sm:block">Log In</Link>
+                  <Link to="/auth?mode=register" className="glass-btn px-5 py-2.5 text-sm">Get Started</Link>
                 </div>
               )}
             </div>
@@ -288,7 +288,7 @@ const Navbar = () => {
       */}
       {user && navLinks.length > 0 && (
         <div 
-          className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-999 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe transition-transform duration-300 ease-in-out ${
+          className={`md:hidden fixed bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 z-[999] shadow-[0_-4px_20px_rgba(0,0,0,0.5)] pb-safe transition-transform duration-300 ease-in-out ${
             isVisible ? 'translate-y-0' : 'translate-y-full'
           }`}
         >
@@ -298,13 +298,13 @@ const Navbar = () => {
                 key={link.path} 
                 to={link.path}
                 className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${
-                  isActive(link.path) ? 'text-orange-600' : 'text-slate-400 hover:text-slate-600'
+                  isActive(link.path) ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <div className={`p-1.5 rounded-xl transition-colors ${isActive(link.path) ? 'bg-orange-50' : 'bg-transparent'}`}>
+                <div className={`p-1.5 rounded-xl transition-colors ${isActive(link.path) ? 'bg-emerald-500/20' : 'bg-transparent'}`}>
                   <link.icon className={`w-5 h-5 ${isActive(link.path) ? 'stroke-[2.5px]' : 'stroke-2'}`} />
                 </div>
-                <span className={`text-[10px] font-bold ${isActive(link.path) ? 'text-orange-700' : 'text-slate-500'}`}>
+                <span className={`text-[10px] font-bold ${isActive(link.path) ? 'text-emerald-400' : 'text-slate-500'}`}>
                   {link.name}
                 </span>
               </Link>

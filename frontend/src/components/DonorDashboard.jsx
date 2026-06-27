@@ -120,74 +120,74 @@ const DonorDashboard = () => {
       </AnimatePresence>
 
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center space-x-4 mb-10">
-        <div className="bg-emerald-100 p-3 rounded-2xl shadow-sm">
-          <HeartHandshake className="w-8 h-8 text-emerald-600" />
+        <div className="bg-white/10 p-3 rounded-2xl shadow-[0_0_15px_rgba(255,255,255,0.1)] border border-white/10 backdrop-blur-md">
+          <HeartHandshake className="w-8 h-8 text-emerald-400" />
         </div>
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Donor Portal</h1>
-          <p className="text-slate-500 font-medium mt-1">Thank you, {currentUser.orgName || 'Partner'}. Post surplus food to the network.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Donor Portal</h1>
+          <p className="text-slate-300 font-medium mt-1">Thank you, {currentUser.orgName || 'Partner'}. Post surplus food to the network.</p>
         </div>
       </motion.div>
 
       <motion.div 
         initial={{ opacity: 0, y: 40, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} 
         transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
-        className="bg-white rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/50 relative overflow-hidden border border-slate-100"
+        className="glass-panel p-8 sm:p-10 relative"
       >
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-emerald-400 to-teal-500"></div>
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
 
-        <h2 className="text-2xl font-black text-slate-900 mb-8 flex items-center">
-          <PackageOpen className="w-6 h-6 mr-2 text-emerald-500" /> List New Donation
+        <h2 className="text-2xl font-black text-white mb-8 flex items-center">
+          <PackageOpen className="w-6 h-6 mr-2 text-emerald-400" /> List New Donation
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1.5">What are you donating?</label>
-              <input type="text" required value={formData.foodType} onChange={(e) => setFormData({...formData, foodType: e.target.value})} className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-2xl py-3.5 px-4 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all font-medium" placeholder="e.g. 5 Trays" />
+              <label className="block text-sm font-bold text-slate-200 mb-1.5">What are you donating?</label>
+              <input type="text" required value={formData.foodType} onChange={(e) => setFormData({...formData, foodType: e.target.value})} className="glass-input" placeholder="e.g. 5 Trays" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1.5">Quantity/Weight</label>
-              <input type="text" required value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})} className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-2xl py-3.5 px-4 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all font-medium" placeholder="e.g. 20 lbs" />
+              <label className="block text-sm font-bold text-slate-200 mb-1.5">Quantity/Weight</label>
+              <input type="text" required value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})} className="glass-input" placeholder="e.g. 20 lbs" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1.5">Expires At</label>
+              <label className="block text-sm font-bold text-slate-200 mb-1.5">Expires At</label>
               <input 
                 type="datetime-local" 
                 required 
                 value={formData.expiresAt} 
                 onChange={(e) => setFormData({...formData, expiresAt: e.target.value})} 
-                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-2xl py-3.5 px-4 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all font-medium appearance-none"
+                className="glass-input appearance-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1.5">Pickup Location</label>
+            <label className="block text-sm font-bold text-slate-200 mb-1.5">Pickup Location</label>
             
             {!formData.address ? (
               <button 
                 type="button" 
                 onClick={() => setIsMapOpen(true)}
-                className="w-full flex items-center justify-center space-x-2 bg-blue-50 text-blue-600 border-2 border-dashed border-blue-200 hover:bg-blue-100 hover:border-blue-300 py-4 rounded-xl font-bold transition-all"
+                className="w-full flex items-center justify-center space-x-2 bg-blue-500/10 text-blue-400 border border-dashed border-blue-400/50 hover:bg-blue-500/20 py-4 rounded-2xl font-bold transition-all backdrop-blur-sm"
               >
                 <Map className="w-5 h-5" />
                 <span>Choose pickup point from Map</span>
               </button>
             ) : (
-              <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-start justify-between">
+              <div className="bg-emerald-500/10 border border-emerald-400/30 p-4 rounded-2xl flex items-start justify-between backdrop-blur-sm">
                 <div className="flex items-start space-x-3 pr-4">
-                  <div className="mt-0.5"><MapPin className="w-5 h-5 text-emerald-600" /></div>
+                  <div className="mt-0.5"><MapPin className="w-5 h-5 text-emerald-400" /></div>
                   <div>
-                    <p className="text-xs font-black text-emerald-600 uppercase tracking-wider mb-1">Confirmed Location</p>
-                    <p className="text-sm font-bold text-gray-800 line-clamp-2">{formData.address}</p>
+                    <p className="text-xs font-black text-emerald-400 uppercase tracking-wider mb-1">Confirmed Location</p>
+                    <p className="text-sm font-bold text-slate-200 line-clamp-2">{formData.address}</p>
                   </div>
                 </div>
                 <div className="flex flex-col space-y-2 shrink-0">
-                  <button type="button" onClick={() => setIsMapOpen(true)} className="text-xs font-bold text-blue-600 hover:text-blue-700 bg-white px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm transition-colors">
+                  <button type="button" onClick={() => setIsMapOpen(true)} className="text-xs font-bold text-blue-400 hover:text-white bg-blue-500/20 hover:bg-blue-500/40 px-3 py-1.5 rounded-lg border border-blue-400/30 transition-colors">
                     Re-select
                   </button>
-                  <button type="button" onClick={() => setFormData({...formData, address: '', lat: null, lng: null})} className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-white px-3 py-1.5 rounded-lg border border-rose-100 shadow-sm transition-colors">
+                  <button type="button" onClick={() => setFormData({...formData, address: '', lat: null, lng: null})} className="text-xs font-bold text-rose-400 hover:text-white bg-rose-500/20 hover:bg-rose-500/40 px-3 py-1.5 rounded-lg border border-rose-400/30 transition-colors">
                     Remove
                   </button>
                 </div>
@@ -196,29 +196,29 @@ const DonorDashboard = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1.5">Photo of Food (Optional)</label>
+            <label className="block text-sm font-bold text-slate-200 mb-1.5">Photo of Food (Optional)</label>
             {!imageFile ? (
-              <label className="flex items-center justify-center bg-slate-50 text-slate-500 px-4 py-8 rounded-2xl border-2 border-dashed border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 cursor-pointer transition-all font-bold text-sm w-full">
+              <label className="flex items-center justify-center bg-white/5 text-slate-300 px-4 py-8 rounded-2xl border border-dashed border-white/20 hover:bg-emerald-500/10 hover:border-emerald-400/50 hover:text-emerald-300 cursor-pointer transition-all font-bold text-sm w-full backdrop-blur-sm">
                 <Camera className="w-6 h-6 mr-3" /> Click to browse and upload a photo
                 <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} className="hidden" />
               </label>
             ) : (
-              <div className="flex items-center p-3 bg-gray-50 border border-gray-200 rounded-xl">
-                <div className="h-16 w-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
+              <div className="flex items-center p-3 bg-white/10 border border-white/20 rounded-2xl backdrop-blur-md">
+                <div className="h-16 w-16 rounded-xl overflow-hidden border border-white/20 shrink-0">
                   <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-full w-full object-cover" />
                 </div>
                 <div className="ml-4 flex-1 overflow-hidden">
-                  <p className="text-sm font-bold text-gray-800 truncate">{imageFile.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Ready to upload</p>
+                  <p className="text-sm font-bold text-white truncate">{imageFile.name}</p>
+                  <p className="text-xs text-emerald-400 mt-0.5">Ready to upload</p>
                 </div>
-                <button type="button" onClick={() => setImageFile(null)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-2 shrink-0"><X className="w-5 h-5" /></button>
+                <button type="button" onClick={() => setImageFile(null)} className="p-2 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 rounded-lg transition-colors ml-2 shrink-0"><X className="w-5 h-5" /></button>
               </div>
             )}
           </div>
 
           <motion.button 
             whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" disabled={isSubmitting}
-            className={`w-full text-white font-black text-lg py-4 rounded-2xl transition-all flex items-center justify-center space-x-2 mt-6 ${isSubmitting ? 'bg-slate-300 cursor-not-allowed' : 'bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-lg shadow-emerald-500/30'}`}
+            className={isSubmitting ? 'glass-btn opacity-50 cursor-not-allowed' : 'glass-btn mt-6 text-lg'}
           >
             <span>{isSubmitting ? 'Posting...' : 'Post Donation to Network'}</span>
             {!isSubmitting && <Send className="w-5 h-5" />}
