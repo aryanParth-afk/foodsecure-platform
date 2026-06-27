@@ -112,19 +112,19 @@ const AdminDashboard = () => {
             {isSuperAdmin ? <Crown className="w-8 h-8 text-amber-600" /> : <Shield className="w-8 h-8 text-slate-800" />}
           </div>
           <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
               {isSuperAdmin ? "SuperAdmin Control" : "Admin Dashboard"}
             </h1>
-            <p className="text-gray-500 font-medium mt-1">Manage users and audit platform transactions.</p>
+            <p className="text-slate-500 font-medium mt-1">Manage users and audit platform transactions.</p>
           </div>
         </div>
 
         <div className="relative group w-full md:w-72">
-          <Search className="w-5 h-5 text-gray-400 absolute left-4 top-3.5 group-focus-within:text-orange-500 transition-colors" />
+          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3.5 group-focus-within:text-orange-500 transition-colors" />
           <input 
             type="text" placeholder={`Search ${masterView === 'users' ? 'organizations' : 'records'}...`} 
             value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border-2 border-gray-100 text-gray-900 rounded-2xl py-3 pl-12 pr-4 focus:border-orange-500 focus:ring-0 outline-none transition-all shadow-sm font-medium" 
+            className="w-full bg-white border border-slate-200 text-slate-900 rounded-2xl py-3 pl-12 pr-4 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all shadow-sm font-medium" 
           />
         </div>
       </motion.div>
@@ -166,18 +166,18 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <motion.div variants={containerVariants} initial="hidden" animate="show" className="bg-white border border-gray-100 rounded-4xl shadow-xl shadow-gray-200/40 overflow-hidden">
+            <motion.div variants={containerVariants} initial="hidden" animate="show" className="bg-white rounded-3xl shadow-xl shadow-slate-200/40 overflow-hidden border border-slate-100">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500 font-bold text-xs uppercase tracking-widest">
+                    <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-xs uppercase tracking-widest">
                       <th className="py-5 px-6">Organization</th>
                       <th className="py-5 px-6">Classification</th>
                       <th className="py-5 px-6">Status</th>
                       <th className="py-5 px-6 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50 text-gray-700 font-medium">
+                  <tbody className="divide-y divide-slate-50 text-slate-700 font-medium">
                     <AnimatePresence mode="popLayout">
                       {filteredUsers.length === 0 ? (
                         <motion.tr key="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -192,8 +192,8 @@ const AdminDashboard = () => {
                                 {user.role === 'SuperAdmin' ? <Crown className="w-5 h-5 text-amber-600" /> : user.role === 'Admin' ? <ShieldAlert className="w-5 h-5 text-blue-600" /> : user.role === 'Donor' ? <HeartHandshake className="w-5 h-5 text-emerald-600" /> : user.role === 'Revoked' ? <Ban className="w-5 h-5 text-rose-600" /> : <Building2 className="w-5 h-5 text-orange-600" />}
                               </div>
                               <div>
-                                <span className={`font-bold text-lg block ${user.role === 'Revoked' ? 'text-gray-500 line-through decoration-rose-300' : 'text-gray-900'}`}>{user.orgName || 'Unnamed Entity'}</span>
-                                <span className="text-sm text-gray-400 font-medium block mt-0.5">{user.email}</span>
+                                <span className={`font-bold text-lg block ${user.role === 'Revoked' ? 'text-slate-500 line-through decoration-rose-300' : 'text-slate-900'}`}>{user.orgName || 'Unnamed Entity'}</span>
+                                <span className="text-sm text-slate-400 font-medium block mt-0.5">{user.email}</span>
                               </div>
                             </td>
                             <td className="py-6 px-6">

@@ -116,10 +116,10 @@ const NGODashboard = () => {
             </div>
           ) : (
             listings.map(listing => (
-              <div key={listing._id} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+              <div key={listing._id} className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col border border-slate-100">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{listing.foodName}</h3>
-                  <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2">
+                  <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2">
                     {listing.category}
                   </span>
                 </div>
@@ -142,7 +142,7 @@ const NGODashboard = () => {
 
                 <button 
                   onClick={() => handleClaim(listing._id, listing.foodName)}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition-colors mt-auto"
+                  className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-emerald-500/30 transition-all mt-auto"
                 >
                   Claim & Rescue
                 </button>
@@ -160,10 +160,10 @@ const NGODashboard = () => {
             </div>
           ) : (
             myClaims.map(claim => (
-              <div key={claim._id} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col opacity-95">
+              <div key={claim._id} className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/40 hover:-translate-y-1 transition-all flex flex-col border border-slate-100">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{claim.foodName}</h3>
-                  <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2 ${claim.status === 'Completed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'}`}>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap ml-2 ${claim.status === 'Completed' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'}`}>
                     {claim.status}
                   </span>
                 </div>
@@ -179,9 +179,9 @@ const NGODashboard = () => {
                 </div>
 
                 {claim.status === 'Claimed' && claim.pickupOtp && (
-                  <div className="mt-auto bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+                  <div className="mt-auto bg-slate-50 rounded-2xl p-4 border border-slate-100 text-center shadow-inner">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Secret Pickup OTP</p>
-                    <p className="text-2xl font-black text-slate-900 tracking-[0.2em]">{claim.pickupOtp}</p>
+                    <p className="text-2xl font-black text-emerald-600 tracking-[0.2em]">{claim.pickupOtp}</p>
                   </div>
                 )}
               </div>

@@ -168,7 +168,7 @@ const DonorHistory = () => {
             className="space-y-6"
           >
             {displayedGroups.length === 0 ? (
-              <div className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center">
+              <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center shadow-inner">
                 <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <h3 className="text-base font-bold text-slate-700">No {activeTab === 'active' ? 'active donations' : 'past items'}</h3>
                 <p className="text-sm text-slate-500">{activeTab === 'active' ? 'When you post surplus food, it will appear here.' : 'Completed and expired items will be saved here.'}</p>
@@ -192,7 +192,7 @@ const DonorHistory = () => {
                       <motion.div 
                         key={donation._id} 
                         layout="position" 
-                        className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md transition-all relative overflow-hidden group flex flex-col md:flex-row md:items-center justify-between gap-4 pl-5"
+                        className="bg-white rounded-3xl p-5 shadow-lg shadow-slate-200/40 hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4 pl-6 border border-slate-100 group"
                       >
                         
                         {/* Thin Colored Edge Indicator */}
@@ -260,10 +260,10 @@ const DonorHistory = () => {
                                     type="text" maxLength="4" placeholder="Enter OTP" 
                                     value={activeOtpInput.id === donation._id ? activeOtpInput.code : ''}
                                     onChange={(e) => setActiveOtpInput({ id: donation._id, code: e.target.value.replace(/\D/g, '') })}
-                                    className="w-full bg-white border border-slate-200 text-sm font-bold rounded-lg py-1.5 pl-8 pr-2 focus:border-blue-500 focus:ring-1 outline-none transition-all"
+                                    className="w-full bg-white border border-slate-200 text-sm font-mono font-black tracking-widest text-emerald-700 rounded-xl py-2 pl-9 pr-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all shadow-inner"
                                   />
                                 </div>
-                                <button onClick={() => handleVerifyPickup(donation._id)} className="bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-lg transition-colors shadow-sm">
+                                <button onClick={() => handleVerifyPickup(donation._id)} className="bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white p-2.5 rounded-xl transition-all shadow-md shadow-emerald-500/30">
                                   <Check className="w-4 h-4" />
                                 </button>
                               </div>

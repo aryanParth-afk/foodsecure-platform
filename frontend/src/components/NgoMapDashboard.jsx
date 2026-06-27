@@ -145,7 +145,7 @@ const NgoMapDashboard = () => {
         </button>
       </div>
       
-      <div className="border border-slate-200 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl bg-slate-50 relative z-0 h-[70vh] md:h-150 w-full">
+      <div className="rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/50 relative z-0 h-[70vh] md:h-150 w-full">
         
         <button 
           onClick={locateNGO}
@@ -192,7 +192,7 @@ const NgoMapDashboard = () => {
                     )}
                     <button 
                       onClick={() => handleClaim(listing._id, listing.foodName)}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition-colors"
+                      className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-2.5 rounded-xl text-xs transition-all shadow-md shadow-emerald-500/20"
                     >
                       Claim Pickup
                     </button>
