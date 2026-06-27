@@ -22,16 +22,6 @@ const io = new Server(server, {
   }
 });
 
-// Configure Nodemailer with Brevo
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.BREVO_API_KEY?.trim() // Trim to handle spaces in .env
-  }
-});
-
 app.use(cors());
 app.use(express.json()); 
 
@@ -409,13 +399,13 @@ const processClaimRequest = async (req, res) => {
         type: 'info'
       });
 
-      // Send email to donor
+      // Send email to donor via Brevo REST API
       if (updatedListing.donorId?.email) {
-        const mailOptions = {
-          from: `"FoodRescue App" <${process.env.EMAIL_USER}>`,
-          to: updatedListing.donorId.email,
+        const emailData = {
+          sender: { name: "FoodRescue Support", email: process.env.EMAIL_USER },
+          to: [{ email: updatedListing.donorId.email }],
           subject: 'Your Food Donation was Claimed! 🎉',
-          html: `
+          htmlContent: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
               <h2 style="color: #0f172a;">Great news, ${updatedListing.donorId.orgName}!</h2>
               <p style="color: #475569; font-size: 16px;"><strong>${updatedListing.claimedBy?.orgName}</strong> has just claimed your donation of <strong>${updatedListing.foodName}</strong>.</p>
@@ -431,10 +421,26 @@ const processClaimRequest = async (req, res) => {
           `
         };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) console.error("Error sending email:", error);
-          else console.log("Email sent successfully:", info.response);
-        });
+        try {
+          const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+              'accept': 'application/json',
+              'api-key': process.env.BREVO_API_KEY.trim(),
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify(emailData)
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Brevo API Error (Claim Notification):", errorData);
+          } else {
+            console.log("Claim notification email sent to donor.");
+          }
+        } catch (fetchError) {
+          console.error("Fetch error sending claim notification:", fetchError);
+        }
       }
     }
 
