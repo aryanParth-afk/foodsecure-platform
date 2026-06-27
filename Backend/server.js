@@ -8,6 +8,7 @@ const FoodListing = require('./models/FoodListing');
 const User = require('./models/User'); 
 const Notification = require('./models/Notification'); 
 const crypto = require('crypto'); 
+const auth = require('./middleware/auth'); 
 
 const app = express();
 app.use(cors());
@@ -161,7 +162,7 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
   }
 });
 
-app.patch('/api/users/:id', async (req, res) => {
+app.patch('/api/users/:id', auth, async (req, res) => {
   try {
     const { orgName, newPassword, currentPassword } = req.body;
     const user = await User.findById(req.params.id);
@@ -201,7 +202,7 @@ app.patch('/api/users/:id', async (req, res) => {
 // --- NOTIFICATION ROUTES ---
 // ==========================================
 
-app.get('/api/notifications/:userId', async (req, res) => {
+app.get('/api/notifications/:userId', auth, async (req, res) => {
   try {
     const notifications = await Notification.find({ userId: req.params.userId })
       .sort({ createdAt: -1 })
@@ -213,7 +214,7 @@ app.get('/api/notifications/:userId', async (req, res) => {
   }
 });
 
-app.patch('/api/notifications/:id/read', async (req, res) => {
+app.patch('/api/notifications/:id/read', auth, async (req, res) => {
   try {
     const notif = await Notification.findByIdAndUpdate(
       req.params.id, 
@@ -227,7 +228,7 @@ app.patch('/api/notifications/:id/read', async (req, res) => {
   }
 });
 
-app.patch('/api/notifications/read-all/:userId', async (req, res) => {
+app.patch('/api/notifications/read-all/:userId', auth, async (req, res) => {
   try {
     await Notification.updateMany(
       { userId: req.params.userId, isRead: false }, 
@@ -244,7 +245,7 @@ app.patch('/api/notifications/read-all/:userId', async (req, res) => {
 // --- DONOR ROUTES ---
 // ==========================================
 
-app.post(['/api/listings', '/api/foodlistings'], async (req, res) => {
+app.post(['/api/listings', '/api/foodlistings'], auth, async (req, res) => {
   try {
     const newListing = new FoodListing({
       donorId: req.body.donorId,
@@ -267,7 +268,7 @@ app.post(['/api/listings', '/api/foodlistings'], async (req, res) => {
   }
 });
 
-app.get('/api/my-donations/:userId', async (req, res) => {
+app.get('/api/my-donations/:userId', auth, async (req, res) => {
   try {
     const myDonations = await FoodListing.find({ donorId: req.params.userId })
       .populate('claimedBy', 'orgName email') 
@@ -279,7 +280,7 @@ app.get('/api/my-donations/:userId', async (req, res) => {
   }
 });
 
-app.delete('/api/listings/:id', async (req, res) => {
+app.delete('/api/listings/:id', auth, async (req, res) => {
   try {
     const deletedListing = await FoodListing.findByIdAndDelete(req.params.id);
     if (!deletedListing) return res.status(404).json({ message: "Listing not found" });
@@ -291,7 +292,7 @@ app.delete('/api/listings/:id', async (req, res) => {
   }
 });
 
-app.patch('/api/listings/:id/hide-donor', async (req, res) => {
+app.patch('/api/listings/:id/hide-donor', auth, async (req, res) => {
   try {
     const hiddenListing = await FoodListing.findByIdAndUpdate(
       req.params.id,
@@ -309,7 +310,7 @@ app.patch('/api/listings/:id/hide-donor', async (req, res) => {
 // --- NGO ROUTES ---
 // ==========================================
 
-app.get(['/api/listings/available', '/api/foodlistings/active'], async (req, res) => {
+app.get(['/api/listings/available', '/api/foodlistings/active'], auth, async (req, res) => {
   try {
     const availableListings = await FoodListing.find({ status: 'Available' })
       .populate('donorId', 'orgName location isVerified') 
@@ -321,7 +322,7 @@ app.get(['/api/listings/available', '/api/foodlistings/active'], async (req, res
   }
 });
 
-app.get('/api/my-claims/:userId', async (req, res) => {
+app.get('/api/my-claims/:userId', auth, async (req, res) => {
   try {
     const myClaims = await FoodListing.find({ claimedBy: req.params.userId })
       .populate('donorId', 'orgName location')
@@ -363,10 +364,10 @@ const processClaimRequest = async (req, res) => {
   }
 };
 
-app.patch('/api/listings/:id/claim', processClaimRequest);
-app.post('/api/foodlistings/claim/:id', processClaimRequest);
+app.patch('/api/listings/:id/claim', auth, processClaimRequest);
+app.post('/api/foodlistings/claim/:id', auth, processClaimRequest);
 
-app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
+app.patch('/api/listings/:id/verify-pickup', auth, async (req, res) => {
   try {
     const { otp } = req.body;
     const listing = await FoodListing.findById(req.params.id);
@@ -393,7 +394,7 @@ app.patch('/api/listings/:id/verify-pickup', async (req, res) => {
   }
 });
 
-app.patch('/api/listings/:id/cancel', async (req, res) => {
+app.patch('/api/listings/:id/cancel', auth, async (req, res) => {
   try {
     const canceledListing = await FoodListing.findByIdAndUpdate(
       req.params.id,
@@ -422,7 +423,7 @@ app.patch('/api/listings/:id/cancel', async (req, res) => {
 // --- ADMIN & STATS ROUTES ---
 // ==========================================
 
-app.get('/api/admin/users', async (req, res) => {
+app.get('/api/admin/users', auth, async (req, res) => {
   try {
     const users = await User.find().sort({ role: 1 });
     res.json(users);
@@ -432,7 +433,7 @@ app.get('/api/admin/users', async (req, res) => {
   }
 });
 
-app.get('/api/admin/listings', async (req, res) => {
+app.get('/api/admin/listings', auth, async (req, res) => {
   try {
     const allListings = await FoodListing.find()
       .populate('donorId', 'orgName email role')
@@ -446,7 +447,7 @@ app.get('/api/admin/listings', async (req, res) => {
   }
 });
 
-app.patch('/api/admin/users/:id/verify', async (req, res) => {
+app.patch('/api/admin/users/:id/verify', auth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -460,7 +461,7 @@ app.patch('/api/admin/users/:id/verify', async (req, res) => {
   }
 });
 
-app.patch('/api/admin/users/:id/promote', async (req, res) => {
+app.patch('/api/admin/users/:id/promote', auth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -478,7 +479,7 @@ app.patch('/api/admin/users/:id/promote', async (req, res) => {
   }
 });
 
-app.patch('/api/admin/users/:id/demote', async (req, res) => {
+app.patch('/api/admin/users/:id/demote', auth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -497,7 +498,7 @@ app.patch('/api/admin/users/:id/demote', async (req, res) => {
   }
 });
 
-app.delete('/api/admin/users/:id', async (req, res) => {
+app.delete('/api/admin/users/:id', auth, async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -526,7 +527,7 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
-app.get('/api/admin/analytics', async (req, res) => {
+app.get('/api/admin/analytics', auth, async (req, res) => {
   try {
     const totalDonors = await User.countDocuments({ role: 'Donor' });
     const totalNGOs = await User.countDocuments({ role: 'NGO' });
