@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building2, HeartHandshake, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Building2, HeartHandshake, ShieldCheck, ArrowRight, Github, Linkedin, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const LandingPage = () => {
@@ -29,7 +29,7 @@ const LandingPage = () => {
   }, [navigate]);
 
   return (
-    <div className="bg-surface-bright text-on-surface font-body-md selection:bg-primary-fixed selection:text-on-primary-fixed pt-20 pb-16">
+    <div className="bg-surface-bright text-on-surface font-body-md selection:bg-primary-fixed selection:text-on-primary-fixed pt-20">
       
       {/* Hero Section: Editorial Layout */}
       <section className="max-w-container-max mx-auto px-4 md:px-margin-desktop py-12 md:py-24 overflow-hidden">
@@ -184,21 +184,61 @@ const LandingPage = () => {
       </section>
 
       {/* Footer / CTA */}
-      <footer className="bg-surface-container-highest border-t border-outline-variant">
-        <div className="max-w-container-max mx-auto px-4 md:px-margin-desktop py-12 md:py-gutter-desktop">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-base mb-12">
-            <div className="flex items-center gap-2 mb-6 md:mb-0">
-              <span className="font-headline-sm text-on-surface uppercase tracking-tighter">RESCUE</span>
+      <footer className="bg-surface-container-highest border-t border-outline-variant text-on-surface">
+        <div className="max-w-container-max mx-auto px-4 md:px-margin-desktop py-12 md:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
+            
+            {/* Brand and Description */}
+            <div className="md:col-span-4 space-y-6">
+              <span className="font-headline-lg text-3xl uppercase tracking-tighter text-primary">FoodRescue</span>
+              <p className="font-body-md text-on-surface-variant max-w-sm">
+                Transforming food surplus into social impact. Connecting communities, eliminating waste, and feeding the future.
+              </p>
+              <div className="flex items-center gap-4 pt-2">
+                <a href="#" className="p-2 bg-surface-container rounded-full hover:bg-primary hover:text-on-primary transition-colors"><Linkedin className="w-5 h-5" /></a>
+                <a href="#" className="p-2 bg-surface-container rounded-full hover:bg-primary hover:text-on-primary transition-colors"><Github className="w-5 h-5" /></a>
+                <a href="#" className="p-2 bg-surface-container rounded-full hover:bg-primary hover:text-on-primary transition-colors"><Instagram className="w-5 h-5" /></a>
+              </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-8">
-              <a href="/#about" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">About Us</a>
-              <Link to="/auth?role=NGO" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">NGO Portal</Link>
-              <Link to="/auth?role=Donor" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Donor Portal</Link>
-              <Link to="/auth?role=Admin" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Admin Portal</Link>
+
+            {/* Quick Links */}
+            <div className="md:col-span-4 md:pl-12 space-y-6">
+              <h4 className="font-headline-sm text-lg uppercase tracking-wider">Platform</h4>
+              <ul className="space-y-4">
+                <li><a href="/#about" className="font-body-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"><ArrowRight className="w-4 h-4"/> About Us</a></li>
+                <li><Link to="/auth?role=NGO" className="font-body-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"><ArrowRight className="w-4 h-4"/> NGO Portal</Link></li>
+                <li><Link to="/auth?role=Donor" className="font-body-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"><ArrowRight className="w-4 h-4"/> Donor Portal</Link></li>
+                <li><Link to="/auth?role=Admin" className="font-body-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"><ArrowRight className="w-4 h-4"/> Admin Portal</Link></li>
+              </ul>
             </div>
+
+            {/* Contact Info */}
+            <div className="md:col-span-4 space-y-6">
+              <h4 className="font-headline-sm text-lg uppercase tracking-wider">Contact Us</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <span className="font-body-md text-on-surface-variant">123 Innovation Drive<br/>Tech Hub City, TH 10023</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-primary shrink-0" />
+                  <span className="font-body-md text-on-surface-variant">+1 (555) 123-4567</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-primary shrink-0" />
+                  <a href="mailto:engineer@foodrescue.org" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">engineer@foodrescue.org</a>
+                </li>
+              </ul>
+            </div>
+
           </div>
-          <div className="text-center md:text-left pt-8 border-t border-outline-variant/30">
-            <p className="font-label-sm text-on-surface-variant/70 uppercase tracking-widest">© 2024 RESCUE Platform. Connecting communities.</p>
+          
+          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-outline-variant/50 gap-4">
+            <p className="font-label-sm text-on-surface-variant/70 uppercase tracking-widest">© 2024 FoodRescue Platform. All rights reserved.</p>
+            <div className="flex gap-6 font-label-sm text-on-surface-variant/70 uppercase tracking-widest">
+              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+            </div>
           </div>
         </div>
       </footer>
