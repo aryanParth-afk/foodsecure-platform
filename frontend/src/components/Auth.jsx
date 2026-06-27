@@ -83,66 +83,64 @@ const Auth = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const inputBaseClass = "w-full pl-11 pr-4 py-3.5 rounded-xl border outline-none transition-all font-medium backdrop-blur-md ";
-  const defaultInputClass = inputBaseClass + "bg-black/20 border-white/10 text-white placeholder:text-slate-500 focus:bg-black/40 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20";
-  const errorInputClass = inputBaseClass + "bg-rose-500/10 border-rose-500/30 text-rose-400 placeholder:text-rose-400/50 focus:border-rose-400 focus:bg-rose-500/20 focus:ring-4 focus:ring-rose-400/20";
-  const adminInputClass = inputBaseClass + "bg-rose-500/5 border-rose-500/20 text-rose-300 placeholder:text-rose-400/50 focus:bg-rose-500/10 focus:border-rose-400 focus:ring-4 focus:ring-rose-400/20";
+  const inputBaseClass = "w-full pl-11 pr-4 py-3.5 rounded-lg border outline-none transition-all font-medium text-sm ";
+  const defaultInputClass = inputBaseClass + "bg-surface-bright border-outline-variant text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:ring-1 focus:ring-primary";
+  const errorInputClass = inputBaseClass + "bg-error-container/20 border-error text-error placeholder:text-error/60 focus:border-error focus:ring-1 focus:ring-error";
+  const adminInputClass = inputBaseClass + "bg-error-container/10 border-error/50 text-error placeholder:text-error/50 focus:border-error focus:ring-1 focus:ring-error";
 
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } }, exit: { opacity: 0, transition: { staggerChildren: 0.05, staggerDirection: -1 } } };
   const itemVariants = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }, exit: { opacity: 0, y: -15, transition: { duration: 0.2 } } };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 relative z-10 py-10">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 relative z-10 py-24">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="w-full max-w-md glass-panel p-8 relative overflow-hidden"
+        className="w-full max-w-md bg-surface-container-lowest ink-border soft-elevation p-8 relative overflow-hidden rounded-xl"
       >
-        <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r transition-colors duration-500 ${authError ? 'from-rose-400 to-rose-600' : isLogin ? 'from-emerald-400 to-teal-500' : 'from-orange-400 to-emerald-500'}`}></div>
+        <div className={`absolute top-0 left-0 w-full h-1.5 transition-colors duration-500 ${authError ? 'bg-error' : 'bg-primary'}`}></div>
 
         {/* NEW: Back Button to easily return to home page if they clicked the wrong card */}
-        <Link to="/" className="absolute top-6 left-6 p-2 rounded-full bg-black/20 text-slate-400 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/10">
-          <ArrowLeft className="w-5 h-5" />
+        <Link to="/" className="absolute top-6 left-6 p-2 rounded bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors border border-outline-variant">
+          <ArrowLeft className="w-4 h-4" />
         </Link>
 
         <div className="text-center mb-8 mt-6">
-          <motion.div layout className={`mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-colors duration-500 shadow-sm ${authError ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-white/5 text-white border border-white/10'}`}>
-            <Shield className="w-7 h-7" />
+          <motion.div layout className={`mx-auto w-14 h-14 rounded-lg flex items-center justify-center mb-5 transition-colors duration-500 shadow-sm border ${authError ? 'bg-error-container text-error border-error' : 'bg-surface-container border-outline text-primary'}`}>
+            <Shield className="w-6 h-6" />
           </motion.div>
-          <motion.h2 layout className="text-3xl font-black text-white tracking-tight">
+          <motion.h2 layout className="font-display-lg text-3xl text-on-surface tracking-tight">
             {formData.role} Portal
           </motion.h2>
-          <motion.p layout className="text-slate-300 font-medium mt-2 text-sm px-4">
+          <motion.p layout className="font-body-md text-on-surface-variant mt-2 text-sm px-4">
             {isLogin ? `Securely access your ${formData.role} dashboard.` : `Register as a new ${formData.role}.`}
           </motion.p>
         </div>
 
-        <div className="relative flex bg-black/20 border border-white/10 p-1.5 rounded-2xl mb-8 backdrop-blur-sm">
-          <motion.div className="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white/10 rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.05)] border border-white/20" layout animate={{ left: isLogin ? "6px" : "calc(50%)" }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
-          <button type="button" onClick={() => { setIsLogin(true); setAuthError(false); }} className={`flex-1 py-2.5 text-sm font-bold z-10 transition-colors ${isLogin ? 'text-white' : 'text-slate-400 hover:text-white'}`}>Log In</button>
-          <button type="button" onClick={() => { setIsLogin(false); setAuthError(false); }} className={`flex-1 py-2.5 text-sm font-bold z-10 transition-colors ${!isLogin ? 'text-white' : 'text-slate-400 hover:text-white'}`}>Register</button>
+        <div className="relative flex bg-surface-container border border-outline-variant p-1.5 rounded-lg mb-8">
+          <motion.div className="absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-surface-container-lowest rounded shadow-sm border border-outline-variant" layout animate={{ left: isLogin ? "6px" : "calc(50%)" }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+          <button type="button" onClick={() => { setIsLogin(true); setAuthError(false); }} className={`flex-1 py-2 text-sm font-bold z-10 transition-colors rounded ${isLogin ? 'text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>Log In</button>
+          <button type="button" onClick={() => { setIsLogin(false); setAuthError(false); }} className={`flex-1 py-2 text-sm font-bold z-10 transition-colors rounded ${!isLogin ? 'text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>Register</button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <AnimatePresence mode="popLayout">
             <motion.div key={isLogin ? 'login' : 'register'} variants={containerVariants} initial="hidden" animate="show" exit="exit" className="space-y-5">
               
-              {/* THE ROLE SELECTOR HAS BEEN COMPLETELY REMOVED */}
-
               {!isLogin && (
                 <>
                   <motion.div variants={itemVariants}>
-                    <label className="block text-sm font-bold text-slate-300 mb-1.5">Organization Name</label>
+                    <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Organization Name</label>
                     <div className="relative group">
-                      <Building2 className="w-5 h-5 text-slate-500 absolute left-3.5 top-3.5 group-focus-within:text-emerald-400 transition-colors" />
+                      <Building2 className="w-5 h-5 text-on-surface-variant absolute left-3.5 top-3.5 group-focus-within:text-primary transition-colors" />
                       <input type="text" name="orgName" required value={formData.orgName} onChange={handleChange} className={defaultInputClass} placeholder="e.g. City Hope Shelter" />
                     </div>
                   </motion.div>
                   <motion.div variants={itemVariants}>
-                    <label className="block text-sm font-bold text-slate-300 mb-1.5">Contact Number</label>
+                    <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Contact Number</label>
                     <div className="relative group">
-                      <Phone className="w-5 h-5 text-slate-500 absolute left-3.5 top-3.5 group-focus-within:text-emerald-400 transition-colors" />
+                      <Phone className="w-5 h-5 text-on-surface-variant absolute left-3.5 top-3.5 group-focus-within:text-primary transition-colors" />
                       <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className={defaultInputClass} placeholder="e.g. +1 234 567 8900" />
                     </div>
                   </motion.div>
@@ -154,9 +152,9 @@ const Auth = () => {
                 {!isLogin && formData.role === 'Admin' && (
                   <motion.div initial={{ opacity: 0, height: 0, y: -10 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} className="overflow-hidden">
                     <div className="pt-2">
-                      <label className="block text-xs font-black text-rose-400 mb-1.5 uppercase tracking-wide items-center flex"><KeyRound className="w-3 h-3 mr-1" />Authorized Code Required</label>
+                      <label className="block text-xs font-bold text-error mb-1.5 uppercase tracking-wide items-center flex"><KeyRound className="w-3 h-3 mr-1" />Authorized Code Required</label>
                       <div className="relative group">
-                        <Lock className="w-5 h-5 text-rose-400 absolute left-3.5 top-3.5" />
+                        <Lock className="w-5 h-5 text-error absolute left-3.5 top-3.5" />
                         <input type="password" name="adminSecretCode" required value={formData.adminSecretCode} onChange={handleChange} className={adminInputClass} placeholder="Enter Master Passcode" />
                       </div>
                     </div>
@@ -165,32 +163,32 @@ const Auth = () => {
               </AnimatePresence>
 
               <motion.div variants={itemVariants}>
-                <label className="block text-sm font-bold text-slate-300 mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Email Address</label>
                 <div className="relative group">
-                  <Mail className={`w-5 h-5 absolute left-3.5 top-3.5 transition-colors ${authError ? 'text-rose-400' : 'text-slate-500 group-focus-within:text-emerald-400'}`} />
+                  <Mail className={`w-5 h-5 absolute left-3.5 top-3.5 transition-colors ${authError ? 'text-error' : 'text-on-surface-variant group-focus-within:text-primary'}`} />
                   <input type="email" name="email" required value={formData.email} onChange={handleChange} className={authError ? errorInputClass : defaultInputClass} placeholder="name@organization.com" />
                 </div>
               </motion.div>
 
               <motion.div variants={itemVariants}>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-sm font-bold text-slate-300">Password</label>
+                  <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider">Password</label>
                   {isLogin && (
-                    <Link to="/forgot-password" className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors">
+                    <Link to="/forgot-password" className="text-xs font-bold text-primary hover:text-on-primary-fixed-variant transition-colors">
                       Forgot password?
                     </Link>
                   )}
                 </div>
                 <div className="relative group">
-                  <Lock className={`w-5 h-5 absolute left-3.5 top-3.5 transition-colors ${authError ? 'text-rose-400' : 'text-slate-500 group-focus-within:text-emerald-400'}`} />
+                  <Lock className={`w-5 h-5 absolute left-3.5 top-3.5 transition-colors ${authError ? 'text-error' : 'text-on-surface-variant group-focus-within:text-primary'}`} />
                   <input type="password" name="password" required value={formData.password} onChange={handleChange} className={authError ? errorInputClass : defaultInputClass} placeholder="••••••••••••" />
                 </div>
               </motion.div>
 
               <motion.div variants={itemVariants} className="pt-2">
-                <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" className={`w-full py-4 text-lg flex items-center justify-center space-x-2 group ${authError ? 'glass-btn border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' : 'glass-btn'}`}>
+                <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" className={`w-full py-3.5 text-sm font-label-md uppercase tracking-widest flex items-center justify-center space-x-2 group rounded ${authError ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-on-primary hover:bg-on-primary-fixed-variant'} transition-colors`}>
                   <span>{isLogin ? `Log into ${formData.role} Portal` : 'Create Account'}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
               </motion.div>
 

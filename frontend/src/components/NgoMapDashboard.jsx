@@ -120,88 +120,89 @@ const NgoMapDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-400"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-primary"></div>
       </div>
     );
   }
 
-  // --- THE MAP ---
   return (
-    <div className="max-w-6xl mx-auto px-2 md:px-4 py-4 md:py-8 flex flex-col h-full">
+    <div className="max-w-6xl mx-auto px-2 md:px-4 py-4 md:py-8 flex flex-col h-full pt-32">
       
       <div className="mb-4 px-2 md:px-0 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-black text-white">Live Rescue Map</h2>
-          <p className="text-slate-300 text-sm md:text-base font-medium mt-1">
+          <h2 className="font-display-lg text-4xl text-on-surface">Live Rescue Map</h2>
+          <p className="font-body-md text-on-surface-variant mt-1">
             Tap the green pin to find your location. Blue pins are nearby donations.
           </p>
         </div>
         
         <button 
           onClick={locateNGO}
-          className="hidden md:flex items-center gap-2 bg-white/10 border border-white/20 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm backdrop-blur-md"
+          className="hidden md:flex items-center gap-2 bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-high text-on-surface px-4 py-2.5 rounded-lg font-bold transition-all shadow-sm"
         >
-          <Navigation className="w-4 h-4 text-emerald-400" /> Re-center on Me
+          <Navigation className="w-4 h-4 text-primary" /> Re-center on Me
         </button>
       </div>
       
-      <div className="glass-panel relative z-0 h-[70vh] md:h-150 w-full border-2 border-white/20">
+      <div className="bg-surface-container-lowest p-2 ink-border soft-elevation rounded-xl relative z-0 h-[70vh] md:h-150 w-full">
         
         <button 
           onClick={locateNGO}
-          className="md:hidden absolute bottom-6 right-4 z-400 bg-black/50 backdrop-blur-md border border-white/20 text-emerald-400 p-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:bg-black/70 active:scale-95 transition-all"
+          className="md:hidden absolute bottom-6 right-4 z-[400] bg-surface-bright border border-outline-variant text-primary p-3 rounded-full shadow-lg hover:bg-surface-container active:scale-95 transition-all"
         >
-          <Navigation2 className="w-6 h-6 fill-emerald-400/20" />
+          <Navigation2 className="w-6 h-6 fill-primary/20" />
         </button>
 
-        <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <MapController center={mapCenter} />
+        <div className="w-full h-full rounded-lg overflow-hidden border border-outline-variant/30">
+          <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <MapController center={mapCenter} />
 
-          {ngoLocation && (
-            <>
-              <Marker position={ngoLocation} icon={ngoIcon}>
-                <Popup className="custom-popup">
-                  <div className="p-1 font-bold text-emerald-700 text-center text-sm">📍 You are here</div>
-                </Popup>
-              </Marker>
-              <Circle center={ngoLocation} radius={2000} pathOptions={{ color: '#10b981', fillColor: '#10b981', fillOpacity: 0.1, weight: 1 }} />
-            </>
-          )}
-          
-          {listings.map((listing) => {
-            if (!listing.lat || !listing.lng) return null;
-            return (
-              <Marker key={listing._id} position={[listing.lat, listing.lng]}>
-                <Popup className="custom-popup">
-                  <div className="p-2 min-w-40 bg-slate-900 rounded-xl">
-                    <h4 className="font-bold text-white text-sm md:text-base mb-1">{listing.foodName}</h4>
-                    <p className="text-slate-300 text-[11px] md:text-xs mb-1 flex items-center gap-1">
-                      <Package className="w-3 h-3 text-slate-400" /> <strong>{listing.quantity}</strong>
-                    </p>
-                    <p className="text-slate-400 text-[10px] mb-3 leading-tight line-clamp-2 flex items-start gap-1">
-                      <MapPin className="w-3 h-3 shrink-0 text-slate-500" /> {listing.pickupLocation}
-                    </p>
-                    {listing.expiresAt && (
-                      <p className="text-orange-400 text-[10px] mb-3 leading-tight flex items-center gap-1 font-bold">
-                        <Clock className="w-3 h-3 shrink-0" /> Expires {new Date(listing.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            {ngoLocation && (
+              <>
+                <Marker position={ngoLocation} icon={ngoIcon}>
+                  <Popup className="custom-popup">
+                    <div className="p-1 font-bold text-secondary text-center text-sm">📍 You are here</div>
+                  </Popup>
+                </Marker>
+                <Circle center={ngoLocation} radius={2000} pathOptions={{ color: '#505f7a', fillColor: '#505f7a', fillOpacity: 0.1, weight: 1 }} />
+              </>
+            )}
+            
+            {listings.map((listing) => {
+              if (!listing.lat || !listing.lng) return null;
+              return (
+                <Marker key={listing._id} position={[listing.lat, listing.lng]}>
+                  <Popup className="custom-popup">
+                    <div className="p-3 min-w-48 bg-surface-bright rounded-lg border border-outline-variant">
+                      <h4 className="font-headline-sm text-on-surface text-sm md:text-base mb-1">{listing.foodName}</h4>
+                      <p className="text-on-surface-variant text-[11px] md:text-xs mb-1 flex items-center gap-1 font-medium">
+                        <Package className="w-3 h-3 text-outline" /> <strong>{listing.quantity}</strong>
                       </p>
-                    )}
-                    <button 
-                      onClick={() => handleClaim(listing._id, listing.foodName)}
-                      className="glass-btn py-2 text-xs"
-                    >
-                      Claim Pickup
-                    </button>
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
-        </MapContainer>
+                      <p className="text-on-surface-variant text-[10px] mb-3 leading-tight line-clamp-2 flex items-start gap-1 font-medium">
+                        <MapPin className="w-3 h-3 shrink-0 text-outline mt-0.5" /> {listing.pickupLocation}
+                      </p>
+                      {listing.expiresAt && (
+                        <p className="text-error text-[10px] mb-3 leading-tight flex items-center gap-1 font-bold">
+                          <Clock className="w-3 h-3 shrink-0" /> Expires {new Date(listing.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
+                      <button 
+                        onClick={() => handleClaim(listing._id, listing.foodName)}
+                        className="bg-primary text-on-primary font-label-sm uppercase tracking-wider py-2 w-full rounded hover:bg-on-primary-fixed-variant transition-colors"
+                      >
+                        Claim Pickup
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MapContainer>
+        </div>
       </div>
     </div>
   );

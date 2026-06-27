@@ -27,32 +27,34 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-16">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/80 backdrop-blur-md border border-slate-100 p-8 rounded-4xl shadow-xl shadow-slate-200/50">
+    <div className="max-w-md mx-auto px-4 py-24 pt-32">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface-container-lowest ink-border soft-elevation p-8 rounded-xl relative overflow-hidden">
         
-        <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto">
-          <ShieldCheck className="w-8 h-8 text-blue-500" />
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-primary"></div>
+
+        <div className="bg-surface-container w-16 h-16 rounded-lg flex items-center justify-center mb-6 mx-auto border border-outline-variant shadow-sm">
+          <ShieldCheck className="w-8 h-8 text-primary" />
         </div>
         
-        <h2 className="text-2xl font-black text-slate-900 text-center mb-2">Create New Password</h2>
-        <p className="text-slate-500 text-center text-sm font-medium mb-8">Enter your new secure password below.</p>
+        <h2 className="font-display-lg text-3xl text-on-surface text-center mb-2 tracking-tight">Create New Password</h2>
+        <p className="text-on-surface-variant text-center font-body-md text-sm mb-8">Enter your new secure password below.</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="relative">
-            <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
+          <div className="relative group">
+            <Lock className="w-5 h-5 text-on-surface-variant absolute left-4 top-3.5 group-focus-within:text-primary transition-colors" />
             <input 
               type="password" 
               placeholder="New Password" 
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 rounded-2xl py-3 pl-12 pr-4 focus:border-blue-500 focus:bg-white outline-none font-bold" 
+              className="w-full bg-surface-bright border border-outline-variant text-on-surface rounded-lg py-3 pl-12 pr-4 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-sm" 
               required
               minLength="6"
             />
           </div>
 
-          <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-blue-200">
-            {isSubmitting ? 'Saving...' : 'Update Password'}
+          <button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md uppercase tracking-widest py-3.5 rounded-lg flex items-center justify-center transition-colors shadow-sm disabled:opacity-70 mt-2">
+            {isSubmitting ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : 'Update Password'}
           </button>
         </form>
       </motion.div>

@@ -34,7 +34,6 @@ const DonorHistory = () => {
     const socket = io(apiUrl);
     
     socket.on('listingClaimed', () => {
-      // Re-fetch to get populated NGO details and new status
       fetchHistory();
     });
 
@@ -72,7 +71,6 @@ const DonorHistory = () => {
     }
   };
 
-  // NEW: Delete active/pending donation
   const handleDelete = async (id, foodName) => {
     if (!window.confirm(`Are you sure you want to delete "${foodName}"? This will permanently remove it from the live map.`)) {
       return;
@@ -88,12 +86,10 @@ const DonorHistory = () => {
     }
   };
 
-  // STATS CALCULATION
   const totalDonations = donations.length;
   const completedDonations = donations.filter(d => d.status.toLowerCase() === 'completed').length;
   const activeDonationsCount = donations.filter(d => d.status.toLowerCase() === 'available' || d.status.toLowerCase() === 'claimed').length;
 
-  // DISPLAY LOGIC
   const visibleDonations = donations.filter(d => !d.donorHidden);
   const activeList = visibleDonations.filter(d => ['available', 'claimed'].includes(d.status.toLowerCase()));
   const historyList = visibleDonations.filter(d => ['completed', 'expired'].includes(d.status.toLowerCase()));
@@ -114,49 +110,48 @@ const DonorHistory = () => {
 
   if (loading) return (
     <div className="min-h-[70vh] flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-emerald-500"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary"></div>
     </div>
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 overflow-hidden">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-3xl font-black text-white tracking-tight">Your Impact History</h1>
-        <p className="text-slate-300 font-medium mt-1">Track your donations and verify NGO pickups.</p>
+    <div className="max-w-5xl mx-auto px-4 py-8 overflow-hidden pt-24">
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10 text-center md:text-left">
+        <h1 className="font-display-lg text-4xl text-on-surface tracking-tight">Your Impact History</h1>
+        <p className="font-body-md text-on-surface-variant mt-1">Track your donations and verify NGO pickups.</p>
       </motion.div>
 
       {/* Persistent Stats Bar */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="glass-panel p-6 flex items-center space-x-4">
-          <div className="bg-emerald-500/20 p-4 rounded-2xl text-emerald-400"><TrendingUp className="w-8 h-8" /></div>
-          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Total Posts</p><p className="text-3xl font-black text-white">{totalDonations}</p></div>
+        <div className="bg-surface-container-lowest ink-border soft-elevation rounded-xl p-6 flex items-center space-x-4">
+          <div className="bg-primary-container p-4 rounded-xl text-on-primary-container"><TrendingUp className="w-8 h-8" /></div>
+          <div><p className="text-sm font-bold text-on-surface-variant uppercase tracking-wider">Total Posts</p><p className="font-headline-lg text-3xl text-on-surface">{totalDonations}</p></div>
         </div>
-        <div className="glass-panel p-6 flex items-center space-x-4">
-          <div className="bg-blue-500/20 p-4 rounded-2xl text-blue-400"><CheckCircle className="w-8 h-8" /></div>
-          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Rescued Successfully</p><p className="text-3xl font-black text-white">{completedDonations}</p></div>
+        <div className="bg-surface-container-lowest ink-border soft-elevation rounded-xl p-6 flex items-center space-x-4">
+          <div className="bg-secondary p-4 rounded-xl text-on-secondary"><CheckCircle className="w-8 h-8" /></div>
+          <div><p className="text-sm font-bold text-on-surface-variant uppercase tracking-wider">Rescued</p><p className="font-headline-lg text-3xl text-on-surface">{completedDonations}</p></div>
         </div>
-        <div className="glass-panel p-6 flex items-center space-x-4">
-          <div className="bg-orange-500/20 p-4 rounded-2xl text-orange-400"><AlertCircle className="w-8 h-8" /></div>
-          <div><p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Active / Pending</p><p className="text-3xl font-black text-white">{activeDonationsCount}</p></div>
+        <div className="bg-surface-container-lowest ink-border soft-elevation rounded-xl p-6 flex items-center space-x-4">
+          <div className="bg-surface-tint p-4 rounded-xl text-on-primary"><AlertCircle className="w-8 h-8" /></div>
+          <div><p className="text-sm font-bold text-on-surface-variant uppercase tracking-wider">Active</p><p className="font-headline-lg text-3xl text-on-surface">{activeDonationsCount}</p></div>
         </div>
       </motion.div>
 
       {/* Tab Switcher */}
       <div className="flex justify-center mb-8 relative z-10">
-        <div className="bg-black/30 p-1.5 rounded-2xl inline-flex border border-white/10 backdrop-blur-md">
-          <button onClick={() => setActiveTab('active')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'active' ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-slate-400 hover:text-white'}`}>
-            <Clock className={`w-4 h-4 mr-2 ${activeTab === 'active' ? 'text-orange-400' : ''}`} />
+        <div className="bg-surface-container p-1.5 rounded-xl inline-flex border border-outline-variant">
+          <button onClick={() => setActiveTab('active')} className={`flex items-center px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'active' ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant' : 'text-on-surface-variant hover:text-on-surface'}`}>
+            <Clock className={`w-4 h-4 mr-2 ${activeTab === 'active' ? 'text-primary' : ''}`} />
             Active & Pending
-            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'active' ? 'bg-orange-500/20 text-orange-300' : 'bg-white/10 text-slate-300'}`}>{activeList.length}</span>
+            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'active' ? 'bg-primary-container text-on-primary-container' : 'bg-surface-bright text-on-surface-variant'}`}>{activeList.length}</span>
           </button>
-          <button onClick={() => setActiveTab('history')} className={`flex items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'history' ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-slate-400 hover:text-white'}`}>
-            <History className={`w-4 h-4 mr-2 ${activeTab === 'history' ? 'text-emerald-400' : ''}`} />
+          <button onClick={() => setActiveTab('history')} className={`flex items-center px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'history' ? 'bg-surface-container-lowest text-on-surface shadow-sm border border-outline-variant' : 'text-on-surface-variant hover:text-on-surface'}`}>
+            <History className={`w-4 h-4 mr-2 ${activeTab === 'history' ? 'text-secondary' : ''}`} />
             Past History
           </button>
         </div>
       </div>
 
-      {/* THE SLEEK ANIMATION CONTAINER */}
       <div className="relative">
         <AnimatePresence mode="wait">
           <motion.div
@@ -168,135 +163,126 @@ const DonorHistory = () => {
             className="space-y-6"
           >
             {displayedGroups.length === 0 ? (
-              <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center shadow-inner">
-                <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-slate-700">No {activeTab === 'active' ? 'active donations' : 'past items'}</h3>
-                <p className="text-sm text-slate-500">{activeTab === 'active' ? 'When you post surplus food, it will appear here.' : 'Completed and expired items will be saved here.'}</p>
+              <div className="bg-surface-bright border border-dashed border-outline-variant rounded-xl p-12 text-center">
+                <Package className="w-10 h-10 text-on-surface-variant mx-auto mb-3" />
+                <h3 className="text-base font-bold text-on-surface">No {activeTab === 'active' ? 'active donations' : 'past items'}</h3>
+                <p className="text-sm text-on-surface-variant">{activeTab === 'active' ? 'When you post surplus food, it will appear here.' : 'Completed and expired items will be saved here.'}</p>
               </div>
             ) : (
               displayedGroups.map((group) => (
                 <div key={group.date} className="mb-6">
-                  
-                  {/* Date Divider */}
                   <div className="mb-4">
-                  <h2 className="text-xl font-black text-white flex items-center mb-1">
-                    <Calendar className="w-5 h-5 mr-2 text-emerald-400" /> {group.date}
-                  </h2>
-                  <div className="h-0.5 w-16 bg-gradient-to-r from-emerald-400 to-transparent rounded-full"></div>
-                </div>
+                    <h2 className="font-headline-sm text-xl text-on-surface flex items-center mb-1">
+                      <Calendar className="w-5 h-5 mr-2 text-primary" /> {group.date}
+                    </h2>
+                    <div className="h-0.5 w-16 bg-primary rounded-full"></div>
+                  </div>
 
-                <div className="relative pl-4 md:pl-8">
-                  {/* Timeline line */}
-                  <div className="absolute left-[7px] md:left-[15px] top-4 bottom-0 w-0.5 bg-white/10 rounded-full"></div>
+                  <div className="relative pl-4 md:pl-8">
+                    <div className="absolute left-[7px] md:left-[15px] top-4 bottom-0 w-0.5 bg-outline-variant rounded-full"></div>
 
-                  {/* MORE COMPACT CARD DESIGN */}
-                  <div className="space-y-3">
-                    {group.items.map((donation) => (
-                      <motion.div 
-                        key={donation._id} 
-                        initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                        className="glass-panel glass-panel-hover relative flex flex-col md:flex-row md:items-center justify-between gap-4 pl-6 group"
-                      >
-                        
-                        {/* Thin Colored Edge Indicator */}
-                        <div className={`absolute left-0 top-0 w-1 h-full transition-colors ${
-                          donation.status.toLowerCase() === 'completed' ? 'bg-emerald-500' :
-                          donation.status.toLowerCase() === 'expired' ? 'bg-slate-400' :
-                          donation.status.toLowerCase() === 'claimed' ? 'bg-blue-500' : 'bg-orange-400'
-                        }`}></div>
+                    <div className="space-y-4">
+                      {group.items.map((donation) => (
+                        <motion.div 
+                          key={donation._id} 
+                          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                          className="bg-surface-container-lowest ink-border hover:soft-elevation rounded-xl relative flex flex-col md:flex-row md:items-center justify-between gap-4 pl-6 group transition-all"
+                        >
+                          <div className={`absolute left-0 top-0 w-1 h-full rounded-l-xl transition-colors ${
+                            donation.status.toLowerCase() === 'completed' ? 'bg-secondary' :
+                            donation.status.toLowerCase() === 'expired' ? 'bg-tertiary' :
+                            donation.status.toLowerCase() === 'claimed' ? 'bg-primary-container' : 'bg-primary'
+                          }`}></div>
 
-                        <div className="flex-1 py-5">
-                          <div className="flex items-center space-x-3 mb-1.5">
-                            <h3 className="text-lg font-black text-white">{donation.foodItem || donation.foodName || 'Surplus Food'}</h3>
-                            <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
-                              donation.status.toLowerCase() === 'completed' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
-                              donation.status.toLowerCase() === 'expired' ? 'bg-slate-500/20 text-slate-300 border-slate-500/30' :
-                              donation.status.toLowerCase() === 'claimed' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-orange-500/20 text-orange-300 border-orange-500/30'
-                            }`}>
-                              {donation.status.toLowerCase() === 'available' ? 'Pending Claim' : donation.status}
-                            </span>
+                          <div className="flex-1 py-5">
+                            <div className="flex items-center space-x-3 mb-1.5">
+                              <h3 className="font-headline-sm text-lg text-on-surface">{donation.foodItem || donation.foodName || 'Surplus Food'}</h3>
+                              <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                                donation.status.toLowerCase() === 'completed' ? 'bg-secondary-fixed text-on-secondary-fixed-variant border-secondary-fixed-dim' :
+                                donation.status.toLowerCase() === 'expired' ? 'bg-surface-variant text-on-surface-variant border-outline-variant' :
+                                donation.status.toLowerCase() === 'claimed' ? 'bg-primary-fixed text-on-primary-fixed-variant border-primary-fixed-dim' : 'bg-error-container text-on-error-container border-error'
+                              }`}>
+                                {donation.status.toLowerCase() === 'available' ? 'Pending Claim' : donation.status}
+                              </span>
+                            </div>
+                            <p className="text-on-surface-variant font-medium text-sm flex items-center"><Package className="w-4 h-4 mr-1.5" /> Quantity: {donation.quantity}</p>
                           </div>
-                          <p className="text-slate-300 font-medium text-sm flex items-center"><Package className="w-4 h-4 mr-1.5 text-slate-400" /> Quantity: {donation.quantity}</p>
-                        </div>
 
-                        <div className="bg-black/20 p-4 rounded-r-3xl md:min-w-65 border-l border-white/10 relative h-full flex flex-col justify-center min-h-[100px]">
-                          {/* DUSTBIN BUTTON (For completed/expired history removal) */}
-                          {['completed', 'expired'].includes(donation.status.toLowerCase()) && (
-                            <button 
-                              onClick={() => handleHideListing(donation._id)}
-                              className="absolute top-2 right-2 p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
-                              title="Remove from history"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
+                          <div className="bg-surface-container p-4 rounded-r-xl md:min-w-65 border-l border-outline-variant relative h-full flex flex-col justify-center min-h-[100px]">
+                            {['completed', 'expired'].includes(donation.status.toLowerCase()) && (
+                              <button 
+                                onClick={() => handleHideListing(donation._id)}
+                                className="absolute top-2 right-2 p-1.5 text-on-surface-variant hover:text-error hover:bg-error-container rounded transition-colors"
+                                title="Remove from history"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
 
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Pickup Status</p>
-                          
-                          {donation.status.toLowerCase() === 'completed' ? (
-                            <div className="flex items-center space-x-2.5 text-emerald-400 bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20 pr-10">
-                              <CheckCircle className="w-4 h-4 shrink-0" />
-                              <div className="leading-tight">
-                                <span className="font-bold block text-sm text-emerald-300">Verified & Picked Up</span>
-                                <span className="text-[10px] font-medium text-emerald-500">by {donation.claimedBy?.orgName || 'NGO'}</span>
-                              </div>
-                            </div>
-                          ) : donation.status.toLowerCase() === 'expired' ? (
-                            <div className="flex items-center space-x-2.5 text-slate-400 bg-slate-800/50 p-2 rounded-lg border border-slate-700 pr-10">
-                              <AlertCircle className="w-4 h-4 shrink-0" />
-                              <div className="leading-tight">
-                                <span className="font-bold block text-sm text-slate-300">Expired</span>
-                                <span className="text-[10px] font-medium text-slate-500">Not picked up in time</span>
-                              </div>
-                            </div>
-                          ) : donation.status.toLowerCase() === 'claimed' && donation.claimedBy ? (
-                            <div>
-                              <div className="flex items-center space-x-2.5 mb-2.5">
-                                <div className="bg-white/10 p-1.5 rounded-lg border border-white/10"><Building2 className="w-4 h-4 text-blue-400" /></div>
-                                <span className="font-bold text-sm text-white">{donation.claimedBy.orgName || 'NGO Partner'}</span>
-                              </div>
-                              
-                              <div className="flex items-center space-x-2">
-                                <div className="relative flex-1">
-                                  <KeyRound className="w-3.5 h-3.5 text-emerald-400 absolute left-2.5 top-3" />
-                                  <input 
-                                    type="text" maxLength="4" placeholder="Enter OTP" 
-                                    value={activeOtpInput.id === donation._id ? activeOtpInput.code : ''}
-                                    onChange={(e) => setActiveOtpInput({ id: donation._id, code: e.target.value.replace(/\D/g, '') })}
-                                    className="w-full bg-black/40 border border-white/20 text-sm font-mono font-black tracking-widest text-emerald-400 rounded-xl py-2.5 pl-9 pr-2 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 outline-none transition-all placeholder:text-emerald-900"
-                                  />
+                            <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Pickup Status</p>
+                            
+                            {donation.status.toLowerCase() === 'completed' ? (
+                              <div className="flex items-center space-x-2.5 text-on-secondary-fixed-variant bg-secondary-fixed p-2 rounded border border-secondary-fixed-dim pr-10">
+                                <CheckCircle className="w-4 h-4 shrink-0" />
+                                <div className="leading-tight">
+                                  <span className="font-bold block text-sm">Verified & Picked Up</span>
+                                  <span className="text-[10px] font-medium text-on-secondary-fixed-variant/70">by {donation.claimedBy?.orgName || 'NGO'}</span>
                                 </div>
-                                <button onClick={() => handleVerifyPickup(donation._id)} className="glass-btn py-2.5 px-3 w-auto min-w-10">
-                                  <Check className="w-4 h-4" />
+                              </div>
+                            ) : donation.status.toLowerCase() === 'expired' ? (
+                              <div className="flex items-center space-x-2.5 text-on-surface-variant bg-surface-variant p-2 rounded border border-outline-variant pr-10">
+                                <AlertCircle className="w-4 h-4 shrink-0" />
+                                <div className="leading-tight">
+                                  <span className="font-bold block text-sm">Expired</span>
+                                  <span className="text-[10px] font-medium">Not picked up in time</span>
+                                </div>
+                              </div>
+                            ) : donation.status.toLowerCase() === 'claimed' && donation.claimedBy ? (
+                              <div>
+                                <div className="flex items-center space-x-2.5 mb-2.5">
+                                  <div className="bg-surface-bright p-1.5 rounded border border-outline-variant"><Building2 className="w-4 h-4 text-primary" /></div>
+                                  <span className="font-bold text-sm text-on-surface">{donation.claimedBy.orgName || 'NGO Partner'}</span>
+                                </div>
+                                
+                                <div className="flex items-center space-x-2">
+                                  <div className="relative flex-1">
+                                    <KeyRound className="w-3.5 h-3.5 text-on-surface-variant absolute left-2.5 top-3" />
+                                    <input 
+                                      type="text" maxLength="4" placeholder="Enter OTP" 
+                                      value={activeOtpInput.id === donation._id ? activeOtpInput.code : ''}
+                                      onChange={(e) => setActiveOtpInput({ id: donation._id, code: e.target.value.replace(/\D/g, '') })}
+                                      className="w-full bg-surface-bright border border-outline-variant text-sm font-mono font-black tracking-widest text-on-surface rounded py-2 pl-9 pr-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-on-surface-variant/50"
+                                    />
+                                  </div>
+                                  <button onClick={() => handleVerifyPickup(donation._id)} className="bg-primary hover:bg-on-primary-fixed-variant text-on-primary py-2 px-3 rounded transition-colors w-auto min-w-10 flex items-center justify-center">
+                                    <Check className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col space-y-2.5">
+                                <div className="flex items-center space-x-2 text-on-surface-variant pb-1">
+                                  <Clock className="w-4 h-4" />
+                                  <span className="font-medium text-sm">Waiting for an NGO...</span>
+                                </div>
+                                
+                                <button 
+                                  onClick={() => handleDelete(donation._id, donation.foodItem || donation.foodName)}
+                                  className="flex items-center justify-center gap-1.5 w-full bg-error-container border border-error text-on-error-container hover:bg-error hover:text-on-error rounded py-1.5 text-xs font-bold transition-all shadow-sm mt-1"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" /> Cancel & Delete
                                 </button>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col space-y-2.5">
-                              <div className="flex items-center space-x-2 text-slate-400 pb-1">
-                                <Clock className="w-4 h-4" />
-                                <span className="font-medium text-sm">Waiting for an NGO...</span>
-                              </div>
-                              
-                              {/* NEW: Cancel & Delete button for Available/Pending donations */}
-                              <button 
-                                onClick={() => handleDelete(donation._id, donation.foodItem || donation.foodName)}
-                                className="flex items-center justify-center gap-1.5 w-full bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 rounded-lg py-1.5 text-xs font-bold transition-all shadow-sm backdrop-blur-md mt-1"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" /> Cancel & Delete
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                      </motion.div>
-                    ))}
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </motion.div>
+              ))
+            )}
+          </motion.div>
         </AnimatePresence>
       </div>
     </div>

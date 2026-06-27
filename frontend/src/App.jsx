@@ -6,7 +6,7 @@ import { HandHeart } from 'lucide-react';
 import DonorHistory from './components/DonorHistory';
 
 import Navbar from './components/Navbar';
-import AmbientFlow from './components/AmbientFlow';
+
 import Profile from './components/Profile';
 import BackButton from './components/BackButton';
 import LandingPage from './components/LandingPage';
@@ -62,11 +62,8 @@ const App = () => {
       </AnimatePresence>
 
       <Router>
-        {/* THE NEW AMBIENT BACKGROUND */}
-        <AmbientFlow />
-        
-        {/* Adjusted wrapper to rely on body background */}
-        <div className="relative min-h-screen bg-transparent font-sans text-slate-100 selection:bg-emerald-500 selection:text-white z-0">
+        {/* Wrapper for the new Editorial Impact theme */}
+        <div className="relative min-h-screen bg-surface-bright text-on-surface z-0 selection:bg-primary-fixed selection:text-on-primary-fixed">
           <Toaster 
             position="top-center"
             reverseOrder={false}

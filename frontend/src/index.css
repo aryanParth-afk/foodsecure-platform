@@ -1,36 +1,126 @@
 @import "tailwindcss";
 
+@theme {
+  --color-surface-bright: #fbf9f4;
+  --color-tertiary-fixed-dim: #c4c6cc;
+  --color-on-primary-container: #5a0e00;
+  --color-outline: #8f7069;
+  --color-tertiary-container: #919399;
+  --color-surface-tint: #b52701;
+  --color-secondary-container: #ceddfe;
+  --color-on-secondary: #ffffff;
+  --color-secondary-fixed-dim: #b7c7e7;
+  --color-surface-variant: #e4e2dd;
+  --color-surface-container-low: #f5f3ee;
+  --color-inverse-on-surface: #f2f1ec;
+  --color-on-primary-fixed-variant: #8a1c00;
+  --color-error: #ba1a1a;
+  --color-on-tertiary: #ffffff;
+  --color-on-primary: #ffffff;
+  --color-surface-dim: #dbdad5;
+  --color-on-secondary-fixed: #0b1c34;
+  --color-surface: #fbf9f4;
+  --color-secondary-fixed: #d6e3ff;
+  --color-surface-container: #f0eee9;
+  --color-background: #fbf9f4;
+  --color-tertiary: #5c5e64;
+  --color-on-secondary-container: #52617d;
+  --color-surface-container-highest: #e4e2dd;
+  --color-primary-container: #ff5c35;
+  --color-on-secondary-fixed-variant: #384761;
+  --color-inverse-primary: #ffb4a3;
+  --color-on-tertiary-container: #292c31;
+  --color-on-tertiary-fixed-variant: #44474c;
+  --color-outline-variant: #e3beb6;
+  --color-primary-fixed: #ffdad2;
+  --color-primary: #b52701;
+  --color-error-container: #ffdad6;
+  --color-on-background: #1b1c19;
+  --color-on-surface: #1b1c19;
+  --color-on-tertiary-fixed: #191c20;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-primary-fixed: #3d0700;
+  --color-secondary: #505f7a;
+  --color-primary-fixed-dim: #ffb4a3;
+  --color-surface-container-high: #eae8e3;
+  --color-inverse-surface: #30312e;
+  --color-on-error-container: #93000a;
+  --color-on-surface-variant: "#5b413a";
+  --color-tertiary-fixed: #e1e2e9;
+  --color-on-error: #ffffff;
+
+  --radius-DEFAULT: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+
+  --spacing-base: 8px;
+  --spacing-gutter-desktop: 32px;
+  --spacing-margin-mobile: 20px;
+  --spacing-margin-desktop: 64px;
+  --spacing-gutter-mobile: 16px;
+  --spacing-container-max: 1200px;
+
+  --font-body-lg: "Inter", sans-serif;
+  --font-label-sm: "Inter", sans-serif;
+  --font-headline-md: "Playfair Display", serif;
+  --font-headline-lg: "Playfair Display", serif;
+  --font-headline-sm: "Playfair Display", serif;
+  --font-display-lg: "Playfair Display", serif;
+  --font-headline-lg-mobile: "Playfair Display", serif;
+  --font-label-md: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+}
+
 @layer base {
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    /* Midnight Glass animated mesh background */
-    background: linear-gradient(-45deg, #020617, #0f172a, #064e3b, #1e1b4b);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    @apply text-slate-200 min-h-screen m-0;
-  }
-
-  @keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    background-color: var(--color-surface-bright);
+    color: var(--color-on-surface);
+    font-family: var(--font-body-md);
   }
 }
 
 @layer components {
+  /* Retain naming for existing components but change styling to match editorial */
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 rounded-3xl overflow-hidden;
+    @apply bg-surface-container-lowest border border-outline-variant/30 shadow-[0_40px_40px_-20px_rgba(11,28,52,0.04)] rounded-xl overflow-hidden;
   }
 
   .glass-panel-hover {
-    @apply transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:-translate-y-1;
+    @apply transition-all duration-300 hover:shadow-[0_40px_40px_-20px_rgba(11,28,52,0.08)] hover:-translate-y-1;
   }
 
   .glass-input {
-    @apply w-full bg-black/20 backdrop-blur-md border border-white/10 text-white rounded-2xl py-3.5 px-4 focus:bg-black/40 focus:border-emerald-400/50 focus:ring-4 focus:ring-emerald-400/20 outline-none transition-all placeholder:text-slate-400 font-medium;
+    @apply w-full bg-surface-bright border border-outline-variant text-on-surface rounded-lg py-3.5 px-4 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-on-surface-variant/50 font-body-md;
   }
 
   .glass-btn {
-    @apply w-full bg-gradient-to-r from-emerald-500/80 to-teal-500/80 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border border-white/20 flex items-center justify-center space-x-2;
+    @apply w-full bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md uppercase tracking-wider py-4 rounded-lg transition-colors border border-transparent flex items-center justify-center space-x-2;
+  }
+}
+
+@layer utilities {
+  .editorial-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 32px;
+  }
+  .ticker-wrap {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .soft-elevation {
+    box-shadow: 0 40px 40px -20px rgba(11, 28, 52, 0.04);
+  }
+  .ink-border {
+    border: 1px solid rgba(143, 112, 105, 0.1);
   }
 }
