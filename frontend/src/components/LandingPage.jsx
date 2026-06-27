@@ -36,9 +36,11 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter-desktop items-center">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="md:col-span-6 order-2 md:order-1">
             <span className="text-primary font-label-md uppercase tracking-widest mb-4 block italic">Issue No. 04 — The Culinary Waste Revolution</span>
-            <h1 className="font-display-lg text-4xl md:text-display-lg leading-tight mb-8">Elevating surplus to <span className="italic text-primary">superlative.</span></h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-xl">
-              A curated alliance of culinary artisans and conscious residents. We transform premium surplus into social impact, ensuring no masterpiece goes untasted.
+            <h1 className="font-display-lg text-5xl md:text-display-lg text-on-surface leading-tight tracking-tight mb-6">
+              Stop <span className="italic font-normal">Food Waste</span>. Start <span className="italic font-normal">Feeding People</span>.
+            </h1>
+            <p className="font-body-lg text-on-surface-variant max-w-xl mx-auto md:mx-0 mb-10">
+              We connect local restaurants and bakeries with charities. Together, we turn surplus food into meals for those in need, ensuring good food never goes to waste.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/auth?role=NGO" className="bg-primary text-center text-on-primary px-8 py-4 font-label-md uppercase tracking-wider hover:bg-on-primary-fixed-variant transition-colors rounded-lg">Start Rescue Mission</Link>
@@ -94,7 +96,7 @@ const LandingPage = () => {
           <motion.div whileHover={{ y: -5 }} className="bg-surface-container-lowest p-8 ink-border group soft-elevation transition-all flex flex-col h-full rounded-2xl">
             <Building2 className="text-secondary w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4">NGO Portal</h3>
-            <p className="font-body-md text-on-surface-variant mb-8 flex-grow">A streamlined management dashboard for high-capacity distribution centers. Track real-time inventory and logistics.</p>
+            <p className="font-body-md text-on-surface-variant mb-8 flex-grow">A simple dashboard for charities and shelters. See available food nearby, claim donations, and track your pickups easily.</p>
             <Link to="/auth?role=NGO" className="font-label-md text-primary uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
               Access Dashboard <ArrowRight className="w-4 h-4" />
             </Link>
@@ -104,7 +106,7 @@ const LandingPage = () => {
           <motion.div whileHover={{ y: -5 }} className="bg-on-secondary-fixed text-surface-bright p-8 group shadow-xl transition-all flex flex-col h-full rounded-2xl">
             <HeartHandshake className="text-primary-container w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4 text-white">Donor Portal</h3>
-            <p className="font-body-lg text-surface-variant mb-8 flex-grow">For restaurants, bakeries, and purveyors. Schedule pickups in 60 seconds and access tax compliance instantly.</p>
+            <p className="font-body-lg text-surface-variant mb-8 flex-grow">For restaurants, bakeries, and food businesses. Schedule a pickup in under a minute and track the positive impact you're making.</p>
             <Link to="/auth?role=Donor" className="font-label-md text-primary-container uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
               Partner With Us <ArrowRight className="w-4 h-4" />
             </Link>
@@ -114,7 +116,7 @@ const LandingPage = () => {
           <motion.div whileHover={{ y: -5 }} className="bg-surface-container-lowest p-8 ink-border group soft-elevation transition-all flex flex-col h-full rounded-2xl">
             <ShieldCheck className="text-secondary w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4">Admin Portal</h3>
-            <p className="font-body-md text-on-surface-variant mb-8 flex-grow">Deep dives into the data. Verify new users and manage operations. Audited transparency.</p>
+            <p className="font-body-md text-on-surface-variant mb-8 flex-grow">Oversee the platform. Approve new users, monitor donations, and keep our community safe and transparent.</p>
             <Link to="/auth?role=Admin" className="font-label-md text-primary uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
               Enter Portal <ArrowRight className="w-4 h-4" />
             </Link>
@@ -122,43 +124,51 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Featured Story Section */}
-      <section className="bg-surface-container py-12 md:py-24">
+      {/* About Section */}
+      <section id="about" className="bg-surface-container py-12 md:py-24">
         <div className="max-w-container-max mx-auto px-4 md:px-margin-desktop">
           <div className="flex flex-col md:flex-row gap-12 items-stretch">
             <div className="md:w-5/12">
               <div className="sticky top-32">
-                <h2 className="font-display-lg text-4xl md:text-headline-lg mb-8 leading-tight">The <span className="text-primary italic">Geometry</span> of Giving.</h2>
-                <p className="font-body-lg text-on-surface-variant mb-8">Sustainability is not just a practice; it is an art form. We apply rigorous design thinking to the logistical problem of food waste, creating a frictionless loop of luxury and responsibility.</p>
+                <h2 className="font-display-lg text-4xl md:text-headline-lg mb-8 leading-tight">About <span className="text-primary italic">FoodRescue</span>.</h2>
+                <p className="font-body-lg text-on-surface-variant mb-4">Every day, perfectly good food is thrown away by restaurants while millions go hungry. We believe this is a logistics problem we can solve together.</p>
+                <p className="font-body-lg text-on-surface-variant mb-8">Our platform makes it incredibly simple for local businesses to donate their unsold food to nearby NGOs and shelters.</p>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 py-4 border-b border-outline-variant">
                     <span className="font-headline-sm text-primary">01</span>
-                    <span className="font-label-md uppercase">Curated Sourcing</span>
+                    <span className="font-label-md uppercase">Donors Post Food</span>
                   </div>
                   <div className="flex items-center gap-4 py-4 border-b border-outline-variant">
                     <span className="font-headline-sm text-primary">02</span>
-                    <span className="font-label-md uppercase">Rapid Cold-Chain Transfer</span>
+                    <span className="font-label-md uppercase">NGOs Claim It Instantly</span>
                   </div>
                   <div className="flex items-center gap-4 py-4 border-b border-outline-variant">
                     <span className="font-headline-sm text-primary">03</span>
-                    <span className="font-label-md uppercase">Dignified Distribution</span>
+                    <span className="font-label-md uppercase">Meals Are Delivered</span>
                   </div>
                 </div>
               </div>
             </div>
             <div className="md:w-7/12 space-y-8 md:space-y-gutter-desktop">
-              <div className="aspect-video relative group overflow-hidden rounded-2xl">
+              <div className="aspect-video relative group overflow-hidden rounded-2xl mb-8">
                 <img 
-                  alt="Delivery"
+                  alt="Volunteer handing out food"
+                  className="w-full h-full object-cover rounded-2xl md:rounded-l-3xl shadow-2xl" 
+                  src="https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?auto=format&fit=crop&w=800&q=80"
+                />
+              </div>
+              <div className="aspect-video relative group overflow-hidden rounded-2xl mb-8 hidden md:block">
+                <img 
+                  alt="Community coming together"
                   className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-1000" 
-                  src="https://images.unsplash.com/photo-1594282486552-05b4d70fbb92?auto=format&fit=crop&w=800&q=80"
+                  src="https://images.unsplash.com/photo-1593113565214-80afcb4a428a?auto=format&fit=crop&w=800&q=80"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4 md:gap-gutter-desktop">
                 <div className="aspect-square bg-surface-container-highest flex items-center justify-center p-4 md:p-8 text-center ink-border rounded-2xl">
                   <div>
-                    <p className="font-headline-sm text-3xl md:text-headline-sm mb-2 text-on-surface">500+</p>
-                    <p className="font-label-sm text-[10px] md:text-xs text-on-surface-variant uppercase tracking-wider">Premium Partners</p>
+                    <p className="font-headline-sm text-3xl md:text-headline-sm mb-2 text-on-surface">Zero</p>
+                    <p className="font-label-sm text-[10px] md:text-xs text-on-surface-variant uppercase tracking-wider">Tolerance For Waste</p>
                   </div>
                 </div>
                 <div className="aspect-square bg-primary text-on-primary flex items-center justify-center p-4 md:p-8 text-center rounded-2xl">
@@ -181,13 +191,14 @@ const LandingPage = () => {
               <span className="font-headline-sm text-on-surface uppercase tracking-tighter">RESCUE</span>
             </div>
             <div className="flex flex-wrap justify-center gap-8">
+              <a href="/#about" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">About Us</a>
               <Link to="/auth?role=NGO" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">NGO Portal</Link>
               <Link to="/auth?role=Donor" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Donor Portal</Link>
               <Link to="/auth?role=Admin" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Admin Portal</Link>
             </div>
           </div>
           <div className="text-center md:text-left pt-8 border-t border-outline-variant/30">
-            <p className="font-label-sm text-on-surface-variant/70 uppercase tracking-widest">© 2024 RESCUE Platform. Editorial Responsibility & Transparency.</p>
+            <p className="font-label-sm text-on-surface-variant/70 uppercase tracking-widest">© 2024 RESCUE Platform. Connecting communities.</p>
           </div>
         </div>
       </footer>

@@ -129,6 +129,7 @@ const Navbar = () => {
 
           {/* DESKTOP NAV LINKS */}
           <div className="hidden md:flex items-center gap-gutter-desktop">
+            <a href="/#about" className={linkClass('/#about')}>About Us</a>
             {navLinks.map((link) => (
               <Link key={link.path} to={link.path} className={linkClass(link.path)}>
                 {link.name}
