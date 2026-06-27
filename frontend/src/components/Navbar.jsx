@@ -57,7 +57,7 @@ const Navbar = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsProfileOpen(false);
-    navigate('/auth');
+    navigate('/');
   };
 
   const handleMarkAsRead = async (notifId) => {
