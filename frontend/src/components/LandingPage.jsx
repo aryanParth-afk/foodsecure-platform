@@ -41,7 +41,7 @@ const LandingPage = () => {
               A curated alliance of culinary artisans and conscious residents. We transform premium surplus into social impact, ensuring no masterpiece goes untasted.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/auth" className="bg-primary text-center text-on-primary px-8 py-4 font-label-md uppercase tracking-wider hover:bg-on-primary-fixed-variant transition-colors rounded-lg">Start Rescue Mission</Link>
+              <Link to="/auth?role=NGO" className="bg-primary text-center text-on-primary px-8 py-4 font-label-md uppercase tracking-wider hover:bg-on-primary-fixed-variant transition-colors rounded-lg">Start Rescue Mission</Link>
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="md:col-span-6 order-1 md:order-2 mb-8 md:mb-0">
@@ -95,7 +95,7 @@ const LandingPage = () => {
             <Building2 className="text-secondary w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4">NGO Portal</h3>
             <p className="font-body-md text-on-surface-variant mb-8 flex-grow">A streamlined management dashboard for high-capacity distribution centers. Track real-time inventory and logistics.</p>
-            <Link to="/auth" className="font-label-md text-primary uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
+            <Link to="/auth?role=NGO" className="font-label-md text-primary uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
               Access Dashboard <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -105,7 +105,7 @@ const LandingPage = () => {
             <HeartHandshake className="text-primary-container w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4 text-white">Donor Portal</h3>
             <p className="font-body-lg text-surface-variant mb-8 flex-grow">For restaurants, bakeries, and purveyors. Schedule pickups in 60 seconds and access tax compliance instantly.</p>
-            <Link to="/auth" className="font-label-md text-primary-container uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
+            <Link to="/auth?role=Donor" className="font-label-md text-primary-container uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
               Partner With Us <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -115,7 +115,7 @@ const LandingPage = () => {
             <ShieldCheck className="text-secondary w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4">Admin Portal</h3>
             <p className="font-body-md text-on-surface-variant mb-8 flex-grow">Deep dives into the data. Verify new users and manage operations. Audited transparency.</p>
-            <Link to="/auth" className="font-label-md text-primary uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
+            <Link to="/auth?role=Admin" className="font-label-md text-primary uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
               Enter Portal <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -181,8 +181,8 @@ const LandingPage = () => {
               <span className="font-headline-sm text-on-surface uppercase tracking-tighter">RESCUE</span>
             </div>
             <div className="flex flex-wrap justify-center gap-8">
-              <Link to="/auth" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">NGO Portal</Link>
-              <Link to="/auth" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Donor Portal</Link>
+              <Link to="/auth?role=NGO" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">NGO Portal</Link>
+              <Link to="/auth?role=Donor" className="font-body-md text-on-surface-variant hover:text-primary transition-colors">Donor Portal</Link>
             </div>
           </div>
           <div className="text-center md:text-left pt-8 border-t border-outline-variant/30">
