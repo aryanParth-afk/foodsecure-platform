@@ -5,6 +5,12 @@ import { HeartHandshake, PackageOpen, MapPin, Send, Camera, X, Map } from 'lucid
 import { motion, AnimatePresence } from 'framer-motion';
 import LocationPicker from './LocationPicker'; 
 
+const getDefaultDateTime = () => {
+  const d = new Date();
+  d.setHours(d.getHours() + 24);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
+
 const DonorDashboard = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   
@@ -15,7 +21,7 @@ const DonorDashboard = () => {
     address: '',
     lat: null,
     lng: null,
-    expiresInHours: '24'
+    expiresAt: getDefaultDateTime()
   });
   
   const [imageFile, setImageFile] = useState(null);
@@ -63,7 +69,7 @@ const DonorDashboard = () => {
         lat: formData.lat,
         lng: formData.lng,
         imageUrl: imageUrl,
-        expiresInHours: formData.expiresInHours
+        expiresAt: formData.expiresAt
       };
 
       console.log("🚀 SENDING THIS TO BACKEND:", dataToSend);
@@ -73,7 +79,7 @@ const DonorDashboard = () => {
       toast.success("Donation successfully posted to the network!");
       
       // Reset the form
-      setFormData({ foodType: '', quantity: '', address: '', lat: null, lng: null, expiresInHours: '24' });
+      setFormData({ foodType: '', quantity: '', address: '', lat: null, lng: null, expiresAt: getDefaultDateTime() });
       setImageFile(null); 
     } catch (error) {
       toast.error("Failed to post donation. Please try again.");
@@ -145,14 +151,14 @@ const DonorDashboard = () => {
               <input type="text" required value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium" placeholder="e.g. 20 lbs" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1.5">Expires In</label>
-              <select value={formData.expiresInHours} onChange={(e) => setFormData({...formData, expiresInHours: e.target.value})} className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium appearance-none">
-                <option value="2">2 Hours</option>
-                <option value="4">4 Hours</option>
-                <option value="8">8 Hours</option>
-                <option value="24">24 Hours</option>
-                <option value="48">48 Hours</option>
-              </select>
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">Expires At</label>
+              <input 
+                type="datetime-local" 
+                required 
+                value={formData.expiresAt} 
+                onChange={(e) => setFormData({...formData, expiresAt: e.target.value})} 
+                className="w-full bg-gray-50 border-2 border-gray-100 text-gray-900 rounded-xl py-3 px-4 focus:bg-white focus:border-emerald-500 outline-none transition-all font-medium appearance-none"
+              />
             </div>
           </div>
 

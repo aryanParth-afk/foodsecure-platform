@@ -111,7 +111,7 @@ const NGODashboard = () => {
                   {listing.expiresAt && (
                     <p className="text-sm text-slate-600 flex items-center gap-2 font-medium">
                       <Clock className="w-4 h-4 text-slate-400" /> 
-                      <span className="text-orange-600 font-bold">Expires: {new Date(listing.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-orange-600 font-bold">Expires: {new Date(listing.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                     </p>
                   )}
                 </div>

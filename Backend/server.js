@@ -250,9 +250,8 @@ app.patch('/api/notifications/read-all/:userId', auth, async (req, res) => {
 
 app.post(['/api/listings', '/api/foodlistings'], auth, async (req, res) => {
   try {
-    const hours = parseInt(req.body.expiresInHours) || 24;
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + hours);
+    // Accept specific expiration date/time from the frontend
+    const expiresAt = req.body.expiresAt ? new Date(req.body.expiresAt) : new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const newListing = new FoodListing({
       donorId: req.body.donorId,

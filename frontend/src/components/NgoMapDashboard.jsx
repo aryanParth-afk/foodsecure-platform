@@ -163,7 +163,7 @@ const NgoMapDashboard = () => {
                     </p>
                     {listing.expiresAt && (
                       <p className="text-orange-600 text-[10px] mb-3 leading-tight flex items-center gap-1 font-bold">
-                        <Clock className="w-3 h-3 shrink-0" /> Expires {new Date(listing.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        <Clock className="w-3 h-3 shrink-0" /> Expires {new Date(listing.expiresAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </p>
                     )}
                     <button 
