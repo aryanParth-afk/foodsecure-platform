@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, Clock, CheckCircle, Building2, Calendar, TrendingUp, AlertCircle, KeyRound, Check, Trash2, History } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { io } from 'socket.io-client';
 
 const DonorHistory = () => {
   const [donations, setDonations] = useState([]);
@@ -13,20 +14,36 @@ const DonorHistory = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
+  const fetchHistory = async () => {
+    try {
+      const userId = String(currentUser._id || currentUser.id);
+      const response = await axios.get(`${apiUrl}/api/my-donations/${userId}`);
+      setDonations(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to load history", error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const userId = String(currentUser._id || currentUser.id);
-        const response = await axios.get(`${apiUrl}/api/my-donations/${userId}`);
-        setDonations(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to load history", error);
-        setLoading(false);
-      }
-    };
     fetchHistory();
   }, [apiUrl, currentUser.id, currentUser._id]);
+
+  useEffect(() => {
+    const socket = io(apiUrl);
+    
+    socket.on('listingClaimed', () => {
+      // Re-fetch to get populated NGO details and new status
+      fetchHistory();
+    });
+
+    socket.on('listingCompleted', () => {
+      fetchHistory();
+    });
+
+    return () => socket.disconnect();
+  }, [apiUrl]);
 
   const handleVerifyPickup = async (listingId) => {
     if (activeOtpInput.code.length !== 4) return toast.error("OTP must be 4 digits");

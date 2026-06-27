@@ -9,8 +9,18 @@ const User = require('./models/User');
 const Notification = require('./models/Notification'); 
 const crypto = require('crypto'); 
 const auth = require('./middleware/auth'); 
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE']
+  }
+});
+
 app.use(cors());
 app.use(express.json()); 
 
@@ -268,6 +278,10 @@ app.post(['/api/listings', '/api/foodlistings'], auth, async (req, res) => {
     });
 
     const savedListing = await newListing.save();
+    
+    // Broadcast the new listing to all connected clients
+    io.emit('newListing', savedListing);
+
     res.status(201).json(savedListing);
   } catch (error) {
     console.error("Database Save Error:", error.message);
@@ -295,6 +309,9 @@ app.get('/api/my-donations/:userId', auth, async (req, res) => {
 app.delete('/api/listings/:id', auth, async (req, res) => {
   try {
     const deletedListing = await FoodListing.findByIdAndDelete(req.params.id);
+    if (deletedListing) {
+      io.emit('listingDeleted', { listingId: req.params.id });
+    }
     if (!deletedListing) return res.status(404).json({ message: "Listing not found" });
     
     res.json({ message: "Donation permanently deleted." });
@@ -372,6 +389,8 @@ const processClaimRequest = async (req, res) => {
     ).populate('claimedBy', 'orgName'); 
 
     if (updatedListing) {
+      io.emit('listingClaimed', { listingId: updatedListing._id, ngoId: updatedListing.claimedBy?._id, status: 'Claimed' });
+
       await Notification.create({
         userId: updatedListing.donorId,
         message: `${updatedListing.claimedBy?.orgName || 'An NGO'} has claimed your donation of ${updatedListing.foodName}.`,
@@ -402,6 +421,8 @@ app.patch('/api/listings/:id/verify-pickup', auth, async (req, res) => {
 
     listing.status = 'Completed';
     await listing.save();
+
+    io.emit('listingCompleted', { listingId: listing._id });
 
     await Notification.create({
       userId: listing.claimedBy,
@@ -588,7 +609,7 @@ app.get('/api/admin/analytics', auth, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5001; 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔔 NOTIFICATIONS ACTIVATED: Pipeline is live!`);
 });

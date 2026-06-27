@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { MapPin, Package, Clock, CheckCircle } from 'lucide-react';
+import { io } from 'socket.io-client';
 
 const NGODashboard = () => {
   const [activeTab, setActiveTab] = useState('feed'); // 'feed' or 'claims'
@@ -17,6 +18,29 @@ const NGODashboard = () => {
     if (activeTab === 'feed') fetchAvailableListings();
     else fetchMyClaims();
   }, [activeTab]);
+
+  useEffect(() => {
+    const socket = io(apiUrl);
+    
+    socket.on('newListing', (listing) => {
+      // Only add if we're on the feed tab and it's not already in the list
+      setListings((prev) => {
+        if (prev.some(l => l._id === listing._id)) return prev;
+        return [listing, ...prev];
+      });
+      toast('🔔 New food donation nearby!', { icon: '🍲' });
+    });
+
+    socket.on('listingClaimed', ({ listingId }) => {
+      setListings((prev) => prev.filter(l => l._id !== listingId));
+    });
+
+    socket.on('listingDeleted', ({ listingId }) => {
+      setListings((prev) => prev.filter(l => l._id !== listingId));
+    });
+
+    return () => socket.disconnect();
+  }, [apiUrl]);
 
   const fetchAvailableListings = async () => {
     setLoading(true);

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import toast from 'react-hot-toast';
 import { Navigation, MapPin, Package, Navigation2, ShieldAlert, Clock } from 'lucide-react';
+import { io } from 'socket.io-client';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -47,6 +48,29 @@ const NgoMapDashboard = () => {
   useEffect(() => {
     fetchActiveListings();
     locateNGO();
+  }, []);
+
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+    const socket = io(apiUrl);
+    
+    socket.on('newListing', (listing) => {
+      setListings((prev) => {
+        if (prev.some(l => l._id === listing._id)) return prev;
+        return [listing, ...prev];
+      });
+      toast('📍 New donation appeared on the map!', { icon: '🗺️' });
+    });
+
+    socket.on('listingClaimed', ({ listingId }) => {
+      setListings((prev) => prev.filter(l => l._id !== listingId));
+    });
+
+    socket.on('listingDeleted', ({ listingId }) => {
+      setListings((prev) => prev.filter(l => l._id !== listingId));
+    });
+
+    return () => socket.disconnect();
   }, []);
 
   const fetchActiveListings = async () => {
