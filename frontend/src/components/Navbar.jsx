@@ -218,8 +218,12 @@ const Navbar = () => {
                     onClick={() => { setIsProfileOpen(!isProfileOpen); setIsNotifOpen(false); }}
                     className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-surface-container transition-colors focus:outline-none"
                   >
-                    <div className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center">
-                      <span className="text-on-primary-container text-xs font-bold tracking-widest">{getInitials(user.orgName)}</span>
+                    <div className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-outline-variant">
+                      {user.profilePicture ? (
+                        <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-on-primary-container text-xs font-bold tracking-widest">{getInitials(user.orgName)}</span>
+                      )}
                     </div>
                     <ChevronDown className={`w-4 h-4 text-on-surface-variant transition-transform duration-200 hidden sm:block ${isProfileOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -232,7 +236,8 @@ const Navbar = () => {
                       >
                         <div className="p-5 border-b border-outline-variant">
                           <p className="font-bold text-lg text-on-surface leading-tight truncate">{user.orgName}</p>
-                          <p className="text-sm font-medium text-primary mt-1">{user.role}</p>
+                          {user.username && <p className="text-xs font-medium text-on-surface-variant mt-0.5">@{user.username}</p>}
+                          <p className="text-sm font-medium text-primary mt-1.5">{user.role}</p>
                         </div>
                         
                         <div className="p-2 space-y-1">

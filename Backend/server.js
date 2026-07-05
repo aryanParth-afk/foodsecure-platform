@@ -61,8 +61,8 @@ app.post('/api/auth/register', async (req, res) => {
     user.password = await bcrypt.hash(password, salt);
     await user.save();
 
-    // FIXED: Added isVerified to the payload
-    const payload = { id: user._id, role: user.role, orgName: user.orgName, isVerified: user.isVerified };
+    // FIXED: Added isVerified, username, and profilePicture to the payload
+    const payload = { id: user._id, username: user.username, role: user.role, orgName: user.orgName, profilePicture: user.profilePicture, isVerified: user.isVerified };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.status(201).json({ token, user: payload });
@@ -99,7 +99,7 @@ app.post('/api/auth/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials.' });
 
-    const payload = { id: user._id, role: user.role, orgName: user.orgName, isVerified: user.isVerified };
+    const payload = { id: user._id, username: user.username, role: user.role, orgName: user.orgName, profilePicture: user.profilePicture, isVerified: user.isVerified };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.json({ token, user: payload });
@@ -189,7 +189,7 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
 
 app.patch('/api/users/:id', auth, async (req, res) => {
   try {
-    const { orgName, newPassword, currentPassword } = req.body;
+    const { orgName, profilePicture, newPassword, currentPassword } = req.body;
     const user = await User.findById(req.params.id);
     
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -204,6 +204,7 @@ app.patch('/api/users/:id', auth, async (req, res) => {
     }
 
     if (orgName) user.orgName = orgName;
+    if (profilePicture !== undefined) user.profilePicture = profilePicture;
 
     if (newPassword) {
       const salt = await bcrypt.genSalt(10);
@@ -212,8 +213,8 @@ app.patch('/api/users/:id', auth, async (req, res) => {
 
     await user.save();
 
-    // FIXED: Added isVerified to the payload
-    const payload = { id: user._id, role: user.role, orgName: user.orgName, isVerified: user.isVerified };
+    // FIXED: Added isVerified, username, and profilePicture to the payload
+    const payload = { id: user._id, username: user.username, role: user.role, orgName: user.orgName, profilePicture: user.profilePicture, isVerified: user.isVerified };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret_key_for_hackathon', { expiresIn: '7d' });
 
     res.json({ token, user: payload, message: "Profile updated successfully!" });

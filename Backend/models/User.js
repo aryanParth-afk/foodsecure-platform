@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   orgName: { type: String, required: true },
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
+  profilePicture: { type: String, default: '' },
   password: { type: String, required: true }, // For when you add real login later
   phone: { type: String, required: false }, 
   

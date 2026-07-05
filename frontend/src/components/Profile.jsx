@@ -2,17 +2,32 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { User, Lock, Building2, Save, KeyRound, ShieldAlert } from 'lucide-react';
+import { User, Lock, Building2, Save, KeyRound, ShieldAlert, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const [orgName, setOrgName] = useState(currentUser.orgName || '');
+  const [profilePicture, setProfilePicture] = useState(currentUser.profilePicture || '');
+  const [imageFile, setImageFile] = useState(null);
   const [newPassword, setNewPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const navigate = useNavigate();
+
+  const uploadToCloudinary = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "foodrescue_preset"); 
+    const cloudName = "dkzec2m8s"; 
+    try {
+      const res = await axios.post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, data);
+      return res.data.secure_url; 
+    } catch (error) {
+      throw new Error("Failed to upload image");
+    }
+  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -24,8 +39,16 @@ const Profile = () => {
     setIsSubmitting(true);
 
     try {
+      let newProfilePicUrl = profilePicture;
+      if (imageFile) {
+        toast.loading("Uploading new profile picture...", { id: "uploadToast" });
+        newProfilePicUrl = await uploadToCloudinary(imageFile);
+        toast.dismiss("uploadToast");
+      }
+
       const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/users/${currentUser.id}`, {
         orgName: orgName !== currentUser.orgName ? orgName : undefined,
+        profilePicture: newProfilePicUrl !== currentUser.profilePicture ? newProfilePicUrl : undefined,
         newPassword: newPassword ? newPassword : undefined,
         currentPassword: currentPassword 
       });
@@ -47,6 +70,7 @@ const Profile = () => {
       }
       
     } catch (error) {
+      toast.dismiss("uploadToast");
       toast.error(error.response?.data?.message || "Failed to update profile.");
     } finally {
       setIsSubmitting(false);
@@ -56,8 +80,20 @@ const Profile = () => {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12 pt-32">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10 text-center">
-        <div className="bg-surface-container w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-outline-variant shadow-sm">
-          <User className="w-10 h-10 text-on-surface-variant" />
+        <div className="relative w-24 h-24 mx-auto mb-4">
+          <div className="bg-surface-container w-full h-full rounded-full flex items-center justify-center border border-outline-variant shadow-sm overflow-hidden">
+            {imageFile ? (
+              <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-full h-full object-cover" />
+            ) : profilePicture ? (
+              <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-10 h-10 text-on-surface-variant" />
+            )}
+          </div>
+          <label className="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-lg cursor-pointer hover:scale-105 transition-transform">
+            <Camera className="w-4 h-4" />
+            <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} className="hidden" />
+          </label>
         </div>
         <h1 className="font-display-lg text-4xl text-on-surface tracking-tight">Account Settings</h1>
         <p className="font-body-md text-on-surface-variant mt-1">Manage your organization profile and security.</p>
