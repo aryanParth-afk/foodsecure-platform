@@ -73,11 +73,16 @@
 }
 
 @layer base {
+  *, ::before, ::after {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
   body {
     background-color: var(--color-surface-bright);
     color: var(--color-on-surface);
     font-family: var(--font-body-md);
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .dark {
