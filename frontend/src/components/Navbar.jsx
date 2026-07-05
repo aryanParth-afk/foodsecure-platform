@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Bell, LayoutDashboard, Clock, ChevronDown, Settings, CheckCircle2, AlertCircle, Info, CheckCheck, MapPin, Menu, X, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -144,7 +145,9 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            <ThemeToggle />
+            
             {user ? (
               <>
                 {/* NOTIFICATIONS */}

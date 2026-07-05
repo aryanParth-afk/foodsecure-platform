@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { Building2, HeartHandshake, ShieldCheck, ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import AnimatedCounter from './AnimatedCounter';
 
 const LandingPage = () => {
   const [stats, setStats] = useState({ savedMeals: 0, donors: 0, ngos: 0 });
@@ -128,7 +129,7 @@ const LandingPage = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* NGO Portal */}
-          <motion.div whileHover={{ y: -5 }} className="bg-surface-container-lowest p-8 ink-border group soft-elevation transition-all flex flex-col h-full rounded-2xl">
+          <motion.div className="p-8 group flex flex-col h-full glass-panel glass-panel-hover">
             <Building2 className="text-secondary w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4">NGO Portal</h3>
             <p className="font-body-md text-on-surface-variant mb-8 flex-grow">A simple dashboard for charities and shelters. See available food nearby, claim donations, and track your pickups easily.</p>
@@ -138,7 +139,7 @@ const LandingPage = () => {
           </motion.div>
           
           {/* Donor Portal (Featured) */}
-          <motion.div whileHover={{ y: -5 }} className="bg-on-secondary-fixed text-surface-bright p-8 group shadow-xl transition-all flex flex-col h-full rounded-2xl">
+          <motion.div className="bg-on-secondary-fixed text-surface-bright p-8 group shadow-xl transition-all flex flex-col h-full rounded-2xl hover:-translate-y-1 hover:shadow-2xl">
             <HeartHandshake className="text-primary-container w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4 text-white">Donor Portal</h3>
             <p className="font-body-lg text-surface-variant mb-8 flex-grow">For restaurants, bakeries, and food businesses. Schedule a pickup in under a minute and track the positive impact you're making.</p>
@@ -148,7 +149,7 @@ const LandingPage = () => {
           </motion.div>
           
           {/* Admin Portal */}
-          <motion.div whileHover={{ y: -5 }} className="bg-surface-container-lowest p-8 ink-border group soft-elevation transition-all flex flex-col h-full rounded-2xl">
+          <motion.div className="p-8 group flex flex-col h-full glass-panel glass-panel-hover">
             <ShieldCheck className="text-secondary w-10 h-10 mb-6" />
             <h3 className="font-headline-sm text-headline-sm mb-4">Admin Portal</h3>
             <p className="font-body-md text-on-surface-variant mb-8 flex-grow">Oversee the platform. Approve new users, monitor donations, and keep our community safe and transparent.</p>
@@ -213,9 +214,11 @@ const LandingPage = () => {
                     <p className="font-label-sm text-[10px] md:text-xs text-on-surface-variant uppercase tracking-wider">Tolerance For Waste</p>
                   </div>
                 </div>
-                <div className="aspect-square bg-primary text-on-primary flex items-center justify-center p-4 md:p-8 text-center rounded-2xl">
+                <div className="aspect-square bg-primary text-on-primary flex items-center justify-center p-4 md:p-8 text-center rounded-2xl glass-panel-hover shadow-lg">
                   <div>
-                    <p className="font-headline-sm text-3xl md:text-headline-sm mb-2 text-white">2.5M</p>
+                    <p className="font-headline-sm text-3xl md:text-headline-sm mb-2 text-white">
+                      <AnimatedCounter value={2.5} decimals={1} suffix="M" duration={2.5} />
+                    </p>
                     <p className="font-label-sm text-[10px] md:text-xs uppercase tracking-wider text-primary-fixed">Meals Delivered</p>
                   </div>
                 </div>

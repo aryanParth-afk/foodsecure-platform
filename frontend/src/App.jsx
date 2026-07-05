@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HandHeart } from 'lucide-react'; 
 import DonorHistory from './components/DonorHistory';
+import AmbientFlow from './components/AmbientFlow';
 
 import Navbar from './components/Navbar';
 
@@ -63,7 +64,8 @@ const App = () => {
 
       <Router>
         {/* Wrapper for the new Editorial Impact theme */}
-        <div className="relative min-h-screen bg-surface-bright text-on-surface z-0 selection:bg-primary-fixed selection:text-on-primary-fixed">
+        <div className="relative min-h-screen bg-surface-bright text-on-surface z-0 selection:bg-primary-fixed selection:text-on-primary-fixed overflow-hidden">
+          <AmbientFlow />
           <Toaster 
             position="top-center"
             reverseOrder={false}
