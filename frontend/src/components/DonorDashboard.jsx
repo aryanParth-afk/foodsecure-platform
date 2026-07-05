@@ -58,7 +58,16 @@ const DonorDashboard = () => {
       }
 
       const token = localStorage.getItem('token');
-      await axios.post(`${apiUrl}/api/donations`, { ...formData, image: imageUrl }, {
+      await axios.post(`${apiUrl}/api/foodlistings`, {
+        donorId: currentUser.id || currentUser._id,
+        foodName: formData.foodType,
+        quantity: formData.quantity,
+        pickupLocation: formData.address,
+        lat: formData.lat,
+        lng: formData.lng,
+        expiresAt: formData.expiresAt,
+        imageUrl: imageUrl
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Donation posted successfully!');
