@@ -26,7 +26,7 @@ const Layout = () => {
   const isFullScreenPage = location.pathname === '/' || location.pathname === '/auth' || location.pathname.startsWith('/reset-password');
   
   return (
-    <div className="relative min-h-screen bg-surface-bright text-on-surface z-0 selection:bg-primary-fixed selection:text-on-primary-fixed flex flex-col">
+    <div className="relative min-h-screen bg-surface-bright text-on-surface z-0 selection:bg-primary-fixed selection:text-on-primary-fixed flex flex-col overflow-x-hidden">
       <AmbientFlow />
       <Toaster 
         position="top-center"

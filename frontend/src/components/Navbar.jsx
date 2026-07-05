@@ -17,6 +17,7 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isJoinMenuOpen, setIsJoinMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // State for Notifications
   const [notifications, setNotifications] = useState([]);
@@ -253,33 +254,69 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              <div className="relative hidden md:block" ref={joinMenuRef}>
-                <button 
-                  onClick={() => setIsJoinMenuOpen(!isJoinMenuOpen)}
-                  className="px-8 py-2 bg-primary text-on-primary font-label-md rounded active:scale-95 transition-transform uppercase tracking-wider flex items-center gap-2"
-                >
-                  Join Now <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isJoinMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
+              <>
+                <div className="relative hidden md:block" ref={joinMenuRef}>
+                  <button 
+                    onClick={() => setIsJoinMenuOpen(!isJoinMenuOpen)}
+                    className="px-8 py-2 bg-primary text-on-primary font-label-md rounded active:scale-95 transition-transform uppercase tracking-wider flex items-center gap-2"
+                  >
+                    Join Now <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isJoinMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-                <AnimatePresence>
-                  {isJoinMenuOpen && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-56 bg-surface-container-lowest border ink-border rounded-lg shadow-xl overflow-hidden origin-top-right z-50 p-2 space-y-1"
-                    >
-                      <Link to="/auth?role=NGO" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
-                        <span>NGO Portal</span>
-                      </Link>
-                      <Link to="/auth?role=Donor" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
-                        <span>Donor Portal</span>
-                      </Link>
-                      <Link to="/auth?role=Admin" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
-                        <span>Admin Portal</span>
-                      </Link>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                  <AnimatePresence>
+                    {isJoinMenuOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} transition={{ duration: 0.15 }}
+                        className="absolute right-0 mt-2 w-56 bg-surface-container-lowest border ink-border rounded-lg shadow-xl overflow-hidden origin-top-right z-50 p-2 space-y-1"
+                      >
+                        <Link to="/auth?role=NGO" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+                          <span>NGO Portal</span>
+                        </Link>
+                        <Link to="/auth?role=Donor" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+                          <span>Donor Portal</span>
+                        </Link>
+                        <Link to="/auth?role=Admin" onClick={() => setIsJoinMenuOpen(false)} className="flex items-center space-x-3 w-full p-3 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+                          <span>Admin Portal</span>
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <div className="md:hidden">
+                  <button 
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="p-2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
+                  >
+                    {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                  </button>
+                  <AnimatePresence>
+                    {isMobileMenuOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                        className="absolute top-20 left-0 w-full bg-surface-container-lowest border-b ink-border shadow-xl z-40 p-4 space-y-4"
+                      >
+                        {location.pathname === '/' && (
+                          <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="block w-full p-3 text-center font-bold text-on-surface hover:bg-surface-container rounded-md transition-colors uppercase tracking-wider">
+                            About Us
+                          </a>
+                        )}
+                        <div className="h-px bg-outline-variant w-full"></div>
+                        <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest text-center mt-2 mb-2">Join FoodRescue</p>
+                        <Link to="/auth?role=NGO" onClick={() => setIsMobileMenuOpen(false)} className="block w-full p-3 text-center text-sm font-bold bg-surface-container text-on-surface hover:bg-surface-container-high rounded-md transition-colors">
+                          NGO Portal
+                        </Link>
+                        <Link to="/auth?role=Donor" onClick={() => setIsMobileMenuOpen(false)} className="block w-full p-3 text-center text-sm font-bold bg-primary text-on-primary hover:bg-on-primary-fixed-variant rounded-md transition-colors">
+                          Donor Portal
+                        </Link>
+                        <Link to="/auth?role=Admin" onClick={() => setIsMobileMenuOpen(false)} className="block w-full p-3 text-center text-sm font-bold bg-surface-container text-on-surface hover:bg-surface-container-high rounded-md transition-colors">
+                          Admin Portal
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </>
             )}
           </div>
         </div>
