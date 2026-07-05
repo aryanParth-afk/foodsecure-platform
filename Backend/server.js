@@ -35,7 +35,13 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, orgName, role, adminSecretCode, phone } = req.body;
+    const { email, username, password, orgName, role, adminSecretCode, phone } = req.body;
+
+    // Username Constraints: At least 1 capital letter, 1 symbol
+    const usernameRegex = /(?=.*[A-Z])(?=.*[!@#$%^&*])/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({ message: 'Username must contain at least 1 capital letter and 1 symbol (!@#$%^&*).' });
+    }
 
     if (role === 'Admin') {
       const masterSecret = process.env.ADMIN_SECRET_CODE || 'FoodRescueAdmin2026';
@@ -44,10 +50,13 @@ app.post('/api/auth/register', async (req, res) => {
       }
     }
 
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: 'A user with this email already exists.' });
+    let userByEmail = await User.findOne({ email });
+    if (userByEmail) return res.status(400).json({ message: 'A user with this email already exists.' });
 
-    user = new User({ email, password, orgName, role, phone });
+    let userByUsername = await User.findOne({ username });
+    if (userByUsername) return res.status(400).json({ message: 'This username is already taken.' });
+
+    let user = new User({ email, username, password, orgName, role, phone });
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
     await user.save();
@@ -68,7 +77,9 @@ app.post('/api/auth/login', async (req, res) => {
     // 1. UPDATED: We now extract the 'role' they are trying to log in as
     const { email, password, role } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ 
+      $or: [ { email: email.toLowerCase() }, { username: email } ] 
+    });
     if (!user) return res.status(400).json({ message: 'Invalid credentials.' });
 
     if (user.role === 'Revoked') {

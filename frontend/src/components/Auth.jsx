@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound, ArrowLeft, Phone, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound, ArrowLeft, Phone, Eye, EyeOff, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ 
     orgName: '', 
+    username: '',
     email: '', 
     phone: '',
     password: '', 
@@ -146,6 +147,17 @@ const Auth = () => {
                       <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className={defaultInputClass} placeholder="e.g. +1 234 567 8900" />
                     </div>
                   </motion.div>
+                  <motion.div variants={itemVariants}>
+                    <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Username</label>
+                    <div className="relative group">
+                      <User className="w-5 h-5 text-on-surface-variant absolute left-3.5 top-3.5 group-focus-within:text-primary transition-colors" />
+                      <input type="text" name="username" required value={formData.username} onChange={handleChange} className={defaultInputClass} placeholder="e.g. foodhero2026" />
+                    </div>
+                    <p className="text-[10px] text-on-surface-variant mt-1.5 flex items-start leading-tight">
+                      <span className="text-primary mr-1 text-xs leading-none">*</span> 
+                      Must contain at least 1 capital letter and 1 symbol (!@#$%^&*).
+                    </p>
+                  </motion.div>
                 </>
               )}
 
@@ -180,10 +192,10 @@ const Auth = () => {
               </AnimatePresence>
 
               <motion.div variants={itemVariants}>
-                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{isLogin ? 'Email or Username' : 'Email Address'}</label>
                 <div className="relative group">
                   <Mail className={`w-5 h-5 absolute left-3.5 top-3.5 transition-colors ${authError ? 'text-error' : 'text-on-surface-variant group-focus-within:text-primary'}`} />
-                  <input type="email" name="email" required value={formData.email} onChange={handleChange} className={authError ? errorInputClass : defaultInputClass} placeholder="name@organization.com" />
+                  <input type={isLogin ? "text" : "email"} name="email" required value={formData.email} onChange={handleChange} className={authError ? errorInputClass : defaultInputClass} placeholder={isLogin ? "name@organization.com or username" : "name@organization.com"} />
                 </div>
               </motion.div>
 

@@ -18,6 +18,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/foodrescue'
     // 2. Create a fresh Donor Profile
     const newDonor = await User.create({
       orgName: "Downtown Bakery",
+      username: "DowntownB!1",
       email: "baker@test.com",
       password: "password123", // Dummy password
       role: "Donor",
@@ -29,6 +30,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/foodrescue'
     // 3. Create a fresh NGO Profile
     const newNGO = await User.create({
       orgName: "City Hope Shelter",
+      username: "CityHope!2",
       email: "hope@test.com",
       password: "password123",
       role: "NGO",
