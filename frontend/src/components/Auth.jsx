@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound, ArrowLeft, Phone } from 'lucide-react';
+import { Mail, Lock, Shield, Building2, ArrowRight, KeyRound, ArrowLeft, Phone, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Auth = () => {
@@ -16,6 +16,8 @@ const Auth = () => {
     adminSecretCode: '' 
   });
   const [authError, setAuthError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showAdminCode, setShowAdminCode] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -155,7 +157,22 @@ const Auth = () => {
                       <label className="block text-xs font-bold text-error mb-1.5 uppercase tracking-wide items-center flex"><KeyRound className="w-3 h-3 mr-1" />Authorized Code Required</label>
                       <div className="relative group">
                         <Lock className="w-5 h-5 text-error absolute left-3.5 top-3.5" />
-                        <input type="password" name="adminSecretCode" required value={formData.adminSecretCode} onChange={handleChange} className={adminInputClass} placeholder="Enter Master Passcode" />
+                        <input 
+                          type={showAdminCode ? "text" : "password"} 
+                          name="adminSecretCode" 
+                          required 
+                          value={formData.adminSecretCode} 
+                          onChange={handleChange} 
+                          className={adminInputClass.replace('pr-4', 'pr-12')} 
+                          placeholder="Enter Master Passcode" 
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowAdminCode(!showAdminCode)} 
+                          className="absolute right-4 top-3.5 text-error/70 hover:text-error transition-colors focus:outline-none"
+                        >
+                          {showAdminCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -181,7 +198,22 @@ const Auth = () => {
                 </div>
                 <div className="relative group">
                   <Lock className={`w-5 h-5 absolute left-3.5 top-3.5 transition-colors ${authError ? 'text-error' : 'text-on-surface-variant group-focus-within:text-primary'}`} />
-                  <input type="password" name="password" required value={formData.password} onChange={handleChange} className={authError ? errorInputClass : defaultInputClass} placeholder="••••••••••••" />
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    name="password" 
+                    required 
+                    value={formData.password} 
+                    onChange={handleChange} 
+                    className={authError ? errorInputClass.replace('pr-4', 'pr-12') : defaultInputClass.replace('pr-4', 'pr-12')} 
+                    placeholder="••••••••••••" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    className={`absolute right-4 top-3.5 transition-colors focus:outline-none ${authError ? 'text-error hover:text-error/80' : 'text-on-surface-variant hover:text-primary'}`}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </motion.div>
 

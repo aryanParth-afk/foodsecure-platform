@@ -3,12 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Lock, ShieldCheck } from 'lucide-react';
+import { Lock, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const ResetPassword = () => {
   const { token } = useParams(); // Grabs the secret token from the URL
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -43,14 +44,21 @@ const ResetPassword = () => {
           <div className="relative group">
             <Lock className="w-5 h-5 text-on-surface-variant absolute left-4 top-3.5 group-focus-within:text-primary transition-colors" />
             <input 
-              type="password" 
+              type={showPassword ? "text" : "password"} 
               placeholder="New Password" 
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full bg-surface-bright border border-outline-variant text-on-surface rounded-lg py-3 pl-12 pr-4 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-sm" 
+              className="w-full bg-surface-bright border border-outline-variant text-on-surface rounded-lg py-3 pl-12 pr-12 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-sm" 
               required
               minLength="6"
             />
+            <button 
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-3.5 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
 
           <button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md uppercase tracking-widest py-3.5 rounded-lg flex items-center justify-center transition-colors shadow-sm disabled:opacity-70 mt-2">
