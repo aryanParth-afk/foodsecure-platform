@@ -21,6 +21,60 @@ import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import NgoMapDashboard from './components/NgoMapDashboard';
 
+const Layout = () => {
+  const location = useLocation();
+  const isFullScreenPage = location.pathname === '/' || location.pathname === '/auth' || location.pathname.startsWith('/reset-password');
+  
+  return (
+    <div className="relative min-h-screen bg-surface-bright text-on-surface z-0 selection:bg-primary-fixed selection:text-on-primary-fixed flex flex-col">
+      <AmbientFlow />
+      <Toaster 
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            padding: '16px 24px',
+            borderRadius: '1rem',
+            fontWeight: '800',
+            fontSize: '15px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            maxWidth: '500px',
+          },
+          error: {
+            style: { background: '#fff1f2', border: '2px solid #ffe4e6', color: '#e11d48' },
+            iconTheme: { primary: '#e11d48', secondary: '#ffffff' },
+          },
+          success: {
+            style: { background: '#ecfdf5', border: '2px solid #d1fae5', color: '#059669' },
+            iconTheme: { primary: '#059669', secondary: '#ffffff' },
+          },
+        }} 
+      />
+      
+      <BackButton />
+      <Navbar />
+      
+      <main className={`relative z-10 flex-grow flex flex-col ${isFullScreenPage ? '' : 'pt-8 pb-28 md:pb-12'}`}>
+        <Routes>
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/ngo-dashboard" element={<ProtectedRoute requiredRole="NGO"><NGODashboard /></ProtectedRoute>} />
+          <Route path="/donor-dashboard" element={<ProtectedRoute requiredRole="Donor"><DonorDashboard /></ProtectedRoute>} />
+          <Route path="/history" element={<ProtectedRoute requiredRole="Donor"><DonorHistory /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute requiredRole="Admin"><AnalyticsDashboard /></ProtectedRoute>} />
+          <Route path="/ngo-map" element={<NgoMapDashboard />} />
+        </Routes>
+      </main>
+    </div>
+  );
+};
+
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
 
@@ -63,69 +117,7 @@ const App = () => {
       </AnimatePresence>
 
       <Router>
-        {/* Wrapper for the new Editorial Impact theme */}
-        <div className="relative min-h-screen bg-surface-bright text-on-surface z-0 selection:bg-primary-fixed selection:text-on-primary-fixed overflow-hidden">
-          <AmbientFlow />
-          <Toaster 
-            position="top-center"
-            reverseOrder={false}
-            toastOptions={{
-              duration: 4000,
-              style: {
-                padding: '16px 24px',
-                borderRadius: '1rem',
-                fontWeight: '800',
-                fontSize: '15px',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                maxWidth: '500px',
-              },
-              error: {
-                style: {
-                  background: '#fff1f2', 
-                  border: '2px solid #ffe4e6',
-                  color: '#e11d48', 
-                },
-                iconTheme: {
-                  primary: '#e11d48',
-                  secondary: '#ffffff',
-                },
-              },
-              success: {
-                style: {
-                  background: '#ecfdf5', 
-                  border: '2px solid #d1fae5',
-                  color: '#059669', 
-                },
-                iconTheme: {
-                  primary: '#059669',
-                  secondary: '#ffffff',
-                },
-              },
-            }} 
-          />
-          
-          <BackButton />
-          
-          <Navbar />
-          
-          {/* UPDATED MOBILE PADDING: pb-28 gives enough space for the mobile nav bar, md:pb-12 keeps desktop normal */}
-          <main className="pt-8 pb-28 md:pb-12 relative z-10">
-            <Routes>
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password/:token" element={<ResetPassword />} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/ngo-dashboard" element={<ProtectedRoute requiredRole="NGO"><NGODashboard /></ProtectedRoute>} />
-              <Route path="/donor-dashboard" element={<ProtectedRoute requiredRole="Donor"><DonorDashboard /></ProtectedRoute>} />
-              <Route path="/history" element={<ProtectedRoute requiredRole="Donor"><DonorHistory /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/analytics" element={<ProtectedRoute requiredRole="Admin"><AnalyticsDashboard /></ProtectedRoute>} />
-              <Route path="/ngo-map" element={<NgoMapDashboard />} />
-            </Routes>
-          </main>
-        </div>
+        <Layout />
       </Router>
     </>
   );
