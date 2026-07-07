@@ -13,6 +13,7 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPic, setIsUploadingPic] = useState(false);
   
   const navigate = useNavigate();
 
@@ -29,6 +30,29 @@ const Profile = () => {
     }
   };
 
+  const handleSavePicture = async () => {
+    if (!imageFile) return;
+    setIsUploadingPic(true);
+    toast.loading("Uploading new profile picture...", { id: "uploadPicToast" });
+    try {
+      const newProfilePicUrl = await uploadToCloudinary(imageFile);
+      const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/users/${currentUser.id}`, {
+        profilePicture: newProfilePicUrl
+      });
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      setProfilePicture(newProfilePicUrl);
+      setImageFile(null);
+      toast.success("Profile picture updated!");
+      setTimeout(() => window.location.reload(), 1000); 
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update profile picture.");
+    } finally {
+      toast.dismiss("uploadPicToast");
+      setIsUploadingPic(false);
+    }
+  };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     
@@ -39,16 +63,8 @@ const Profile = () => {
     setIsSubmitting(true);
 
     try {
-      let newProfilePicUrl = profilePicture;
-      if (imageFile) {
-        toast.loading("Uploading new profile picture...", { id: "uploadToast" });
-        newProfilePicUrl = await uploadToCloudinary(imageFile);
-        toast.dismiss("uploadToast");
-      }
-
       const response = await axios.patch(`${import.meta.env.VITE_API_URL}/api/users/${currentUser.id}`, {
         orgName: orgName !== currentUser.orgName ? orgName : undefined,
-        profilePicture: newProfilePicUrl !== currentUser.profilePicture ? newProfilePicUrl : undefined,
         newPassword: newPassword ? newPassword : undefined,
         currentPassword: currentPassword 
       });
@@ -70,7 +86,6 @@ const Profile = () => {
       }
       
     } catch (error) {
-      toast.dismiss("uploadToast");
       toast.error(error.response?.data?.message || "Failed to update profile.");
     } finally {
       setIsSubmitting(false);
@@ -90,11 +105,31 @@ const Profile = () => {
               <User className="w-10 h-10 text-on-surface-variant" />
             )}
           </div>
-          <label className="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-lg cursor-pointer hover:scale-105 transition-transform">
-            <Camera className="w-4 h-4" />
-            <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} className="hidden" />
-          </label>
+          {!imageFile && (
+            <label className="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-lg cursor-pointer hover:scale-105 transition-transform">
+              <Camera className="w-4 h-4" />
+              <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} className="hidden" />
+            </label>
+          )}
         </div>
+        {imageFile && (
+          <div className="flex justify-center space-x-3 mb-6">
+            <button 
+              onClick={handleSavePicture} 
+              disabled={isUploadingPic} 
+              className="text-xs bg-primary hover:bg-on-primary-fixed-variant text-on-primary px-4 py-2 rounded-full font-bold shadow-sm transition-colors disabled:opacity-50"
+            >
+              {isUploadingPic ? 'Saving...' : 'Keep Change'}
+            </button>
+            <button 
+              onClick={() => setImageFile(null)} 
+              disabled={isUploadingPic} 
+              className="text-xs bg-surface-container hover:bg-surface-container-high text-on-surface px-4 py-2 rounded-full font-bold border border-outline transition-colors disabled:opacity-50"
+            >
+              Revert
+            </button>
+          </div>
+        )}
         <h1 className="font-display-lg text-4xl text-on-surface tracking-tight">Account Settings</h1>
         <p className="font-body-md text-on-surface-variant mt-1">Manage your organization profile and security.</p>
       </motion.div>

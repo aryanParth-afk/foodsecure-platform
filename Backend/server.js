@@ -194,13 +194,16 @@ app.patch('/api/users/:id', auth, async (req, res) => {
     
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!currentPassword) {
+    // If they are ONLY updating profile picture, allow it without password
+    if (!currentPassword && (orgName || newPassword)) {
       return res.status(400).json({ message: "Current password is required to save changes." });
     }
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Incorrect current password. Changes denied." });
+    if (currentPassword) {
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Incorrect current password. Changes denied." });
+      }
     }
 
     if (orgName) user.orgName = orgName;
