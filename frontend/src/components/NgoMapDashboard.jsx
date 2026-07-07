@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Polyline } from 'react-leaflet';
 import toast from 'react-hot-toast';
 import { Navigation, MapPin, Package, Navigation2, Clock } from 'lucide-react';
 import { io } from 'socket.io-client';
@@ -51,6 +51,7 @@ const NgoMapDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [ngoLocation, setNgoLocation] = useState(null); 
   const [mapCenter, setMapCenter] = useState([25.5941, 85.1376]);
+  const [selectedListingId, setSelectedListingId] = useState(null);
 
   // Grab the current user
   const userString = localStorage.getItem('user');
@@ -180,8 +181,11 @@ const NgoMapDashboard = () => {
               sortedListings.map(listing => (
                 <div 
                   key={listing._id} 
-                  onClick={() => setMapCenter([listing.lat, listing.lng])}
-                  className="bg-surface-bright border border-outline-variant hover:border-primary p-4 rounded-lg cursor-pointer transition-all shadow-sm hover:shadow-md group"
+                  onClick={() => {
+                    setMapCenter([listing.lat, listing.lng]);
+                    setSelectedListingId(prev => prev === listing._id ? null : listing._id);
+                  }}
+                  className={`bg-surface-bright border hover:border-primary p-4 rounded-lg cursor-pointer transition-all shadow-sm hover:shadow-md group ${selectedListingId === listing._id ? 'border-primary ring-1 ring-primary' : 'border-outline-variant'}`}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-bold text-on-surface line-clamp-1 group-hover:text-primary transition-colors">{listing.foodName}</h4>
@@ -237,11 +241,29 @@ const NgoMapDashboard = () => {
                 <Circle center={ngoLocation} radius={2000} pathOptions={{ color: '#505f7a', fillColor: '#505f7a', fillOpacity: 0.1, weight: 1 }} />
               </>
             )}
+
+            {selectedListingId && referenceLocation && listings.find(l => l._id === selectedListingId) && (
+              <Polyline 
+                positions={[
+                  referenceLocation, 
+                  [listings.find(l => l._id === selectedListingId).lat, listings.find(l => l._id === selectedListingId).lng]
+                ]} 
+                pathOptions={{ color: '#0ea5e9', weight: 4, dashArray: '10, 10' }} 
+              />
+            )}
             
             {listings.map((listing) => {
               if (!listing.lat || !listing.lng) return null;
               return (
-                <Marker key={listing._id} position={[listing.lat, listing.lng]}>
+                <Marker 
+                  key={listing._id} 
+                  position={[listing.lat, listing.lng]}
+                  eventHandlers={{
+                    click: () => {
+                      setSelectedListingId(prev => prev === listing._id ? null : listing._id);
+                    }
+                  }}
+                >
                   <Popup className="custom-popup">
                     <div className="p-3 min-w-48 bg-surface-bright rounded-lg border border-outline-variant">
                       <h4 className="font-headline-sm text-on-surface text-sm md:text-base mb-1">{listing.foodName}</h4>
