@@ -69,7 +69,9 @@ const Navbar = () => {
 
   const handleMarkAsRead = async (notifId) => {
     try {
-      await axios.put(`${apiUrl}/api/notifications/${notifId}/read`);
+      await axios.patch(`${apiUrl}/api/notifications/${notifId}/read`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       setNotifications(prev => prev.map(n => n._id === notifId ? { ...n, isRead: true } : n));
     } catch (err) {
       console.error("Error marking as read:", err);
@@ -79,7 +81,9 @@ const Navbar = () => {
   const handleMarkAllRead = async () => {
     try {
       const userId = user.id || user._id;
-      await axios.put(`${apiUrl}/api/notifications/${userId}/read-all`);
+      await axios.patch(`${apiUrl}/api/notifications/read-all/${userId}`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (err) {
       console.error("Error marking all as read:", err);
