@@ -224,7 +224,7 @@ const NgoMapDashboard = () => {
         </button>
 
         <div className="w-full h-full rounded-lg overflow-hidden border border-outline-variant/30">
-          <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+          <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }} attributionControl={false}>
             <TileLayer
               url="http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
               subdomains={['mt0','mt1','mt2','mt3']}

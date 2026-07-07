@@ -147,7 +147,7 @@ const LocationPicker = ({ onConfirm, onCancel }) => {
 
       {/* The Map */}
       <div className="flex-1 relative">
-        <MapContainer center={position} zoom={14} scrollWheelZoom={true} className="h-full w-full z-0">
+        <MapContainer center={position} zoom={14} scrollWheelZoom={true} className="h-full w-full z-0" attributionControl={false}>
           <TileLayer 
             url="http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" 
             subdomains={['mt0','mt1','mt2','mt3']} 
