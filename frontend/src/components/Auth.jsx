@@ -19,6 +19,7 @@ const Auth = () => {
   const [authError, setAuthError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showAdminCode, setShowAdminCode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,6 +59,7 @@ const Auth = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAuthError(false);
+    setIsLoading(true);
 
     const url = isLogin 
       ? `${import.meta.env.VITE_API_URL}/api/auth/login` 
@@ -78,6 +80,8 @@ const Auth = () => {
     } catch (error) {
       setAuthError(true);
       toast.error(error.response?.data?.message || "Invalid credentials.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -230,9 +234,15 @@ const Auth = () => {
               </motion.div>
 
               <motion.div variants={itemVariants} className="pt-2">
-                <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" className={`w-full py-3.5 text-sm font-label-md uppercase tracking-widest flex items-center justify-center space-x-2 group rounded ${authError ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-on-primary hover:bg-on-primary-fixed-variant'} transition-colors`}>
-                  <span>{isLogin ? `Log into ${formData.role} Portal` : 'Create Account'}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <motion.button disabled={isLoading} whileHover={!isLoading ? { scale: 1.01 } : {}} whileTap={!isLoading ? { scale: 0.98 } : {}} type="submit" className={`w-full py-3.5 text-sm font-label-md uppercase tracking-widest flex items-center justify-center space-x-2 group rounded transition-colors disabled:opacity-70 ${authError && !isLoading ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-on-primary hover:bg-on-primary-fixed-variant'}`}>
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <span>{isLogin ? `Log into ${formData.role} Portal` : 'Create Account'}</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </motion.button>
               </motion.div>
 
