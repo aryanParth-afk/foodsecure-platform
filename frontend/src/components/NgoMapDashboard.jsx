@@ -35,6 +35,17 @@ const MapController = ({ center }) => {
   return null;
 };
 
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 3958.8; // miles
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+};
+
 const NgoMapDashboard = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +55,16 @@ const NgoMapDashboard = () => {
   // Grab the current user
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
+
+  const referenceLocation = ngoLocation || mapCenter;
+  
+  const sortedListings = [...listings].map(listing => {
+    let distance = Infinity;
+    if (listing.lat && listing.lng && referenceLocation) {
+      distance = calculateDistance(referenceLocation[0], referenceLocation[1], listing.lat, listing.lng);
+    }
+    return { ...listing, distance };
+  }).sort((a, b) => a.distance - b.distance);
 
   useEffect(() => {
     fetchActiveListings();
@@ -126,13 +147,13 @@ const NgoMapDashboard = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-2 md:px-4 py-4 md:py-8 flex flex-col h-full pt-32">
+    <div className="max-w-[1400px] mx-auto px-2 md:px-4 py-4 md:py-8 flex flex-col h-full pt-32">
       
       <div className="mb-4 px-2 md:px-0 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="font-display-lg text-4xl text-on-surface">Live Rescue Map</h2>
           <p className="font-body-md text-on-surface-variant mt-1">
-            Tap the green pin to find your location. Blue pins are nearby donations.
+            Tap the green pin to find your location. View closest donations in the sidebar.
           </p>
         </div>
         
@@ -144,7 +165,52 @@ const NgoMapDashboard = () => {
         </button>
       </div>
       
-      <div className="bg-surface-container-lowest p-2 ink-border soft-elevation rounded-xl relative z-0 h-[70vh] md:h-150 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[70vh] md:h-150 w-full">
+        
+        {/* SIDEBAR */}
+        <div className="lg:col-span-1 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col shadow-sm h-full">
+          <div className="p-4 bg-surface-container-high border-b border-outline-variant font-bold text-on-surface flex justify-between items-center">
+            <span>Nearby Donations</span>
+            <span className="bg-primary/20 text-primary text-xs px-2 py-1 rounded-full font-bold">{sortedListings.length} Total</span>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            {sortedListings.length === 0 ? (
+              <p className="text-center text-on-surface-variant text-sm mt-10">No active donations nearby.</p>
+            ) : (
+              sortedListings.map(listing => (
+                <div 
+                  key={listing._id} 
+                  onClick={() => setMapCenter([listing.lat, listing.lng])}
+                  className="bg-surface-bright border border-outline-variant hover:border-primary p-4 rounded-lg cursor-pointer transition-all shadow-sm hover:shadow-md group"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-on-surface line-clamp-1 group-hover:text-primary transition-colors">{listing.foodName}</h4>
+                    {listing.distance !== Infinity && (
+                      <span className="text-[10px] font-black tracking-widest uppercase text-secondary bg-secondary/10 px-2 py-1 rounded shrink-0 ml-2">
+                        {listing.distance.toFixed(1)} mi
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-on-surface-variant text-xs mb-2 flex items-center gap-1.5 font-medium">
+                    <Package className="w-3.5 h-3.5 text-outline" /> <strong>{listing.quantity}</strong>
+                  </p>
+                  <p className="text-on-surface-variant text-xs mb-3 leading-tight line-clamp-2 flex items-start gap-1.5 font-medium">
+                    <MapPin className="w-3.5 h-3.5 shrink-0 text-outline mt-0.5" /> {listing.pickupLocation}
+                  </p>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleClaim(listing._id, listing.foodName); }}
+                    className="bg-primary/10 text-primary font-bold text-xs uppercase tracking-wider py-2 w-full rounded hover:bg-primary hover:text-on-primary transition-colors"
+                  >
+                    Claim Pickup
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* MAP */}
+        <div className="lg:col-span-2 bg-surface-container-lowest p-2 ink-border soft-elevation rounded-xl relative z-0 h-[50vh] lg:h-full w-full">
         
         <button 
           onClick={locateNGO}
@@ -203,6 +269,7 @@ const NgoMapDashboard = () => {
             })}
           </MapContainer>
         </div>
+      </div>
       </div>
     </div>
   );
