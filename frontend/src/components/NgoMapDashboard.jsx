@@ -165,10 +165,10 @@ const NgoMapDashboard = () => {
         </button>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[70vh] md:h-150 w-full">
+      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 h-auto lg:h-[75vh] w-full">
         
         {/* SIDEBAR */}
-        <div className="lg:col-span-1 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col shadow-sm h-full">
+        <div className="lg:col-span-1 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col shadow-sm h-[40vh] lg:h-full shrink-0">
           <div className="p-4 bg-surface-container-high border-b border-outline-variant font-bold text-on-surface flex justify-between items-center">
             <span>Nearby Donations</span>
             <span className="bg-primary/20 text-primary text-xs px-2 py-1 rounded-full font-bold">{sortedListings.length} Total</span>
@@ -210,7 +210,7 @@ const NgoMapDashboard = () => {
         </div>
 
         {/* MAP */}
-        <div className="lg:col-span-2 bg-surface-container-lowest p-2 ink-border soft-elevation rounded-xl relative z-0 h-[50vh] lg:h-full w-full">
+        <div className="lg:col-span-2 bg-surface-container-lowest p-2 ink-border soft-elevation rounded-xl relative z-0 h-[50vh] lg:h-full w-full shrink-0">
         
         <button 
           onClick={locateNGO}
