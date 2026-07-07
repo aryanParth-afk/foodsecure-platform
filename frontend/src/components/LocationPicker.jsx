@@ -148,7 +148,11 @@ const LocationPicker = ({ onConfirm, onCancel }) => {
       {/* The Map */}
       <div className="flex-1 relative">
         <MapContainer center={position} zoom={14} scrollWheelZoom={true} className="h-full w-full z-0">
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <TileLayer 
+            url="http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" 
+            subdomains={['mt0','mt1','mt2','mt3']} 
+            maxZoom={20} 
+          />
           <MapController center={position} />
           <Marker position={position} draggable={true} eventHandlers={eventHandlers} ref={markerRef}>
             <Popup>Pickup Location</Popup>
