@@ -32,6 +32,14 @@ const NGODashboard = () => {
   const completedRescues = myClaims.filter(c => c.status === 'Completed').length;
   const totalItems = myClaims.length; 
 
+  const handleNavigate = (claim) => {
+    if (claim.lat && claim.lng) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${claim.lat},${claim.lng}`, '_blank');
+    } else {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(claim.pickupLocation)}`, '_blank');
+    }
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-8 pt-32">
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -121,9 +129,17 @@ const NGODashboard = () => {
                 </div>
 
                 {claim.status === 'Claimed' && claim.pickupOtp && (
-                  <div className="mt-auto bg-surface-container border border-outline-variant rounded-lg p-4 text-center">
-                    <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Secret Pickup OTP</p>
-                    <p className="text-2xl font-mono font-black text-primary tracking-[0.2em]">{claim.pickupOtp}</p>
+                  <div className="mt-auto flex flex-col gap-2">
+                    <div className="bg-surface-container border border-outline-variant rounded-lg p-4 text-center">
+                      <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Secret Pickup OTP</p>
+                      <p className="text-2xl font-mono font-black text-primary tracking-[0.2em]">{claim.pickupOtp}</p>
+                    </div>
+                    <button 
+                      onClick={() => handleNavigate(claim)}
+                      className="bg-primary/10 text-primary font-bold text-xs uppercase tracking-wider py-3 w-full rounded hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Navigation className="w-4 h-4" /> Start Navigation
+                    </button>
                   </div>
                 )}
               </div>
