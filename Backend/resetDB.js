@@ -38,18 +38,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/foodrescue'
       isVerified: true
     });
 
-    console.log("✅ Profiles created. Creating fresh food listing...");
-
-    // 4. Create a fresh Food Listing tied to the Donor
-    await FoodListing.create({
-      donorId: newDonor._id,
-      foodName: "Assorted Bagels and Bread",
-      quantity: "2 Large Boxes",
-      category: "Veg",
-      pickupLocation: "Downtown Bakery Backdoor",
-      availableSlots: ["8-9 AM", "9-10 AM"], // New required field!
-      status: "Available"
-    });
+    console.log("🎉 Database Successfully Reset! No dummy food listings created.");
 
     console.log("🎉 Database Successfully Reset! You can close this script.");
     process.exit();
